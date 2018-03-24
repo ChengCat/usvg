@@ -1,0 +1,38 @@
+[package]
+name = "usvg"
+version = "0.1.0"
+authors = ["Reizner Evgeniy <razrfalcon@gmail.com>"]
+keywords = ["svg"]
+license = "MPL-2.0"
+description = "An SVG simplification library."
+categories = ["multimedia::images"]
+
+[dependencies]
+base64 = "0.9"
+ego-tree = "0.3"
+euclid = "0.17"
+libflate = "0.1"
+log = "0.4"
+lyon_geom = "0.10"
+
+[dependencies.error-chain]
+version = "0.11"
+default-features = false
+
+[dependencies.svgdom]
+# version = "0.10"
+git = "https://github.com/RazrFalcon/libsvgdom.git"
+branch = "devel"
+# path = "../svgdom"
+
+[dependencies.clap]
+version = "2"
+default-features = false
+optional = true
+
+[features]
+build-binary = ["clap"]
+
+[[bin]]
+name = "usvg"
+required-features = ["build-binary"]
