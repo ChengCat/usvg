@@ -125,7 +125,6 @@ pub fn prepare_doc(doc: &mut svgdom::Document, opt: &Options) -> Result<()> {
 
     resolve_pattern_attributes(doc);
     resolve_pattern_children(doc);
-    remove_invalid_patterns(doc);
     fix_recursive_pattern(doc);
 
     remove_unused_defs(svg);
@@ -149,6 +148,8 @@ pub fn prepare_doc(doc: &mut svgdom::Document, opt: &Options) -> Result<()> {
 
     // Run before groups processing.
     remove_invalid_shapes(doc);
+
+    remove_invalid_patterns(doc);
 
     remove_invalid_clip_path(doc);
     prepare_clip_path(doc);

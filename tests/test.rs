@@ -47,7 +47,7 @@ fn run() {
         let file_name = path.file_stem().unwrap();
         let file_name = file_name.to_str().unwrap().to_owned();
 
-//        if file_name != "clippath_with_invalid_children" {
+//        if file_name != "pattern_without_children" {
 //            continue;
 //        }
 

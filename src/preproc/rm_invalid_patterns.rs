@@ -5,7 +5,6 @@
 // external
 use svgdom::{
     Document,
-    FuzzyEq,
     ValueId,
     Node,
 };
@@ -27,15 +26,15 @@ pub fn remove_invalid_patterns(doc: &mut Document) {
     let mut nodes = Vec::new();
 
     for node in doc.descendants().filter(|n| n.is_tag_name(EId::Pattern)) {
-        {
+        let has_valid_size = {
             let ref attrs = node.attributes();
             let w = attrs.get_number(AId::Width).unwrap_or(0.0);
             let h = attrs.get_number(AId::Height).unwrap_or(0.0);
+            w > 0.0 && h > 0.0
+        };
 
-            // If width or height is zero - remove this pattern.
-            if !w.is_fuzzy_zero() && !h.is_fuzzy_zero() {
-                continue;
-            }
+        if has_valid_size && node.has_children() {
+            continue;
         }
 
         for mut linked in node.linked_nodes().collect::<Vec<Node>>() {
