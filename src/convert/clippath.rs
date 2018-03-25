@@ -42,9 +42,11 @@ pub fn convert_children(
     rtree: &mut tree::Tree,
 ) {
     for (id, node) in node.children().svg() {
+        // `line` doesn't impact rendering because stroke is always disabled
+        // for `clipPath` children.
+        // So we can ignore `line` completely.
         match id {
-              EId::Line
-            | EId::Rect
+              EId::Rect
             | EId::Polyline
             | EId::Polygon
             | EId::Circle

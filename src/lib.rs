@@ -22,6 +22,41 @@ extern crate svgdom;
 #[macro_use] extern crate log;
 
 
+macro_rules! guard_warn {
+    ($cond:expr, $ret:expr, $msg:expr) => {
+        if !$cond {
+            warn!($msg);
+            return $ret;
+        }
+    };
+    ($cond:expr, $ret:expr, $fmt:expr, $($arg:tt)*) => {
+        if !$cond {
+            warn!($fmt, $($arg)*);
+            return $ret;
+        }
+    };
+}
+
+macro_rules! guard_assert {
+    ($cond:expr, $ret:expr, $msg:expr) => {
+        debug_assert!($cond, $msg);
+
+        if !$cond {
+            warn!($msg);
+            return $ret;
+        }
+    };
+    ($cond:expr, $ret:expr, $fmt:expr, $($arg:tt)*) => {
+        debug_assert!($cond, $fmt, $($arg)*);
+
+        if !$cond {
+            warn!($fmt, $($arg)*);
+            return $ret;
+        }
+    };
+}
+
+
 pub mod tree;
 mod convert;
 mod error;
@@ -94,9 +129,7 @@ pub fn parse_tree_from_dom(
 ///
 /// - `svg` files will be loaded as is.
 /// - `svgz` files will be decompressed.
-///
-/// **Note**: this is a low-level API. Use `parse_rtree_from_*` instead.
-pub fn load_file(path: &Path) -> Result<String> {
+fn load_file(path: &Path) -> Result<String> {
     use std::fs;
     use std::io::Read;
 
@@ -129,9 +162,7 @@ pub fn load_file(path: &Path) -> Result<String> {
 }
 
 /// Parses `svgdom::Document` object from the string data.
-///
-/// **Note**: this is a low-level API. Use `parse_rtree_from_*` instead.
-pub fn parse_dom(text: &str) -> Result<svgdom::Document> {
+fn parse_dom(text: &str) -> Result<svgdom::Document> {
     let opt = svgdom::ParseOptions {
         parse_comments: false,
         parse_declarations: false,
@@ -148,21 +179,7 @@ pub fn parse_dom(text: &str) -> Result<svgdom::Document> {
     Ok(doc)
 }
 
-/// Preprocesses a provided `svgdom::Document`.
-///
-/// Prepares an input `svgdom::Document` for conversion via `convert_dom_to_rtree`.
-///
-/// **Note**: this is a low-level API. Use `parse_rtree_from_*` instead.
-pub fn preprocess_dom(
-    doc: &mut svgdom::Document,
-    opt: &Options,
-) -> Result<()> {
-    preproc::prepare_doc(doc, opt)
-}
-
 /// Converts a provided `svgdom::Document` to `tree::Tree`.
-///
-/// **Note**: this is a low-level API. Use `parse_rtree_from_*` instead.
 pub fn convert_dom_to_rtree(
     doc: &svgdom::Document,
     opt: &Options,

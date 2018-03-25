@@ -18,9 +18,8 @@ use traits::{
     GetValue,
 };
 
-
 pub fn convert(node: &svgdom::Node) -> Option<path::Path> {
-    match node.tag_id().unwrap() {
+    let path = match node.tag_id().unwrap() {
         EId::Rect =>     convert_rect(node),
         EId::Line =>     convert_line(node),
         EId::Polyline => convert_polyline(node),
@@ -28,7 +27,11 @@ pub fn convert(node: &svgdom::Node) -> Option<path::Path> {
         EId::Circle =>   convert_circle(node),
         EId::Ellipse =>  convert_ellipse(node),
         _ => unreachable!(),
-    }
+    };
+
+    /// The `None` result is technically unreachable and indicates a bug.
+    debug_assert!(path.is_some());
+    path
 }
 
 // e-rect-001.svg
@@ -36,23 +39,10 @@ fn convert_rect(node: &svgdom::Node) -> Option<path::Path> {
     let attrs = node.attributes();
 
     // 'width' and 'height' attributes must be positive and non-zero.
-    //
-    // e-rect-007.svg
-    // e-rect-008.svg
-    // e-rect-009.svg
-    // e-rect-010.svg
-    // e-rect-011.svg
-    // e-rect-012.svg
     let width  = attrs.get_number(AId::Width).unwrap_or(0.0);
     let height = attrs.get_number(AId::Height).unwrap_or(0.0);
-    if !(width > 0.0) {
-        warn!("Rect '{}' has an invalid 'width' value. Skipped.", node.id());
-        return None;
-    }
-    if !(height > 0.0) {
-        warn!("Rect '{}' has an invalid 'height' value. Skipped.", node.id());
-        return None;
-    }
+    guard_assert!(width > 0.0, None, "Must be already removed.");
+    guard_assert!(height > 0.0, None, "Must be already removed.");
 
 
     // e-rect-002.svg
@@ -147,11 +137,11 @@ fn convert_line(node: &svgdom::Node) -> Option<path::Path> {
 }
 
 fn convert_polyline(node: &svgdom::Node) -> Option<path::Path> {
-    points_to_path(node, "Polyline")
+    points_to_path(node)
 }
 
 fn convert_polygon(node: &svgdom::Node) -> Option<path::Path> {
-    if let Some(mut path) = points_to_path(node, "Polygon") {
+    if let Some(mut path) = points_to_path(node) {
         path.push(path::Segment::new_close_path());
         Some(path)
     } else {
@@ -159,20 +149,17 @@ fn convert_polygon(node: &svgdom::Node) -> Option<path::Path> {
     }
 }
 
-fn points_to_path(node: &svgdom::Node, eid: &str) -> Option<path::Path> {
+fn points_to_path(node: &svgdom::Node) -> Option<path::Path> {
     let attrs = node.attributes();
     let points = if let Some(p) = attrs.get_points(AId::Points) {
         p
     } else {
-        warn!("{} '{}' has an invalid 'points' value. Skipped.", eid, node.id());
+        warn!("Must be already removed.");
+        debug_assert!(false);
         return None;
     };
 
-    // 'polyline' and 'polygon' elements must contain at least 2 points.
-    if points.len() < 2 {
-        warn!("{} '{}' has less than 2 points. Skipped.", eid, node.id());
-        return None;
-    }
+    guard_assert!(points.len() > 2, None, "Must be already removed.");
 
     let mut path = path::Path::new();
     for (i, &(x, y)) in points.iter().enumerate() {
@@ -194,10 +181,7 @@ fn convert_circle(node: &svgdom::Node) -> Option<path::Path> {
     let cy = attrs.get_number(AId::Cy).unwrap_or(0.0);
     let r  = attrs.get_number(AId::R).unwrap_or(0.0);
 
-    if !(r > 0.0) {
-        warn!("Circle '{}' has an invalid 'r' value. Skipped.", node.id());
-        return None;
-    }
+    guard_assert!(r > 0.0, None, "Must be already removed.");
 
     Some(ellipse_to_path(cx, cy, r, r))
 }
@@ -210,15 +194,8 @@ fn convert_ellipse(node: &svgdom::Node) -> Option<path::Path> {
     let rx = attrs.get_number(AId::Rx).unwrap_or(0.0);
     let ry = attrs.get_number(AId::Ry).unwrap_or(0.0);
 
-    if !(rx > 0.0) {
-        warn!("Ellipse '{}' has an invalid 'rx' value. Skipped.", node.id());
-        return None;
-    }
-
-    if !(ry > 0.0) {
-        warn!("Ellipse '{}' has an invalid 'ry' value. Skipped.", node.id());
-        return None;
-    }
+    guard_assert!(rx > 0.0, None, "Must be already removed.");
+    guard_assert!(ry > 0.0, None, "Must be already removed.");
 
     Some(ellipse_to_path(cx, cy, rx, ry))
 }

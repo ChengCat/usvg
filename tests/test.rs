@@ -16,9 +16,9 @@ use svgdom::ToStringWithOptions;
 use rustc_test::{TestDesc, TestDescAndFn, DynTestName, DynTestFn};
 
 #[derive(Clone, Copy, PartialEq)]
-struct Mstr<'a>(&'a str);
+struct MStr<'a>(&'a str);
 
-impl<'a> fmt::Debug for Mstr<'a> {
+impl<'a> fmt::Debug for MStr<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.0)
     }
@@ -47,6 +47,10 @@ fn run() {
         let file_name = path.file_stem().unwrap();
         let file_name = file_name.to_str().unwrap().to_owned();
 
+//        if file_name != "clippath_with_invalid_children" {
+//            continue;
+//        }
+
         let test: TestData = toml::from_str(&load_file(path)).unwrap();
 
         tests.push(TestDescAndFn {
@@ -72,8 +76,8 @@ fn actual_test(test: TestData) {
         .. svgdom::WriteOptions::default()
     };
 
-    assert_eq!(Mstr(&tree.to_svgdom().to_string_with_opt(&dom_opt)),
-               Mstr(&test.output));
+    assert_eq!(MStr(&tree.to_svgdom().to_string_with_opt(&dom_opt)),
+               MStr(&test.output));
 }
 
 fn load_file(path: &Path) -> String {

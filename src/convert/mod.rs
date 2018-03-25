@@ -117,8 +117,14 @@ fn convert_ref_nodes(
     for (node, new_node) in later_nodes {
         if node.is_tag_name(EId::ClipPath) {
             clippath::convert_children(&node, new_node, rtree);
+
+            debug_assert!(rtree.get(new_node).has_children(),
+                          "clipPath must have at least 1 child");
         } else if node.is_tag_name(EId::Pattern) {
             convert_nodes(&node, new_node, opt, rtree);
+
+            debug_assert!(rtree.get(new_node).has_children(),
+                          "pattern must have at least 1 child");
         }
     }
 }
@@ -149,6 +155,7 @@ pub(super) fn convert_nodes(
 
                 let attrs = node.attributes();
 
+                // After preprocessing, `clip-path` can be set only on groups.
                 let clip_path = if let Some(av) = attrs.get_type(AId::ClipPath) {
                     let mut v = None;
                     if let &AValue::FuncLink(ref link) = av {
@@ -159,14 +166,7 @@ pub(super) fn convert_nodes(
                         }
                     }
 
-                    // TODO: remove
-                    // If a linked clipPath is not found than it was invalid.
-                    // Elements linked to the invalid clipPath should be removed.
-                    // Since in resvg `clip-path` can be set only on
-                    // a group - we skip such groups.
-                    if v.is_none() {
-                        continue;
-                    }
+                    debug_assert!(v.is_some(), "clipPath must be already resolved");
 
                     v
                 } else {

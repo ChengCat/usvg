@@ -103,4 +103,7 @@ fn convert_stops(
             opacity,
         }));
     }
+
+    debug_assert!(rtree.get(parent).children().count() >= 2,
+                  "gradient must have at least 2 children");
 }
