@@ -1,22 +1,21 @@
 extern crate usvg;
 extern crate svgdom;
+#[macro_use] extern crate pretty_assertions;
+
+use std::fmt;
 
 use usvg::tree::prelude::*;
 
 use svgdom::ToStringWithOptions;
 
-macro_rules! assert_eq_text {
-    ($left:expr, $right:expr) => ({
-        match (&$left, &$right) {
-            (left_val, right_val) => {
-                if !(*left_val == *right_val) {
-                    panic!("assertion failed: `(left == right)` \
-                           \nleft:  `{}`\nright: `{}`",
-                           left_val, right_val)
-                }
-            }
-        }
-    })
+
+#[derive(Clone, Copy, PartialEq)]
+struct Mstr<'a>(&'a str);
+
+impl<'a> fmt::Debug for Mstr<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
 }
 
 static SVG_ATTRS: &str = "xmlns:xlink='http://www.w3.org/1999/xlink' xmlns='http://www.w3.org/2000/svg' \
@@ -32,7 +31,7 @@ macro_rules! test {
                 keep_named_groups: $keep_named_groups,
                 .. usvg::Options::default()
             };
-            let rtree = usvg::parse_rtree_from_data($input, &re_opt).unwrap();
+            let tree = usvg::parse_tree_from_data($input, &re_opt).unwrap();
 
             let dom_opt = svgdom::WriteOptions {
                 use_single_quote: true,
@@ -40,7 +39,8 @@ macro_rules! test {
                 .. svgdom::WriteOptions::default()
             };
 
-            assert_eq_text!(rtree.to_svgdom().to_string_with_opt(&dom_opt), output);
+            assert_eq!(Mstr(&tree.to_svgdom().to_string_with_opt(&dom_opt)),
+                       Mstr(&output));
         }
     };
 }
@@ -51,7 +51,7 @@ test!(minimal,
 </svg>",
 "<svg width='1' height='1' viewBox='0 0 1 1' preserveAspectRatio='xMidYMid' SVG_ATTRS>
     <defs/>
-    <path fill='#000000' stroke='none' d='M 0 0 L 10 0 L 10 10 L 0 10 Z'/>
+    <path fill='#000000' fill-opacity='1' fill-rule='evenodd' stroke='none' d='M 0 0 L 10 0 L 10 10 L 0 10 Z'/>
 </svg>
 ", false);
 
@@ -65,7 +65,7 @@ test!(groups,
 </svg>",
 "<svg width='1' height='1' viewBox='0 0 1 1' preserveAspectRatio='xMidYMid' SVG_ATTRS>
     <defs/>
-    <path fill='#000000' stroke='none' d='M 0 0 L 10 0 L 10 10 L 0 10 Z'/>
+    <path fill='#000000' fill-opacity='1' fill-rule='evenodd' stroke='none' d='M 0 0 L 10 0 L 10 10 L 0 10 Z'/>
 </svg>
 ", false);
 
@@ -80,7 +80,7 @@ test!(keep_groups_with_opacity,
 "<svg width='1' height='1' viewBox='0 0 1 1' preserveAspectRatio='xMidYMid' SVG_ATTRS>
     <defs/>
     <g opacity='0.5'>
-        <path fill='#000000' stroke='none' d='M 0 0 L 10 0 L 10 10 L 0 10 Z'/>
+        <path fill='#000000' fill-opacity='1' fill-rule='evenodd' stroke='none' d='M 0 0 L 10 0 L 10 10 L 0 10 Z'/>
     </g>
 </svg>
 ", false);
@@ -93,7 +93,7 @@ test!(ignore_groups_with_id,
 </svg>",
 "<svg width='1' height='1' viewBox='0 0 1 1' preserveAspectRatio='xMidYMid' SVG_ATTRS>
     <defs/>
-    <path fill='#000000' stroke='none' d='M 0 0 L 10 0 L 10 10 L 0 10 Z'/>
+    <path fill='#000000' fill-opacity='1' fill-rule='evenodd' stroke='none' d='M 0 0 L 10 0 L 10 10 L 0 10 Z'/>
 </svg>
 ", false);
 
@@ -107,7 +107,7 @@ test!(keep_groups_with_id,
 "<svg width='1' height='1' viewBox='0 0 1 1' preserveAspectRatio='xMidYMid' SVG_ATTRS>
     <defs/>
     <g id='some_group'>
-        <path fill='#000000' stroke='none' d='M 0 0 L 10 0 L 10 10 L 0 10 Z'/>
+        <path fill='#000000' fill-opacity='1' fill-rule='evenodd' stroke='none' d='M 0 0 L 10 0 L 10 10 L 0 10 Z'/>
     </g>
 </svg>
 ", true);
@@ -120,7 +120,7 @@ test!(ignore_empty_groups_with_id,
 </svg>",
 "<svg width='1' height='1' viewBox='0 0 1 1' preserveAspectRatio='xMidYMid' SVG_ATTRS>
     <defs/>
-    <path fill='#000000' stroke='none' d='M 0 0 L 10 0 L 10 10 L 0 10 Z'/>
+    <path fill='#000000' fill-opacity='1' fill-rule='evenodd' stroke='none' d='M 0 0 L 10 0 L 10 10 L 0 10 Z'/>
 </svg>
 ", true);
 
@@ -168,24 +168,24 @@ test!(preserve_ids,
             <stop stop-color='#000000' stop-opacity='1' offset='1'/>
         </radialGradient>
         <clipPath id='clip1' clipPathUnits='userSpaceOnUse'>
-            <path id='rect2' fill='#000000' stroke='none' d='M 0 0 L 10 0 L 10 10 L 0 10 Z'/>
+            <path id='rect2' fill='#000000' fill-opacity='1' stroke='none' clip-rule='evenodd' d='M 0 0 L 10 0 L 10 10 L 0 10 Z'/>
         </clipPath>
         <pattern id='patt1' x='0' y='0' width='1' height='1' patternUnits='objectBoundingBox' patternContentUnits='userSpaceOnUse'>
-            <path fill='#000000' stroke='none' d='M 0 0 L 10 0 L 10 10 L 0 10 Z'/>
+            <path fill='#000000' fill-opacity='1' fill-rule='evenodd' stroke='none' d='M 0 0 L 10 0 L 10 10 L 0 10 Z'/>
         </pattern>
     </defs>
     <g clip-path='url(#clip1)'>
-        <path id='rect1' fill='url(#lg1)' stroke='url(#rg1)' d='M 0 0 L 10 0 L 10 10 L 0 10 Z'/>
+        <path id='rect1' fill='url(#lg1)' fill-opacity='1' fill-rule='evenodd' stroke='url(#rg1)' stroke-dasharray='none' stroke-dashoffset='0' stroke-linecap='butt' stroke-linejoin='miter' stroke-miterlimit='4' stroke-opacity='1' stroke-width='1' d='M 0 0 L 10 0 L 10 10 L 0 10 Z'/>
     </g>
-    <path id='path1' fill='url(#patt1)' stroke='none' d='M 10 20 L 30 40'/>
+    <path id='path1' fill='url(#patt1)' fill-opacity='1' fill-rule='evenodd' stroke='none' d='M 10 20 L 30 40'/>
     <text id='text1'>
         <tspan x='0' y='0'>
-            <tspan fill='#000000' stroke='none' font-family='Times New Roman' font-size='12'>Some text</tspan>
+            <tspan fill='#000000' fill-opacity='1' fill-rule='evenodd' stroke='none' font-family='Times New Roman' font-size='12' font-stretch='normal' font-style='normal' font-variant='normal' font-weight='400'>Some text</tspan>
         </tspan>
     </text>
     <text id='text2'>
         <tspan x='0' y='0'>
-            <tspan fill='#000000' stroke='none' font-family='Times New Roman' font-size='12'>Some text</tspan>
+            <tspan fill='#000000' fill-opacity='1' fill-rule='evenodd' stroke='none' font-family='Times New Roman' font-size='12' font-stretch='normal' font-style='normal' font-variant='normal' font-weight='400'>Some text</tspan>
         </tspan>
     </text>
     <image id='image1' preserveAspectRatio='xMidYMid' x='0' y='0' width='1' height='1' xlink:href='data:image/png;base64,
@@ -207,11 +207,11 @@ test!(group_clip_path,
 "<svg width='1' height='1' viewBox='0 0 1 1' preserveAspectRatio='xMidYMid' SVG_ATTRS>
     <defs>
         <clipPath id='clip1' clipPathUnits='userSpaceOnUse'>
-            <path fill='#000000' stroke='none' d='M 0 0 L 10 0 L 10 10 L 0 10 Z'/>
+            <path fill='#000000' fill-opacity='1' stroke='none' clip-rule='evenodd' d='M 0 0 L 10 0 L 10 10 L 0 10 Z'/>
         </clipPath>
     </defs>
     <g clip-path='url(#clip1)'>
-        <path fill='#000000' stroke='none' d='M 0 0 L 10 0 L 10 10 L 0 10 Z'/>
+        <path fill='#000000' fill-opacity='1' fill-rule='evenodd' stroke='none' d='M 0 0 L 10 0 L 10 10 L 0 10 Z'/>
     </g>
 </svg>
 ", false);

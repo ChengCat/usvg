@@ -1,5 +1,4 @@
-#[macro_use]
-extern crate clap;
+#[macro_use] extern crate clap;
 extern crate usvg;
 extern crate svgdom;
 

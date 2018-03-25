@@ -30,6 +30,11 @@ version = "2"
 default-features = false
 optional = true
 
+[dev-dependencies]
+assert_cli = "0.5.4"
+tempdir = "0.3"
+pretty_assertions = "0.5.1"
+
 [features]
 build-binary = ["clap"]
 
