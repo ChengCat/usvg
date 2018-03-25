@@ -75,7 +75,7 @@ pub fn convert(
 
     let fill = tree::Fill {
         paint,
-        opacity: fill_opacity,
+        opacity: fill_opacity.into(),
         rule: fill_rule,
     };
 

@@ -172,6 +172,7 @@ Stroking attributes refers to:
 ** Impossible values: odd amount of numbers.
 * `stroke-dashoffset`
 * `stroke-miterlimit`
+** Possible values: number > 1.
 * `stroke-opacity`
 ** Possible values: 0..1.
 * `stroke-width`

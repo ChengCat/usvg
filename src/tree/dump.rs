@@ -253,7 +253,7 @@ fn conv_elements(
                 }
 
                 if let Some(opacity) = g.opacity {
-                    g_elem.set_attribute((AId::Opacity, opacity));
+                    g_elem.set_attribute((AId::Opacity, opacity.value()));
                 }
 
                 if !g_elem.has_id() && g_elem.attributes().len() == 0 {
@@ -318,7 +318,7 @@ fn conv_fill(
                 }
             }
 
-            node.set_attribute((AId::FillOpacity, fill.opacity));
+            node.set_attribute((AId::FillOpacity, fill.opacity.value()));
 
             if parent.is_tag_name(EId::ClipPath) {
                 node.set_attribute((AId::ClipRule, svgdom::ValueId::Evenodd));
@@ -351,7 +351,7 @@ fn conv_stroke(
                 }
             }
 
-            node.set_attribute((AId::StrokeOpacity, stroke.opacity));
+            node.set_attribute((AId::StrokeOpacity, stroke.opacity.value()));
             node.set_attribute((AId::StrokeDashoffset, stroke.dashoffset));
             node.set_attribute((AId::StrokeMiterlimit, stroke.miterlimit));
             node.set_attribute((AId::StrokeWidth, stroke.width));
@@ -407,9 +407,9 @@ fn conv_base_grad(
             let mut stop = doc.create_element(EId::Stop);
             node.append(&stop);
 
-            stop.set_attribute((AId::Offset, s.offset));
+            stop.set_attribute((AId::Offset, s.offset.value()));
             stop.set_attribute((AId::StopColor, s.color));
-            stop.set_attribute((AId::StopOpacity, s.opacity));
+            stop.set_attribute((AId::StopOpacity, s.opacity.value()));
         }
     }
 }

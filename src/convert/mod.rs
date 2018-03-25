@@ -174,7 +174,7 @@ pub(super) fn convert_nodes(
                 };
 
                 let ts = attrs.get_transform(AId::Transform).unwrap_or_default();
-                let opacity = attrs.get_number(AId::Opacity);
+                let opacity = attrs.get_number(AId::Opacity).map(|v| v.into());
 
                 let g_node = rtree.append_child(parent_node, tree::NodeKind::Group(tree::Group {
                     id: node.id().clone(),

@@ -28,7 +28,7 @@ pub fn convert(
     let dashoffset  = attrs.get_number(AId::StrokeDashoffset).unwrap_or(0.0);
     // a-stroke-miterlimit-001.svg
     let miterlimit  = attrs.get_number(AId::StrokeMiterlimit).unwrap_or(4.0);
-    let opacity     = attrs.get_number(AId::StrokeOpacity).unwrap_or(1.0);
+    let opacity     = attrs.get_number(AId::StrokeOpacity).unwrap_or(1.0).into();
     let width       = attrs.get_number(AId::StrokeWidth).unwrap_or(1.0);
 
     if !(width > 0.0) {

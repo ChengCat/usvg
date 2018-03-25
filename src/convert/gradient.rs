@@ -93,9 +93,9 @@ fn convert_stops(
 
         let attrs = s.attributes();
 
-        let offset = attrs.get_number(AId::Offset).unwrap_or(0.0);
+        let offset = attrs.get_number(AId::Offset).unwrap_or(0.0).into();
         let color = attrs.get_color(AId::StopColor).unwrap_or(svgdom::Color::new(0, 0, 0));
-        let opacity = attrs.get_number(AId::StopOpacity).unwrap_or(1.0);
+        let opacity = attrs.get_number(AId::StopOpacity).unwrap_or(1.0).into();
 
         rtree.append_child(parent, tree::NodeKind::Stop(tree::Stop {
             offset,

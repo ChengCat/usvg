@@ -3,6 +3,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use std::fmt;
+use std::ops::Deref;
 
 // external
 pub use svgdom::{
@@ -17,6 +18,45 @@ pub use svgdom::{
 // self
 use super::NodeId;
 use geom::*;
+
+
+/// An opacity value.
+///
+/// Just like `f64` but immutable and asserts in debug if
+/// value is out of 0..1 range.
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub struct Opacity(f64);
+
+impl Opacity {
+    /// Creates a new opacity value.
+    pub fn new(n: f64) -> Self {
+        debug_assert!(n >= 0.0 && n <= 1.0);
+        Opacity(n)
+    }
+
+    /// Returns an underlying value.
+    pub fn value(&self) -> f64 {
+        self.0
+    }
+}
+
+impl From<f64> for Opacity {
+    fn from(n: f64) -> Self {
+        Opacity::new(n)
+    }
+}
+
+impl Deref for Opacity {
+    type Target = f64;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+
+/// An alias to `Opacity`.
+pub type StopOffset = Opacity;
 
 
 /// A line cap.
@@ -217,7 +257,7 @@ impl fmt::Debug for Paint {
 #[derive(Clone, Copy, Debug)]
 pub struct Fill {
     pub paint: Paint,
-    pub opacity: f64,
+    pub opacity: Opacity,
     pub rule: FillRule,
 }
 
@@ -225,7 +265,7 @@ impl Default for Fill {
     fn default() -> Self {
         Fill {
             paint: Paint::Color(Color::new(0, 0, 0)),
-            opacity: 1.0,
+            opacity: 1.0.into(),
             rule: FillRule::NonZero,
         }
     }
@@ -240,7 +280,7 @@ pub struct Stroke {
     pub dasharray: Option<NumberList>,
     pub dashoffset: f64,
     pub miterlimit: f64,
-    pub opacity: f64,
+    pub opacity: Opacity,
     pub width: f64,
     pub linecap: LineCap,
     pub linejoin: LineJoin,
@@ -253,7 +293,7 @@ impl Default for Stroke {
             dasharray: None,
             dashoffset: 0.0,
             miterlimit: 4.0,
-            opacity: 1.0,
+            opacity: 1.0.into(),
             width: 1.0,
             linecap: LineCap::Butt,
             linejoin: LineJoin::Miter,

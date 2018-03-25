@@ -242,7 +242,7 @@ pub struct Group {
     ///
     /// After the group is rendered we should combine
     /// it with a parent group using the specified opacity.
-    pub opacity: Option<f64>,
+    pub opacity: Option<Opacity>,
     /// Element clip path.
     pub clip_path: Option<NodeId>,
 }
@@ -311,9 +311,9 @@ pub struct RadialGradient {
 #[derive(Clone, Copy)]
 #[allow(missing_docs)]
 pub struct Stop {
-    pub offset: f64,
+    pub offset: StopOffset,
     pub color: Color,
-    pub opacity: f64,
+    pub opacity: Opacity,
 }
 
 
