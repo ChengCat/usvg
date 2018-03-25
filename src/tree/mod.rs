@@ -4,8 +4,9 @@
 
 //! Implementation of the nodes tree.
 
+extern crate ego_tree;
+
 // external
-use ego_tree;
 use svgdom;
 
 // self

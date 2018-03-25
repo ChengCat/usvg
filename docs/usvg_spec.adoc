@@ -29,8 +29,7 @@ Attributes: `id`, `x1`, `y1`, `x2`, `y2`, `gradientUnits`, `spreadMethod`,
 `gradientTransform`.
 
 * `id` always set. Never empty.
-* `gradientTransform` always a `matrix`. Never `translate`, `scale`, etc.
-* `gradientTransform` with `matrix(1 0 0 1 0 0)` is skipped.
+* See `<<transform_attr,transform>>` for `gradientTransform`.
 
 Children: `<<stop_elem,stop>>`
 
@@ -44,8 +43,7 @@ Attributes: `id`, `cx`, `cy`, `r`, `fx`, `fy`, `gradientUnits`, `spreadMethod`,
 * `id` always set. Never empty.
 * `r` always > 0.
 * `fx` and `fy` are always inside the circle defined by `cx`, `cy` and `r`.
-* `gradientTransform` always a `matrix`. Never `translate`, `scale`, etc.
-* `gradientTransform` with `matrix(1 0 0 1 0 0)` is skipped.
+* See `<<transform_attr,transform>>` for `gradientTransform`.
 
 Children: `<<stop_elem,stop>>`
 
@@ -141,15 +139,25 @@ and `transform`.
 
 == Attributes
 
+All attributes can't have `inherit`, invalid or empty value.
+
+Numeric attributes can't have https://www.w3.org/TR/SVG11/coords.html#Units[units].
+
 [[fill_attrs]]
 
 === Filling attributes
 
 Filling attributes refers to:
 
-- `fill`
-- `fill-opacity`
-- `fill-rule`
+[[fill_attr]]
+
+* `fill`
+** Possible values: `none`, `#RRGGBB`, `url(#id)`.
+** Impossible values: `currentColor`, icccolor, FuncIRI with fallback color.
+** FuncIRI is always valid and points to an existing element.
+* `fill-opacity`
+** Possible values: 0..1.
+* `fill-rule`
 
 [[stroke_attrs]]
 
@@ -157,14 +165,18 @@ Filling attributes refers to:
 
 Stroking attributes refers to:
 
-- `stroke`
-- `stroke-dasharray`
-- `stroke-dashoffset`
-- `stroke-miterlimit`
-- `stroke-opacity`
-- `stroke-width`
-- `stroke-linecap`
-- `stroke-linejoin`
+* `stroke`
+** See `<<fill_attr,fill>>` attribute.
+* `stroke-dasharray`
+** Possible values: `none`, list of numbers.
+** Impossible values: odd amount of numbers.
+* `stroke-dashoffset`
+* `stroke-miterlimit`
+* `stroke-opacity`
+** Possible values: 0..1.
+* `stroke-width`
+* `stroke-linecap`
+* `stroke-linejoin`
 
 [[font_attrs]]
 
@@ -172,9 +184,22 @@ Stroking attributes refers to:
 
 Font attributes refers to:
 
-- `font-family`
-- `font-size`
-- `font-style`
-- `font-variant`
-- `font-weight`
-- `font-stretch`
+* `font-family`
+* `font-size`
+** Possible values: number > 0.
+** Impossible values: number < 0, 0, number%, `xx-small`, `x-small`, `small` +
+`medium`, `large`, `x-large`, `xx-large`, `larger`, `smaller`.
+* `font-style`
+* `font-variant`
+* `font-weight`
+** Possible values: `100`, `200`, `300`, `400`, `500`, `600`, `700`, `800`, `900`.
+** Impossible values: `normal`, `bold`, `bolder`, `lighter`.
+* `font-stretch`
+
+=== Other attributes
+
+[[transform_attr]]
+
+* `transform`
+** `transform` always a `matrix`. Never `translate`, `scale`, etc.
+** Can be skipped.

@@ -2,10 +2,9 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use std::f64;
+extern crate euclid;
 
-// external
-use euclid;
+use std::f64;
 
 
 /// Bounds `f64` number.
