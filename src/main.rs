@@ -5,7 +5,7 @@ extern crate fern;
 extern crate log;
 
 
-use std::io::Write;
+use std::io::{self, Read, Write};
 use std::fs::File;
 use std::fmt;
 
@@ -16,9 +16,27 @@ use usvg::tree::prelude::*;
 use svgdom::WriteBuffer;
 
 
+#[derive(Clone, Copy, PartialEq, Debug)]
+enum InputFrom<'a> {
+    Stdin,
+    File(&'a str),
+}
+
+#[derive(Clone, Copy, PartialEq, Debug)]
+enum OutputTo<'a> {
+    Stdout,
+    File(&'a str),
+}
+
+
 fn main() {
     let args = App::new("usvg")
         .version(env!("CARGO_PKG_VERSION"))
+        .about("usvg (micro SVG) is an SVG simplification tool")
+        .usage("usvg [FLAGS] [OPTIONS] <in-svg> <out-svg> # from file to file\n    \
+                usvg [FLAGS] [OPTIONS] -c <in-svg>        # from file to stdout\n    \
+                usvg [FLAGS] [OPTIONS] <out-svg> -        # from stdin to file\n    \
+                usvg [FLAGS] [OPTIONS] -c -               # from stdin to stdout")
         .arg(Arg::with_name("in-svg")
             .help("Input file")
             .required(true)
@@ -26,8 +44,12 @@ fn main() {
             .validator(is_svg))
         .arg(Arg::with_name("out-svg")
             .help("Output file")
+            .required_unless("stdout")
             .index(2)
             .validator(is_svg))
+        .arg(Arg::with_name("stdout")
+            .short("c")
+            .help("Prints the output SVG to the stdout"))
         .arg(Arg::with_name("dpi")
             .long("dpi")
             .help("Sets the resolution [72..4000]")
@@ -39,11 +61,34 @@ fn main() {
             .help("Keeps groups with non-empty ID"))
         .get_matches();
 
-    let in_svg  = args.value_of("in-svg").unwrap();
-    let out_png = args.value_of("out-svg").unwrap();
+    let (in_svg, out_svg) = {
+        let in_svg = args.value_of("in-svg").unwrap();
+        let out_svg = args.value_of("out-svg");
+
+        let svg_from = if in_svg == "-" && args.is_present("stdout") {
+            InputFrom::Stdin
+        } else if let Some("-") = out_svg {
+            InputFrom::Stdin
+        } else {
+            InputFrom::File(in_svg)
+        };
+
+        let svg_to = if args.is_present("stdout") {
+            OutputTo::Stdout
+        } else if let Some("-") = out_svg {
+            OutputTo::File(in_svg)
+        } else {
+            OutputTo::File(out_svg.unwrap())
+        };
+
+        (svg_from, svg_to)
+    };
 
     let re_opt = usvg::Options {
-        path: Some(in_svg.into()),
+        path: match in_svg {
+            InputFrom::Stdin => None,
+            InputFrom::File(f) => Some(f.into()),
+        },
         dpi: value_t!(args.value_of("dpi"), u32).unwrap() as f64,
         keep_named_groups: args.is_present("keep-named-groups"),
     };
@@ -54,7 +99,13 @@ fn main() {
         .chain(std::io::stderr())
         .apply().unwrap();
 
-    let tree = usvg::parse_tree_from_file(in_svg, &re_opt).unwrap();
+    let tree = match in_svg {
+        InputFrom::Stdin => {
+            let s = load_stdin().unwrap();
+            usvg::parse_tree_from_data(&s, &re_opt).unwrap()
+        }
+        InputFrom::File(path) => usvg::parse_tree_from_file(path, &re_opt).unwrap(),
+    };
 
     let dom_opt = svgdom::WriteOptions {
         indent: svgdom::Indent::Spaces(2),
@@ -68,13 +119,20 @@ fn main() {
     let mut output_data = Vec::new();
     doc.write_buf_opt(&dom_opt, &mut output_data);
 
-    let mut f = File::create(out_png).unwrap();
-    f.write_all(&output_data).unwrap();
+    match out_svg {
+        OutputTo::Stdout => {
+            io::stdout().write_all(&output_data).unwrap();
+        }
+        OutputTo::File(path) => {
+            let mut f = File::create(path).unwrap();
+            f.write_all(&output_data).unwrap();
+        }
+    }
 }
 
 fn is_svg(val: String) -> Result<(), String> {
     let val = val.to_lowercase();
-    if val.ends_with(".svg") || val.ends_with(".svgz") {
+    if val.ends_with(".svg") || val.ends_with(".svgz") || val == "-" {
         Ok(())
     } else {
         Err(String::from("The input file format must be SVG(Z)."))
@@ -114,4 +172,14 @@ fn log_format(
         record.line().unwrap_or(0),
         message
     ))
+}
+
+fn load_stdin() -> Result<String, io::Error> {
+    let mut s = String::new();
+    let stdin = io::stdin();
+    let mut handle = stdin.lock();
+
+    handle.read_to_string(&mut s)?;
+
+    Ok(s)
 }

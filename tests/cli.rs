@@ -9,7 +9,7 @@ use tempdir::TempDir;
 const APP_PATH: &str = "target/debug/usvg";
 
 #[test]
-fn test1() {
+fn file_to_file() {
     let dir = TempDir::new("usvg").unwrap();
     let file_out = dir.path().join("test1.svg");
     let file_out = file_out.to_str().unwrap();
@@ -26,6 +26,58 @@ fn test1() {
         .unwrap();
 
     cmp_files("tests/images/test1-out.svg", file_out);
+}
+
+#[test]
+fn file_to_stdout() {
+    let args = &[
+        APP_PATH,
+        "-c",
+        "tests/images/test1-in.svg",
+    ];
+
+    assert_cli::Assert::command(args)
+        .stdout().is(load_file("tests/images/test1-out.svg"))
+        .stderr().is("")
+        .unwrap();
+}
+
+#[test]
+fn stdin_to_file() {
+    let dir = TempDir::new("usvg").unwrap();
+    let file_out = dir.path().join("test1.svg");
+    let file_out = file_out.to_str().unwrap();
+
+    let args = &[
+        APP_PATH,
+        file_out,
+        "-",
+    ];
+
+    assert_cli::Assert::command(args)
+        .stdin(&load_file("tests/images/test1-out.svg"))
+        .stdout().is("")
+        .stderr().is("")
+        .unwrap();
+
+    cmp_files("tests/images/test1-out.svg", file_out);
+}
+
+#[test]
+fn stdin_to_stdout() {
+    let args = &[
+        APP_PATH,
+        "-c",
+        "-",
+    ];
+
+    let data = load_file("tests/images/test1-out.svg");
+
+    assert_cli::Assert::command(args)
+        .stdin(&data)
+        .stdout().is(data)
+        .stderr().is("")
+        .unwrap();
 }
 
 #[derive(Clone, Copy, PartialEq)]
