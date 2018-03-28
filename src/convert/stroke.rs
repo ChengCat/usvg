@@ -140,7 +140,7 @@ fn conv_dasharray(av: Option<&AValue>) -> Option<svgdom::NumberList> {
         // a-stroke-dasharray-003.svg
         if list.len() % 2 != 0 {
             let mut tmp_list = list.clone();
-            tmp_list.extend_from_slice(&list);
+            tmp_list.extend_from_slice(list);
 
             return Some(tmp_list.clone());
         }

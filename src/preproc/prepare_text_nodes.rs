@@ -36,8 +36,7 @@ pub fn prepare_text_nodes(doc: &mut Document) {
 
         node.insert_before(&new_text_elem);
 
-        let ref attrs = node.attributes();
-        for (_, attr) in attrs.iter_svg() {
+        for (_, attr) in node.attributes().iter_svg() {
             new_text_elem.set_attribute(attr.clone());
         }
     }
@@ -66,7 +65,7 @@ fn prepare_text_elem(doc: &mut Document, elem: &Node, new_elem: &mut Node) {
             continue;
         }
 
-        let ref attrs = text_parent.attributes();
+        let attrs = text_parent.attributes();
 
         let mut new_tspan = doc.create_element(EId::Tspan);
         new_elem.append(&new_tspan);

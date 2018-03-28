@@ -89,7 +89,7 @@ fn convert_chunks(
                 } else {
                     // Update existing chunk.
                     let mut v = rtree.get_mut(chunk_node);
-                    if let &mut tree::NodeKind::TextChunk(ref mut d) = v.value() {
+                    if let tree::NodeKind::TextChunk(ref mut d) = *v.value() {
                         d.x = tx;
                         d.y = ty;
                         d.anchor = conv_text_anchor(attrs);
@@ -120,7 +120,7 @@ fn resolve_pos(
     attrs: &svgdom::Attributes,
     aid: AId,
 ) -> Option<f64> {
-    if let Some(ref list) = attrs.get_number_list(aid) {
+    if let Some(list) = attrs.get_number_list(aid) {
         if !list.is_empty() {
             if list.len() > 1 {
                 warn!("List of 'x', 'y' coordinates are not supported in a 'text' element.");

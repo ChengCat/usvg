@@ -83,7 +83,7 @@ pub fn _resolve_font_size(parent: &Node) {
         }
 
         if node.has_children() {
-            _resolve_font_size(&mut node);
+            _resolve_font_size(&node);
         }
     }
 }

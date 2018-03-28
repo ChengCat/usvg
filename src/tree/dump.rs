@@ -176,8 +176,8 @@ fn conv_elements(
                         let mut chunk_tspan_elem = new_doc.create_element(EId::Tspan);
                         text_elem.append(&chunk_tspan_elem);
 
-                        chunk_tspan_elem.set_attribute((AId::X, chunk.x.clone()));
-                        chunk_tspan_elem.set_attribute((AId::Y, chunk.y.clone()));
+                        chunk_tspan_elem.set_attribute((AId::X, chunk.x));
+                        chunk_tspan_elem.set_attribute((AId::Y, chunk.y));
 
                         if chunk.anchor != TextAnchor::Start {
                             chunk_tspan_elem.set_attribute((AId::TextAnchor,

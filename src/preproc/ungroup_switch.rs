@@ -48,19 +48,15 @@ static FEATURES: &[&str] = &[
 ];
 
 pub fn ungroup_switch(doc: &Document) {
-    loop {
-        if let Some(mut node) = doc.descendants().find(|n| n.is_tag_name(EId::Switch)) {
-            for (_, mut child) in node.children().svg() {
-                if is_valid_child(&child) {
-                    child.detach();
-                    node.insert_after(&child);
-                    node.remove();
+    while let Some(mut node) = doc.descendants().find(|n| n.is_tag_name(EId::Switch)) {
+        for (_, mut child) in node.children().svg() {
+            if is_valid_child(&child) {
+                child.detach();
+                node.insert_after(&child);
+                node.remove();
 
-                    break;
-                }
+                break;
             }
-        } else {
-            break;
         }
     }
 }
@@ -80,7 +76,7 @@ fn is_valid_child(node: &Node) -> bool {
     // If all of the given features are supported, then the attribute evaluates to true;
     // otherwise, the current element and its children are skipped and thus will not be rendered.'
     if let Some(features) = attrs.get_value(AId::RequiredFeatures) {
-        if let &AValue::String(ref features) = features {
+        if let AValue::String(ref features) = *features {
             for feature in features.split(' ') {
                 if !FEATURES.contains(&feature) {
                     return false;

@@ -54,10 +54,10 @@ pub fn convert_doc(
     };
 
     let view_box = {
-        let ref attrs = svg.attributes();
+        let attrs = svg.attributes();
         tree::ViewBox {
             rect: get_view_box(&svg)?,
-            aspect: convert_aspect(attrs),
+            aspect: convert_aspect(&attrs),
         }
     };
 
@@ -158,7 +158,7 @@ pub(super) fn convert_nodes(
                 // After preprocessing, `clip-path` can be set only on groups.
                 let clip_path = if let Some(av) = attrs.get_type(AId::ClipPath) {
                     let mut v = None;
-                    if let &AValue::FuncLink(ref link) = av {
+                    if let AValue::FuncLink(ref link) = *av {
                         if link.is_tag_name(EId::ClipPath) {
                             if let Some(idx) = rtree.defs_by_svg_id(&link.id()) {
                                 v = Some(idx);

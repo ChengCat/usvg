@@ -81,7 +81,7 @@ macro_rules! impl_from_value {
     ($rtype:ty, $etype:ident) => (
         impl FromValue for $rtype {
             fn get(v: &AValue) -> Option<&Self> {
-                if let &AValue::$etype(ref vv) = v { Some(vv) } else { None }
+                if let AValue::$etype(ref vv) = *v { Some(vv) } else { None }
             }
         }
     )
@@ -111,15 +111,15 @@ pub trait GetValue {
     fn get_type<T: FromValue>(&self, id: AId) -> Option<&T>;
 
     fn get_number(&self, id: AId) -> Option<f64> {
-        self.get_type(id).map(|v| *v)
+        self.get_type(id).cloned()
     }
 
     fn get_length(&self, id: AId) -> Option<Length> {
-        self.get_type(id).map(|v| *v)
+        self.get_type(id).cloned()
     }
 
     fn get_transform(&self, id: AId) -> Option<Transform> {
-        self.get_type(id).map(|v| *v)
+        self.get_type(id).cloned()
     }
 
     fn get_number_list(&self, id: AId) -> Option<&NumberList> {
@@ -127,11 +127,11 @@ pub trait GetValue {
     }
 
     fn get_predef(&self, id: AId) -> Option<ValueId> {
-        self.get_type(id).map(|v| *v)
+        self.get_type(id).cloned()
     }
 
     fn get_color(&self, id: AId) -> Option<Color> {
-        self.get_type(id).map(|v| *v)
+        self.get_type(id).cloned()
     }
 
     fn get_path(&self, id: AId) -> Option<&path::Path> {

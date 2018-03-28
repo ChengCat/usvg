@@ -27,7 +27,7 @@ pub fn ungroup_groups(svg: &Node, opt: &Options) {
     let mut groups = Vec::with_capacity(16);
 
     loop {
-        _ungroup_groups(&svg, opt, &mut groups);
+        _ungroup_groups(svg, opt, &mut groups);
 
         if groups.is_empty() {
             break;

@@ -88,7 +88,7 @@ fn process_negative_r(
     };
 
     for mut linked in gradient.linked_nodes().collect::<Vec<Node>>() {
-        collect_ids(&linked, &gradient, ids);
+        collect_ids(&linked, gradient, ids);
 
         for id in ids.iter() {
             let color = stop.attributes().get_color(AId::StopColor)

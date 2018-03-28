@@ -63,11 +63,11 @@ impl Line {
     }
 }
 
-/// Alias for euclid::Point2D<f64>.
+/// Alias for `euclid::Point2D<f64>`.
 pub(crate) type Point = euclid::Point2D<f64>;
 
-/// Alias for euclid::Size2D<f64>.
+/// Alias for `euclid::Size2D<f64>`.
 pub type Size = euclid::Size2D<f64>;
 
-/// Alias for euclid::Rect<f64>.
+/// Alias for `euclid::Rect<f64>`.
 pub type Rect = euclid::Rect<f64>;

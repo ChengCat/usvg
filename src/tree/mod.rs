@@ -25,18 +25,18 @@ pub mod prelude {
     pub use super::TreeExt;
 }
 
-/// Alias for ego_tree::NodeId<NodeKind>.
+/// Alias for `ego_tree::NodeId<NodeKind>`.
 pub type NodeId = ego_tree::NodeId<NodeKind>;
 
-/// Alias for ego_tree::NodeRef<NodeKind>.
+/// Alias for `ego_tree::NodeRef<NodeKind>`.
 pub type NodeRef<'a> = ego_tree::NodeRef<'a, NodeKind>;
 
-/// Alias for ego_tree::NodeMut<NodeKind>.
+/// Alias for `ego_tree::NodeMut<NodeKind>`.
 pub type NodeMut<'a> = ego_tree::NodeMut<'a, NodeKind>;
 
 /// A nodes tree container.
 ///
-/// Alias for ego_tree::Tree<NodeKind>.
+/// Alias for `ego_tree::Tree<NodeKind>`.
 pub type Tree = ego_tree::Tree<NodeKind>;
 
 /// Additional `Tree` methods.
@@ -98,7 +98,7 @@ impl TreeExt for Tree {
 
     fn is_in_defs(&self, node: NodeRef) -> bool {
         let defs = self.defs();
-        node.ancestors().find(|n| *n == defs).is_some()
+        node.ancestors().any(|n| n == defs)
     }
 
     fn append_to_defs(&mut self, kind: NodeKind) -> NodeId {

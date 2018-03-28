@@ -64,7 +64,7 @@ pub fn regroup_elements(doc: &mut Document, parent: &Node) {
             }
         }
 
-        for id in ids.iter() {
+        for id in &ids {
             node.remove_attribute(*id);
         }
 

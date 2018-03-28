@@ -134,7 +134,7 @@ fn load_file(path: &Path) -> Result<String> {
     let length = file.metadata()?.len() as usize;
 
     let ext = if let Some(ext) = Path::new(path).extension() {
-        ext.to_str().map(|s| s.to_lowercase()).unwrap_or(String::new())
+        ext.to_str().map(|s| s.to_lowercase()).unwrap_or_default()
     } else {
         String::new()
     };
@@ -172,7 +172,7 @@ fn parse_dom(text: &str) -> Result<svgdom::Document> {
         .. svgdom::ParseOptions::default()
     };
 
-    let doc = svgdom::Document::from_str_with_opt(&text, &opt)?;
+    let doc = svgdom::Document::from_str_with_opt(text, &opt)?;
     Ok(doc)
 }
 

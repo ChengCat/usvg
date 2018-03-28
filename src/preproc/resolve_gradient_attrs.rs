@@ -36,7 +36,7 @@ use traits::{
 /// Resolvable attributes: `x1`, `y1`, `x2`, `y2`, `gradientUnits`,
 /// `gradientTransform`, `spreadMethod`.
 ///
-/// Details: https://www.w3.org/TR/SVG/pservers.html#LinearGradients
+/// Details: <https://www.w3.org/TR/SVG/pservers.html#LinearGradients>
 pub fn resolve_linear_gradient_attributes(doc: &Document) {
     for node in &mut gen_order(doc, EId::LinearGradient) {
         check_attr(node, AId::GradientUnits,
@@ -62,7 +62,7 @@ pub fn resolve_linear_gradient_attributes(doc: &Document) {
 /// Resolvable attributes: `cx`, `cy`, `fx`, `fy`, `r`, `gradientUnits`,
 /// `gradientTransform`, `spreadMethod`.
 ///
-/// Details: https://www.w3.org/TR/SVG/pservers.html#RadialGradients
+/// Details: <https://www.w3.org/TR/SVG/pservers.html#RadialGradients>
 pub fn resolve_radial_gradient_attributes(doc: &Document) {
     // We trying to find 'fx', 'fy' in referenced nodes first,
     // and if they not found - we get it from current 'cx', 'cy'.
@@ -282,7 +282,7 @@ fn resolve_patt_attr(
     // If `link` is not an SVG element - return `def_value`.
     match link.tag_id() {
         Some(EId::Pattern) => resolve_patt_attr(&link, aid, def_value),
-        _ => return def_value,
+        _ => def_value,
     }
 }
 

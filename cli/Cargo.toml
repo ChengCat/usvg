@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["Reizner Evgeniy <razrfalcon@gmail.com>"]
 keywords = ["svg"]
 license = "MPL-2.0"
-description = "An SVG simplification library."
+description = "An SVG simplification tool."
 categories = ["multimedia::images"]
 workspace = ".."
 

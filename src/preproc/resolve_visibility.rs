@@ -24,7 +24,7 @@ use traits::{
 pub fn resolve_visibility(svg: &Node) {
     let mut nodes = Vec::with_capacity(16);
 
-    _resolve(&svg, &mut nodes);
+    _resolve(svg, &mut nodes);
 
     while let Some(mut node) = nodes.pop() {
         node.remove();
@@ -65,8 +65,7 @@ fn _resolve(parent: &Node, nodes: &mut Vec<Node>) {
 /// Checks that element has 'visibility' set to 'hidden' or 'collapse'.
 fn is_hidden(node: &Node) -> bool {
     match node.attributes().get_predef(AId::Visibility) {
-        Some(ValueId::Visible) => false,
-        None => false,
+        Some(ValueId::Visible) | None => false,
         _ => true,
     }
 }

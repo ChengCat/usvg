@@ -6,7 +6,6 @@
 use svgdom::{
     Document,
     Node,
-    Transform,
 };
 
 // self
@@ -82,7 +81,7 @@ fn _resolve_use(use_node: &mut Node, linked_node: &Node) {
             let y = attrs.get_number(AId::Y).unwrap_or(0.0);
 
             let mut ts = attrs.get_transform(AId::Transform)
-                              .unwrap_or(Transform::default());
+                              .unwrap_or_default();
 
             ts.translate(x, y);
 

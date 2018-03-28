@@ -22,8 +22,8 @@ use traits::{
 pub fn resolve_svg_size(svg: &mut Node) -> bool {
     // We doesn't converted units yet, so operate on Length.
 
-    let width = get_length(&svg, AId::Width);
-    let height = get_length(&svg, AId::Height);
+    let width = get_length(svg, AId::Width);
+    let height = get_length(svg, AId::Height);
 
     let view_box = svg.get_viewbox();
 
