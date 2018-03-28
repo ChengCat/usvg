@@ -12,9 +12,9 @@
 #![warn(missing_docs)]
 
 
+pub extern crate svgdom;
 extern crate base64;
 extern crate libflate;
-extern crate svgdom;
 #[macro_use] extern crate error_chain;
 #[macro_use] extern crate log;
 

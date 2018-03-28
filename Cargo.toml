@@ -14,8 +14,6 @@ euclid = "0.17"
 libflate = "0.1"
 log = "0.4"
 lyon_geom = "0.10"
-fern = { version = "0.5", optional = true }
-derive-error = { version = "0.0.4", optional = true }
 
 [dependencies.error-chain]
 version = "0.11"
@@ -27,11 +25,6 @@ git = "https://github.com/RazrFalcon/libsvgdom.git"
 rev = "c390d40"
 # path = "../svgdom"
 
-[dependencies.clap]
-version = "2"
-default-features = false
-optional = true
-
 [dev-dependencies]
 assert_cli = "0.5.4"
 tempdir = "0.3"
@@ -40,10 +33,3 @@ toml = "0.4.5"
 serde = "1.0.34"
 serde_derive = "1.0.34"
 rustc-test = "0.3"
-
-[features]
-build-binary = ["clap", "fern", "derive-error"]
-
-[[bin]]
-name = "usvg"
-required-features = ["build-binary"]

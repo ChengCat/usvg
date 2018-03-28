@@ -1,7 +1,6 @@
 #[macro_use] extern crate clap;
 #[macro_use] extern crate derive_error;
 extern crate usvg;
-extern crate svgdom;
 extern crate fern;
 extern crate log;
 
@@ -13,6 +12,7 @@ use std::fmt;
 use clap::{ App, Arg, ArgMatches };
 
 use usvg::tree::prelude::*;
+use usvg::svgdom;
 
 use svgdom::{ WriteBuffer, ChainedErrorExt };
 

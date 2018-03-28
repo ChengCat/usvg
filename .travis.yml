@@ -4,3 +4,5 @@ rust:
 script:
   - cargo build --features="build-binary"
   - cargo test
+  - cd ./cli
+  - cargo build
