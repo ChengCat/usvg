@@ -1,32 +1,20 @@
 #[macro_use] extern crate clap;
+#[macro_use] extern crate derive_error;
 extern crate usvg;
 extern crate svgdom;
 extern crate fern;
 extern crate log;
 
 
-use std::io::{self, Read, Write};
+use std::io::{ self, Read, Write };
 use std::fs::File;
 use std::fmt;
 
-use clap::{ App, Arg };
+use clap::{ App, Arg, ArgMatches };
 
 use usvg::tree::prelude::*;
 
-use svgdom::WriteBuffer;
-
-
-#[derive(Clone, Copy, PartialEq, Debug)]
-enum InputFrom<'a> {
-    Stdin,
-    File(&'a str),
-}
-
-#[derive(Clone, Copy, PartialEq, Debug)]
-enum OutputTo<'a> {
-    Stdout,
-    File(&'a str),
-}
+use svgdom::{ WriteBuffer, ChainedErrorExt };
 
 
 fn main() {
@@ -61,6 +49,57 @@ fn main() {
             .help("Keeps groups with non-empty ID"))
         .get_matches();
 
+    if let Err(e) = process(&args) {
+        match e {
+            Error::Usvg(ref e) => eprintln!("{}.", e.full_chain()),
+            Error::Io(ref e) => eprintln!("Error: {}.", e),
+        }
+
+        std::process::exit(1);
+    }
+}
+
+fn is_svg(val: String) -> Result<(), String> {
+    let val = val.to_lowercase();
+    if val.ends_with(".svg") || val.ends_with(".svgz") || val == "-" {
+        Ok(())
+    } else {
+        Err(String::from("The input file format must be SVG(Z)."))
+    }
+}
+
+fn is_dpi(val: String) -> Result<(), String> {
+    let n = match val.parse::<u32>() {
+        Ok(v) => v,
+        Err(e) => return Err(format!("{}", e)),
+    };
+
+    if n >= 72 && n <= 4000 {
+        Ok(())
+    } else {
+        Err(String::from("Invalid DPI value."))
+    }
+}
+
+#[derive(Error, Debug)]
+enum Error {
+    Usvg(usvg::Error),
+    Io(io::Error),
+}
+
+#[derive(Clone, Copy, PartialEq, Debug)]
+enum InputFrom<'a> {
+    Stdin,
+    File(&'a str),
+}
+
+#[derive(Clone, Copy, PartialEq, Debug)]
+enum OutputTo<'a> {
+    Stdout,
+    File(&'a str),
+}
+
+fn process(args: &ArgMatches) -> Result<(), Error> {
     let (in_svg, out_svg) = {
         let in_svg = args.value_of("in-svg").unwrap();
         let out_svg = args.value_of("out-svg");
@@ -101,11 +140,11 @@ fn main() {
 
     let tree = match in_svg {
         InputFrom::Stdin => {
-            let s = load_stdin().unwrap();
-            usvg::parse_tree_from_data(&s, &re_opt).unwrap()
+            let s = load_stdin()?;
+            usvg::parse_tree_from_data(&s, &re_opt)
         }
-        InputFrom::File(path) => usvg::parse_tree_from_file(path, &re_opt).unwrap(),
-    };
+        InputFrom::File(path) => usvg::parse_tree_from_file(path, &re_opt),
+    }?;
 
     let dom_opt = svgdom::WriteOptions {
         indent: svgdom::Indent::Spaces(2),
@@ -121,35 +160,15 @@ fn main() {
 
     match out_svg {
         OutputTo::Stdout => {
-            io::stdout().write_all(&output_data).unwrap();
+            io::stdout().write_all(&output_data)?;
         }
         OutputTo::File(path) => {
-            let mut f = File::create(path).unwrap();
-            f.write_all(&output_data).unwrap();
+            let mut f = File::create(path)?;
+            f.write_all(&output_data)?;
         }
     }
-}
 
-fn is_svg(val: String) -> Result<(), String> {
-    let val = val.to_lowercase();
-    if val.ends_with(".svg") || val.ends_with(".svgz") || val == "-" {
-        Ok(())
-    } else {
-        Err(String::from("The input file format must be SVG(Z)."))
-    }
-}
-
-fn is_dpi(val: String) -> Result<(), String> {
-    let n = match val.parse::<u32>() {
-        Ok(v) => v,
-        Err(e) => return Err(format!("{}", e)),
-    };
-
-    if n >= 72 && n <= 4000 {
-        Ok(())
-    } else {
-        Err(String::from("Invalid DPI value."))
-    }
+    Ok(())
 }
 
 fn log_format(
