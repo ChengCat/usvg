@@ -2,7 +2,5 @@ language: rust
 rust:
   - stable
 script:
-  - cargo build --features="build-binary"
+  - cargo build --all
   - cargo test
-  - cd ./cli
-  - cargo build

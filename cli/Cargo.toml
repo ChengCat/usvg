@@ -1,11 +1,12 @@
 [package]
-name = "usvg"
+name = "usvg-cli"
 version = "0.1.0"
 authors = ["Reizner Evgeniy <razrfalcon@gmail.com>"]
 keywords = ["svg"]
 license = "MPL-2.0"
 description = "An SVG simplification library."
 categories = ["multimedia::images"]
+workspace = ".."
 
 [dependencies]
 usvg = { path = "../" }
@@ -16,3 +17,7 @@ derive-error = "0.0.4"
 [dependencies.clap]
 version = "2"
 default-features = false
+
+[[bin]]
+name = "usvg"
+path = "src/main.rs"

@@ -7,6 +7,13 @@ license = "MPL-2.0"
 description = "An SVG simplification library."
 categories = ["multimedia::images"]
 
+[workspace]
+members = ["cli"]
+
+[lib]
+name = "usvg"
+path = "src/lib.rs"
+
 [dependencies]
 base64 = "0.9"
 ego-tree = "0.3"
