@@ -89,7 +89,7 @@ fn convert_chunks(
                 } else {
                     // Update existing chunk.
                     let mut v = rtree.get_mut(chunk_node);
-                    if let tree::NodeKind::TextChunk(ref mut d) = *v.value() {
+                    if let tree::NodeKind::TextChunk(ref mut d) = *v.kind() {
                         d.x = tx;
                         d.y = ty;
                         d.anchor = conv_text_anchor(attrs);

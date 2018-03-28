@@ -21,23 +21,24 @@ mod node;
 pub mod prelude {
     pub use tree;
     pub use tree::FuzzyEq;
-    pub use super::NodeExt;
     pub use super::TreeExt;
+    pub use super::NodeExt;
+    pub use super::NodeMutExt;
 }
 
 /// Alias for `ego_tree::NodeId<NodeKind>`.
-pub type NodeId = ego_tree::NodeId<NodeKind>;
+pub type NodeId = ego_tree::NodeId<Box<NodeKind>>;
 
 /// Alias for `ego_tree::NodeRef<NodeKind>`.
-pub type NodeRef<'a> = ego_tree::NodeRef<'a, NodeKind>;
+pub type NodeRef<'a> = ego_tree::NodeRef<'a, Box<NodeKind>>;
 
 /// Alias for `ego_tree::NodeMut<NodeKind>`.
-pub type NodeMut<'a> = ego_tree::NodeMut<'a, NodeKind>;
+pub type NodeMut<'a> = ego_tree::NodeMut<'a, Box<NodeKind>>;
 
 /// A nodes tree container.
 ///
 /// Alias for `ego_tree::Tree<NodeKind>`.
-pub type Tree = ego_tree::Tree<NodeKind>;
+pub type Tree = ego_tree::Tree<Box<NodeKind>>;
 
 /// Additional `Tree` methods.
 pub trait TreeExt {
@@ -79,13 +80,13 @@ pub trait TreeExt {
 
 impl TreeExt for Tree {
     fn create(svg: Svg) -> Self {
-        let mut tree = ego_tree::Tree::new(NodeKind::Svg(svg));
-        tree.root_mut().append(NodeKind::Defs);
+        let mut tree = ego_tree::Tree::new(Box::new(NodeKind::Svg(svg)));
+        tree.root_mut().append(Box::new(NodeKind::Defs));
         tree
     }
 
     fn svg_node(&self) -> &Svg {
-        if let NodeKind::Svg(ref svg) = *self.root().value() {
+        if let NodeKind::Svg(ref svg) = **self.root().value() {
             svg
         } else {
             unreachable!();
@@ -108,7 +109,7 @@ impl TreeExt for Tree {
 
     fn append_child(&mut self, parent: NodeId, kind: NodeKind) -> NodeId {
         let mut parent = self.get_mut(parent);
-        parent.append(kind).id()
+        parent.append(Box::new(kind)).id()
     }
 
     fn defs_at(&self, id: NodeId) -> Option<NodeRef> {
@@ -167,6 +168,11 @@ pub trait NodeExt {
     /// If a current node doesn't support transformation - a default
     /// transform will be returned.
     fn transform(&self) -> Transform;
+
+    /// Returns `NodeKind` instead of `Box<NodeKind>`.
+    ///
+    /// Use it instead of `NodeRef::value()`.
+    fn kind(&self) -> &NodeKind;
 }
 
 impl<'a> NodeExt for NodeRef<'a> {
@@ -176,5 +182,23 @@ impl<'a> NodeExt for NodeRef<'a> {
 
     fn transform(&self) -> Transform {
         self.value().transform()
+    }
+
+    fn kind(&self) -> &NodeKind {
+        self.value()
+    }
+}
+
+/// Additional `NodeMut` methods.
+pub trait NodeMutExt {
+    /// Returns `NodeKind` instead of `Box<NodeKind>`.
+    ///
+    /// Use it instead of `NodeRef::value()`.
+    fn kind(&mut self) -> &mut NodeKind;
+}
+
+impl<'a> NodeMutExt for NodeMut<'a> {
+    fn kind(&mut self) -> &mut NodeKind {
+        self.value()
     }
 }

@@ -50,7 +50,7 @@ fn conv_defs(
     let mut later_nodes = Vec::new();
 
     for n in rtree.defs().children() {
-        match *n.value() {
+        match *n.kind() {
             NodeKind::LinearGradient(ref lg) => {
                 let mut grad_elem = new_doc.create_element(EId::LinearGradient);
                 defs.append(&grad_elem);
@@ -128,7 +128,7 @@ fn conv_elements(
     );
 
     for n in root.children() {
-        match *n.value() {
+        match *n.kind() {
             NodeKind::Path(ref p) => {
                 let mut path_elem = new_doc.create_element(EId::Path);
                 parent.append(&path_elem);
@@ -172,7 +172,7 @@ fn conv_elements(
                 // conv_text_decoration(&text.decoration, &mut text_elem);
 
                 for chunk_node in n.children() {
-                    if let NodeKind::TextChunk(ref chunk) = *chunk_node.value() {
+                    if let NodeKind::TextChunk(ref chunk) = *chunk_node.kind() {
                         let mut chunk_tspan_elem = new_doc.create_element(EId::Tspan);
                         text_elem.append(&chunk_tspan_elem);
 
@@ -190,7 +190,7 @@ fn conv_elements(
                         }
 
                         for tspan_node in chunk_node.children() {
-                            if let NodeKind::TSpan(ref tspan) = *tspan_node.value() {
+                            if let NodeKind::TSpan(ref tspan) = *tspan_node.kind() {
                                 let mut tspan_elem = new_doc.create_element(EId::Tspan);
                                 chunk_tspan_elem.append(&tspan_elem);
 
@@ -403,7 +403,7 @@ fn conv_base_grad(
     conv_transform(AId::GradientTransform, &g.transform, node);
 
     for n in g_node.children() {
-        if let NodeKind::Stop(s) = *n.value() {
+        if let NodeKind::Stop(s) = *n.kind() {
             let mut stop = doc.create_element(EId::Stop);
             node.append(&stop);
 
