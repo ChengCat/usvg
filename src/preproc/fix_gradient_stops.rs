@@ -24,9 +24,23 @@ use traits::{
 
 
 pub fn fix_gradient_stops(doc: &Document) {
+    let gradients: Vec<_> = doc.descendants().filter(|n| n.is_gradient()).collect();
+
+    // Remove any non-`stop` children, so we can skip tag name checks in the code below.
+    for node in &gradients {
+        let mut stop_opt = node.first_child();
+        while let Some(mut stop) = stop_opt {
+            stop_opt = stop.next_sibling();
+
+            if !stop.is_tag_name(EId::Stop) {
+                stop.remove();
+            }
+        }
+    }
+
     // Clamp offsets.
-    for node in doc.descendants().filter(|n| n.is_gradient()) {
-        for mut stop in node.children().filter(|n| n.is_tag_name(EId::Stop)) {
+    for node in &gradients {
+        for mut stop in node.children() {
             let mut attrs = stop.attributes_mut();
             let av = attrs.get_value_mut(AId::Offset);
             if let Some(&mut AValue::Number(ref mut offset)) = av {
@@ -44,9 +58,9 @@ pub fn fix_gradient_stops(doc: &Document) {
     // offset="0.7"
     // offset="0.9"
     let mut stops = Vec::new();
-    for node in doc.descendants().filter(|n| n.is_gradient()) {
+    for node in &gradients {
         stops.clear();
-        for stop in node.children().filter(|n| n.is_tag_name(EId::Stop)) {
+        for stop in node.children() {
             stops.push(stop);
         }
 
@@ -81,9 +95,9 @@ pub fn fix_gradient_stops(doc: &Document) {
     // offset="0.5"
     // offset="0.699999999"
     // offset="0.7"
-    for node in doc.descendants().filter(|n| n.is_gradient()) {
+    for node in &gradients {
         let mut prev_offset = 0.0;
-        for mut stop in node.children().filter(|n| n.is_tag_name(EId::Stop)) {
+        for mut stop in node.children() {
             let mut offset = stop.attributes().get_number(AId::Offset).unwrap_or(0.0);
 
             // Next offset must be smaller then previous.

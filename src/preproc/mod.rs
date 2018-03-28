@@ -120,8 +120,8 @@ pub fn prepare_doc(doc: &mut svgdom::Document, opt: &Options) -> Result<()> {
     resolve_linear_gradient_attributes(doc);
     resolve_radial_gradient_attributes(doc);
     resolve_gradient_stops(doc);
-    remove_invalid_gradients(doc);
     fix_gradient_stops(doc);
+    remove_invalid_gradients(doc);
 
     resolve_pattern_attributes(doc);
     resolve_pattern_children(doc);
