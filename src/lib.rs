@@ -15,7 +15,7 @@
 pub extern crate svgdom;
 extern crate base64;
 extern crate libflate;
-#[macro_use] extern crate error_chain;
+#[macro_use] extern crate failure;
 #[macro_use] extern crate log;
 
 
@@ -69,7 +69,6 @@ use std::path::{
 
 pub use error::{
     Error,
-    ErrorKind,
     Result,
 };
 pub use options::*;
@@ -153,7 +152,7 @@ fn load_file(path: &Path) -> Result<String> {
             Ok(s)
         }
         _ => {
-            Err(ErrorKind::InvalidFileExtension.into())
+            Err(Error::InvalidFileExtension)
         }
     }
 }

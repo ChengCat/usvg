@@ -1,5 +1,4 @@
 #[macro_use] extern crate clap;
-#[macro_use] extern crate derive_error;
 extern crate usvg;
 extern crate fern;
 extern crate log;
@@ -14,7 +13,7 @@ use clap::{ App, Arg, ArgMatches };
 use usvg::tree::prelude::*;
 use usvg::svgdom;
 
-use svgdom::{ WriteBuffer, ChainedErrorExt };
+use svgdom::WriteBuffer;
 
 
 fn main() {
@@ -50,11 +49,7 @@ fn main() {
         .get_matches();
 
     if let Err(e) = process(&args) {
-        match e {
-            Error::Usvg(ref e) => eprintln!("{}.", e.full_chain()),
-            Error::Io(ref e) => eprintln!("Error: {}.", e),
-        }
-
+        eprintln!("Error: {}.", e.to_string());
         std::process::exit(1);
     }
 }
@@ -81,12 +76,6 @@ fn is_dpi(val: String) -> Result<(), String> {
     }
 }
 
-#[derive(Error, Debug)]
-enum Error {
-    Usvg(usvg::Error),
-    Io(io::Error),
-}
-
 #[derive(Clone, Copy, PartialEq, Debug)]
 enum InputFrom<'a> {
     Stdin,
@@ -99,7 +88,7 @@ enum OutputTo<'a> {
     File(&'a str),
 }
 
-fn process(args: &ArgMatches) -> Result<(), Error> {
+fn process(args: &ArgMatches) -> Result<(), usvg::Error> {
     let (in_svg, out_svg) = {
         let in_svg = args.value_of("in-svg").unwrap();
         let out_svg = args.value_of("out-svg");

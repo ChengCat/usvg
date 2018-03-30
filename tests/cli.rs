@@ -105,3 +105,32 @@ fn load_file(path: &str) -> String {
 
     s
 }
+
+#[test]
+fn error_msg_1() {
+    let args = &[
+        APP_PATH,
+        "-c",
+        "tests/images/crosslink-err.svg",
+    ];
+
+    assert_cli::Assert::command(args)
+        .stdout().is("")
+        .stderr().is("Error: element crosslink.\n")
+        .fails()
+        .unwrap();
+}
+
+#[test]
+fn warn_msg_1() {
+    let args = &[
+        APP_PATH,
+        "-c",
+        "tests/images/invalid-attr-value-in.svg",
+    ];
+
+    assert_cli::Assert::command(args)
+        .stdout().is(load_file("tests/images/invalid-attr-value-out.svg"))
+        .stderr().is("Warning (in svgdom::parser::parser:410): Attribute 'fill' has an invalid value: 'qwe'.\n")
+        .unwrap();
+}

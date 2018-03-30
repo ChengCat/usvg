@@ -22,7 +22,7 @@ use traits::{
 };
 use geom::*;
 use {
-    ErrorKind,
+    Error,
     Options,
     Result,
 };
@@ -50,7 +50,7 @@ pub fn convert_doc(
         // otherwise document will always have an svg node.
         //
         // Or if someone passed an invalid document directly though API.
-        return Err(ErrorKind::MissingSvgNode.into());
+        return Err(Error::MissingSvgNode);
     };
 
     let view_box = {
@@ -236,7 +236,7 @@ fn get_img_size(svg: &svgdom::Node) -> Result<Size> {
         // otherwise document will always have a valid size.
         //
         // Or if someone passed an invalid document directly though API.
-        return Err(ErrorKind::InvalidSize.into());
+        return Err(Error::InvalidSize);
     };
 
     let size = Size::new(w.round(), h.round());
@@ -246,7 +246,7 @@ fn get_img_size(svg: &svgdom::Node) -> Result<Size> {
 fn get_view_box(svg: &svgdom::Node) -> Result<Rect> {
     match svg.get_viewbox() {
         Some(vb) => Ok(vb),
-        None => Err(ErrorKind::MissingViewBox.into()),
+        None => Err(Error::MissingViewBox),
     }
 }
 

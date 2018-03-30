@@ -4,54 +4,71 @@
 
 use svgdom;
 
-error_chain! {
-    types {
-        Error, ErrorKind, ResultExt, Result;
-    }
+/// Errors list.
+#[derive(Fail, Debug)]
+pub enum Error {
+    /// Failed to find an SVG size.
+    ///
+    /// SVG size must be explicitly defined.
+    /// Automatic image size determination is not supported.
+    #[fail(display = "file doesn't have 'width', 'height' and 'viewBox' attributes. \
+                      Automatic image size determination is not supported")]
+    SizeDeterminationUnsupported,
 
-    links {
-        SvgDom(svgdom::Error, svgdom::ErrorKind) #[doc = "'svgdom' errors"];
-    }
+    /// The `svg` node is missing.
+    ///
+    /// This error indicates an error in the preprocessor.
+    #[fail(display = "the root svg node is missing")]
+    MissingSvgNode,
 
-    foreign_links {
-        Io(::std::io::Error) #[doc = "io errors"];
-        UTF8(::std::string::FromUtf8Error) #[doc = "UTF-8 errors"];
-    }
+    /// SVG size is not resolved.
+    ///
+    /// This error indicates an error in the preprocessor.
+    #[fail(display = "invalid SVG size")]
+    InvalidSize,
 
-    errors {
-        /// Failed to find an SVG size.
-        ///
-        /// SVG size must be explicitly defined.
-        /// Automatic image size determination is not supported.
-        SizeDeterminationUnsupported {
-            display("file doesn't have 'width', 'height' and 'viewBox' attributes. \
-                     Automatic image size determination is not supported")
-        }
+    /// `viewBox` attribute must be resolved.
+    #[fail(display = "'viewBox' was not resolve'")]
+    MissingViewBox,
 
-        /// The `svg` node is missing.
-        ///
-        /// This error indicates an error in the preprocessor.
-        MissingSvgNode {
-            display("the root svg node is missing")
-        }
+    /// An invalid file extension.
+    ///
+    /// The extension should be 'svg' or 'svgz' in any case.
+    #[fail(display = "invalid file extension")]
+    InvalidFileExtension,
 
-        /// SVG size is not resolved.
-        ///
-        /// This error indicates an error in the preprocessor.
-        InvalidSize {
-            display("invalid SVG size")
-        }
+    /// SVG DOM errors.
+    #[fail(display = "{}", _0)]
+    SvgDom(svgdom::Error),
 
-        /// `viewBox` attribute must be resolved.
-        MissingViewBox {
-            display("'viewBox' was not resolved")
-        }
+    /// IO errors.
+    #[fail(display = "{}", _0)]
+    Io(::std::io::Error),
 
-        /// An invalid file extension.
-        ///
-        /// The extension should be 'svg' or 'svgz' in any case.
-        InvalidFileExtension {
-            display("invalid file extension")
-        }
+    /// UTF-8 error.
+    #[fail(display = "{}", _0)]
+    UTF8(::std::string::FromUtf8Error),
+}
+
+impl From<svgdom::Error> for Error {
+    fn from(value: svgdom::Error) -> Error {
+        Error::SvgDom(value)
     }
 }
+
+impl From<::std::io::Error> for Error {
+    fn from(value: ::std::io::Error) -> Error {
+        Error::Io(value)
+    }
+}
+
+impl From<::std::string::FromUtf8Error> for Error {
+    fn from(value: ::std::string::FromUtf8Error) -> Error {
+        Error::UTF8(value)
+    }
+}
+
+/// A specialized `Result` type where the error is hard-wired to [`Error`].
+///
+/// [`Error`]: enum.Error.html
+pub type Result<T> = ::std::result::Result<T, Error>;

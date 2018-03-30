@@ -7,7 +7,7 @@ use svgdom;
 
 // self
 use {
-    ErrorKind,
+    Error,
     Options,
     Result,
 };
@@ -93,14 +93,14 @@ pub fn prepare_doc(doc: &mut svgdom::Document, opt: &Options) -> Result<()> {
     } else {
         // Technically unreachable, because svgdom will return a parser error
         // if input SVG doesn't have an 'svg' node.
-        return Err(ErrorKind::MissingSvgNode.into());
+        return Err(Error::MissingSvgNode);
     };
 
     let svg = &mut svg;
 
     // Detect image size. If it failed there is no point in continuing.
     if !resolve_svg_size(svg) {
-        return Err(ErrorKind::SizeDeterminationUnsupported.into());
+        return Err(Error::SizeDeterminationUnsupported);
     }
 
     // TODO: remove duplicated defs

@@ -18,18 +18,15 @@ path = "src/lib.rs"
 base64 = "0.9"
 ego-tree = "0.3"
 euclid = "0.17"
+failure = "0.1.1"
 libflate = "0.1"
 log = "0.4"
 lyon_geom = "0.10"
 
-[dependencies.error-chain]
-version = "0.11"
-default-features = false
-
 [dependencies.svgdom]
 # version = "0.10"
 git = "https://github.com/RazrFalcon/libsvgdom.git"
-rev = "c390d40"
+rev = "2b9c6e3"
 # path = "../svgdom"
 
 [dev-dependencies]
