@@ -18,8 +18,6 @@ path = "src/lib.rs"
 base64 = "0.9"
 ego-tree = "0.3"
 euclid = "0.17"
-failure = "0.1.1"
-libflate = "0.1"
 log = "0.4"
 lyon_geom = "0.10"
 

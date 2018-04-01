@@ -14,8 +14,6 @@
 
 pub extern crate svgdom;
 extern crate base64;
-extern crate libflate;
-#[macro_use] extern crate failure;
 #[macro_use] extern crate log;
 
 
@@ -56,23 +54,10 @@ macro_rules! guard_assert {
 
 pub mod tree;
 mod convert;
-mod error;
 mod geom;
 mod options;
 mod preproc;
 mod traits;
-
-
-use std::path::{
-    Path,
-};
-
-pub use error::{
-    Error,
-    Result,
-};
-pub use options::*;
-pub use geom::*;
 
 /// Shorthand names for modules.
 mod short {
@@ -84,6 +69,10 @@ mod short {
     };
 }
 
+
+pub use options::*;
+pub use geom::*;
+
 use preproc::{
     DEFAULT_FONT_FAMILY,
     DEFAULT_FONT_SIZE,
@@ -94,71 +83,22 @@ use preproc::{
 pub fn parse_tree_from_data(
     text: &str,
     opt: &Options,
-) -> Result<tree::Tree> {
-    let doc = parse_dom(text)?;
+) -> tree::Tree {
+    let doc = parse_dom(text);
     parse_tree_from_dom(doc, opt)
-}
-
-/// Creates `Tree` from file.
-///
-/// `.svg` and `.svgz` files are supported.
-pub fn parse_tree_from_file<P: AsRef<Path>>(
-    path: P,
-    opt: &Options,
-) -> Result<tree::Tree> {
-    let text = load_file(path.as_ref())?;
-    parse_tree_from_data(&text, opt)
 }
 
 /// Creates `Tree` from `svgdom::Document`.
 pub fn parse_tree_from_dom(
     mut doc: svgdom::Document,
     opt: &Options,
-) -> Result<tree::Tree> {
-    preproc::prepare_doc(&mut doc, opt)?;
-    let rtree = convert::convert_doc(&doc, opt)?;
-
-    Ok(rtree)
-}
-
-/// Load an SVG file.
-///
-/// - `svg` files will be loaded as is.
-/// - `svgz` files will be decompressed.
-fn load_file(path: &Path) -> Result<String> {
-    use std::fs;
-    use std::io::Read;
-
-    let mut file = fs::File::open(path)?;
-    let length = file.metadata()?.len() as usize;
-
-    let ext = if let Some(ext) = Path::new(path).extension() {
-        ext.to_str().map(|s| s.to_lowercase()).unwrap_or_default()
-    } else {
-        String::new()
-    };
-
-    match ext.as_str() {
-        "svgz" => {
-            let mut decoder = libflate::gzip::Decoder::new(&file)?;
-            let mut decoded = Vec::new();
-            decoder.read_to_end(&mut decoded)?;
-
-            Ok(String::from_utf8(decoded)?)
-        }
-        "svg" => {
-            let mut s = String::with_capacity(length + 1);
-            file.read_to_string(&mut s)?;
-            Ok(s)
-        }
-        _ => {
-            Err(Error::InvalidFileExtension)
-        }
-    }
+) -> tree::Tree {
+    preproc::prepare_doc(&mut doc, opt);
+    convert::convert_doc(&doc, opt)
 }
 
 /// Parses `svgdom::Document` object from the string data.
-fn parse_dom(text: &str) -> Result<svgdom::Document> {
+fn parse_dom(text: &str) -> svgdom::Document {
     let opt = svgdom::ParseOptions {
         parse_comments: false,
         parse_declarations: false,
@@ -171,14 +111,8 @@ fn parse_dom(text: &str) -> Result<svgdom::Document> {
         .. svgdom::ParseOptions::default()
     };
 
-    let doc = svgdom::Document::from_str_with_opt(text, &opt)?;
-    Ok(doc)
-}
-
-/// Converts a provided `svgdom::Document` to `tree::Tree`.
-pub fn convert_dom_to_rtree(
-    doc: &svgdom::Document,
-    opt: &Options,
-) -> Result<tree::Tree> {
-    convert::convert_doc(doc, opt)
+    svgdom::Document::from_str_with_opt(text, &opt).unwrap_or_else(|e| {
+        warn!("Failed to parse an SVG data cause {}.", e);
+        svgdom::Document::new()
+    })
 }

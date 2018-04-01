@@ -9,13 +9,12 @@ categories = ["multimedia::images"]
 workspace = ".."
 
 [dependencies]
-usvg = { path = "../" }
-log = "0.4"
+clap = { version = "2", default-features = false }
+failure = "0.1.1"
 fern = "0.5"
-
-[dependencies.clap]
-version = "2"
-default-features = false
+libflate = "0.1"
+log = "0.4"
+usvg = { path = "../" }
 
 [[bin]]
 name = "usvg"

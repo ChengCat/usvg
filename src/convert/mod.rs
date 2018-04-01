@@ -22,9 +22,7 @@ use traits::{
 };
 use geom::*;
 use {
-    Error,
     Options,
-    Result,
 };
 
 
@@ -38,11 +36,22 @@ mod shapes;
 mod stroke;
 mod text;
 
-
+/// Converts an input `Document` to the `Tree`.
+///
+/// # Errors
+///
+/// - If `Document` doesn't have an SVG node - returns an empty tree.
+/// - If `Document` doesn't have a valid size - it will be set to 100x100.
+/// - If `Document` doesn't have a valid viewbox - it will be set to '0 0 W H'.
+///
+/// Basically, any error, even a critical one, should be recoverable.
+/// In worst case scenario return an empty tree, but not an error.
+///
+/// Must not panic!
 pub fn convert_doc(
     svg_doc: &svgdom::Document,
     opt: &Options,
-) -> Result<tree::Tree> {
+) -> tree::Tree {
     let svg = if let Some(svg) = svg_doc.svg_element() {
         svg
     } else {
@@ -50,19 +59,32 @@ pub fn convert_doc(
         // otherwise document will always have an svg node.
         //
         // Or if someone passed an invalid document directly though API.
-        return Err(Error::MissingSvgNode);
+
+        warn!("Invalid SVG structure. An empty tree will be produced.");
+
+        let svg_kind = tree::Svg {
+            size: Size::new(100.0, 100.0),
+            view_box: tree::ViewBox {
+                rect: rect(0.0, 0.0, 100.0, 100.0),
+                .. tree::ViewBox::default()
+            },
+        };
+
+        return tree::Tree::create(svg_kind);
     };
+
+    let size = get_img_size(&svg);
 
     let view_box = {
         let attrs = svg.attributes();
         tree::ViewBox {
-            rect: get_view_box(&svg)?,
+            rect: get_view_box(&svg, size),
             aspect: convert_aspect(&attrs),
         }
     };
 
     let svg_kind = tree::Svg {
-        size: get_img_size(&svg)?,
+        size,
         view_box,
     };
 
@@ -71,7 +93,7 @@ pub fn convert_doc(
     convert_ref_nodes(svg_doc, opt, &mut rtree);
     convert_nodes(&svg, rtree.root().id(), opt, &mut rtree);
 
-    Ok(rtree)
+    rtree
 }
 
 fn convert_ref_nodes(
@@ -223,30 +245,31 @@ pub(super) fn convert_nodes(
     }
 }
 
-fn get_img_size(svg: &svgdom::Node) -> Result<Size> {
+fn get_img_size(svg: &svgdom::Node) -> Size {
     let attrs = svg.attributes();
 
     let w = attrs.get_number(AId::Width);
     let h = attrs.get_number(AId::Height);
 
-    let (w, h) = if let (Some(w), Some(h)) = (w, h) {
-        (w, h)
+    if let (Some(w), Some(h)) = (w, h) {
+        Size::new(w.round(), h.round())
     } else {
         // Can be reached if 'preproc' module has a bug,
         // otherwise document will always have a valid size.
         //
         // Or if someone passed an invalid document directly though API.
-        return Err(Error::InvalidSize);
-    };
-
-    let size = Size::new(w.round(), h.round());
-    Ok(size)
+        warn!("Invalid SVG size. Reset to 100x100.");
+        Size::new(100.0, 100.0)
+    }
 }
 
-fn get_view_box(svg: &svgdom::Node) -> Result<Rect> {
+fn get_view_box(svg: &svgdom::Node, size: Size) -> Rect {
     match svg.get_viewbox() {
-        Some(vb) => Ok(vb),
-        None => Err(Error::MissingViewBox),
+        Some(vb) => vb,
+        None => {
+            warn!("Invalid SVG viewBox. Reset to '0 0 {} {}'.", size.width, size.height);
+            Rect::new(Point::new(0.0, 0.0), size)
+        }
     }
 }
 

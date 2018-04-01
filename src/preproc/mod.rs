@@ -7,9 +7,7 @@ use svgdom;
 
 // self
 use {
-    Error,
     Options,
-    Result,
 };
 
 
@@ -87,20 +85,37 @@ pub const DEFAULT_FONT_FAMILY: &str = "Times New Roman";
 pub const DEFAULT_FONT_SIZE: f64 = 12.0;
 
 
-pub fn prepare_doc(doc: &mut svgdom::Document, opt: &Options) -> Result<()> {
+/// Prepares an input `Document`.
+///
+/// # Errors
+///
+/// - If `Document` doesn't have an SVG node - clears the `doc`.
+/// - If `Document` size can't be determined - clears the `doc`.
+///
+/// Basically, any error, even a critical one, should be recoverable.
+/// In worst case scenario clear the `doc`.
+///
+/// Must not panic!
+pub fn prepare_doc(doc: &mut svgdom::Document, opt: &Options) {
     let mut svg = if let Some(svg) = doc.svg_element() {
         svg
     } else {
         // Technically unreachable, because svgdom will return a parser error
         // if input SVG doesn't have an 'svg' node.
-        return Err(Error::MissingSvgNode);
+        warn!("Invalid SVG structure. The Document will be cleared.");
+        *doc = svgdom::Document::new();
+        return;
     };
 
     let svg = &mut svg;
 
     // Detect image size. If it failed there is no point in continuing.
     if !resolve_svg_size(svg) {
-        return Err(Error::SizeDeterminationUnsupported);
+        warn!("File doesn't have 'width', 'height' and 'viewBox' attributes. \
+               Automatic image size determination is not supported. \
+               The Document will be cleared.");
+        *doc = svgdom::Document::new();
+        return;
     }
 
     // TODO: remove duplicated defs
@@ -159,6 +174,4 @@ pub fn prepare_doc(doc: &mut svgdom::Document, opt: &Options) -> Result<()> {
 
     prepare_text_nodes(doc);
     remove_invalid_font_size(doc);
-
-    Ok(())
 }

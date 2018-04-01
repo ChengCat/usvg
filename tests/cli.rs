@@ -107,7 +107,7 @@ fn load_file(path: &str) -> String {
 }
 
 #[test]
-fn error_msg_1() {
+fn svgdom_error_msg_1() {
     let args = &[
         APP_PATH,
         "-c",
@@ -115,9 +115,10 @@ fn error_msg_1() {
     ];
 
     assert_cli::Assert::command(args)
-        .stdout().is("")
-        .stderr().is("Error: element crosslink.\n")
-        .fails()
+        .stdout().is(load_file("tests/images/default.svg"))
+        .stderr().is("Warning (in usvg:193): Failed to parse an SVG data cause element crosslink.\n\
+                      Warning (in usvg::preproc:105): Invalid SVG structure. The Document will be cleared.\n\
+                      Warning (in usvg::convert:63): Invalid SVG structure. An empty tree will be produced.\n")
         .unwrap();
 }
 
