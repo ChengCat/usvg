@@ -28,7 +28,7 @@ use super::{
 pub(super) fn convert(
     node: &svgdom::Node,
     d: Path,
-    parent: tree::NodeId,
+    parent: &tree::Node,
     rtree: &mut tree::Tree,
 ) {
     let attrs = node.attributes();
@@ -41,7 +41,7 @@ pub(super) fn convert(
     // Path should contain at least two segments.
     guard_assert!(d.len() >= 2, (), "Must be already removed.");
 
-    rtree.append_child(parent, tree::NodeKind::Path(tree::Path {
+    parent.append_kind(tree::NodeKind::Path(tree::Path {
         id: node.id().clone(),
         transform,
         fill,

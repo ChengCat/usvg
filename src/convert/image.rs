@@ -25,8 +25,7 @@ use {
 pub(super) fn convert(
     node: &svgdom::Node,
     opt: &Options,
-    parent: tree::NodeId,
-    rtree: &mut tree::Tree,
+    parent: &tree::Node,
 ) {
     let ref attrs = node.attributes();
 
@@ -46,7 +45,7 @@ pub(super) fn convert(
     };
 
     if let Some(data) = get_href_data(href, opt.path.as_ref()) {
-        rtree.append_child(parent, tree::NodeKind::Image(tree::Image {
+        parent.append_kind(tree::NodeKind::Image(tree::Image {
             id: node.id().clone(),
             transform,
             view_box,

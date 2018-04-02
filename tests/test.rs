@@ -9,8 +9,6 @@ extern crate rustc_test;
 use std::{env, fs, fmt};
 use std::path::Path;
 
-use usvg::tree::prelude::*;
-
 use svgdom::ToStringWithOptions;
 
 use rustc_test::{TestDesc, TestDescAndFn, DynTestName, DynTestFn};

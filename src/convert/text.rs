@@ -25,37 +25,34 @@ use super::{
 
 pub(super) fn convert(
     text_elem: &svgdom::Node,
-    parent: tree::NodeId,
+    parent: &tree::Node,
     rtree: &mut tree::Tree,
 ) {
     let attrs = text_elem.attributes();
     let ts = attrs.get_transform(AId::Transform).unwrap_or_default();
 
-    let text_node = rtree.append_child(parent, tree::NodeKind::Text(tree::Text {
+    let text_node = parent.append_kind(tree::NodeKind::Text(tree::Text {
         id: text_elem.id().clone(),
         transform: ts,
     }));
 
-    convert_chunks(text_elem, text_node, rtree);
+    convert_chunks(text_elem, &text_node, rtree);
 }
 
 fn convert_chunks(
     text_elem: &svgdom::Node,
-    parent: tree::NodeId,
+    parent: &tree::Node,
     rtree: &mut tree::Tree,
 ) {
     let ref root_attrs = text_elem.attributes();
     let mut prev_x = resolve_pos(root_attrs, AId::X).unwrap_or(0.0);
     let mut prev_y = resolve_pos(root_attrs, AId::Y).unwrap_or(0.0);
 
-    let mut chunk_node = rtree.append_child(
-        parent,
-        tree::NodeKind::TextChunk(tree::TextChunk {
-            x: prev_x,
-            y: prev_y,
-            anchor: conv_text_anchor(root_attrs),
-        })
-    );
+    let mut chunk_node = parent.append_kind(tree::NodeKind::TextChunk(tree::TextChunk {
+        x: prev_x,
+        y: prev_y,
+        anchor: conv_text_anchor(root_attrs),
+    }));
 
     for tspan in text_elem.children() {
         debug_assert!(tspan.is_tag_name(EId::Tspan));
@@ -76,20 +73,16 @@ fn convert_chunks(
             let ty = y.unwrap_or(prev_y);
 
             if tx.fuzzy_ne(&prev_x) || ty.fuzzy_ne(&prev_y) {
-                if rtree.get(chunk_node).children().count() > 0 {
+                if chunk_node.children().count() > 0 {
                     // Create new if current text chunk has children.
-                    chunk_node = rtree.append_child(
-                        parent,
-                        tree::NodeKind::TextChunk(tree::TextChunk {
-                            x: tx,
-                            y: ty,
-                            anchor: conv_text_anchor(attrs),
-                        })
-                    );
+                    chunk_node = parent.append_kind(tree::NodeKind::TextChunk(tree::TextChunk {
+                        x: tx,
+                        y: ty,
+                        anchor: conv_text_anchor(attrs),
+                    }));
                 } else {
                     // Update existing chunk.
-                    let mut v = rtree.get_mut(chunk_node);
-                    if let tree::NodeKind::TextChunk(ref mut d) = *v.kind() {
+                    if let tree::NodeKind::TextChunk(ref mut d) = **chunk_node.borrow_mut() {
                         d.x = tx;
                         d.y = ty;
                         d.anchor = conv_text_anchor(attrs);
@@ -104,7 +97,7 @@ fn convert_chunks(
         let fill = fill::convert(rtree, attrs);
         let stroke = stroke::convert(rtree, attrs);
         let decoration = conv_tspan_decoration2(rtree, text_elem, &tspan);
-        rtree.append_child(chunk_node, tree::NodeKind::TSpan(tree::TSpan {
+        chunk_node.append_kind(tree::NodeKind::TSpan(tree::TSpan {
             fill,
             stroke,
             font: convert_font(attrs),
@@ -113,7 +106,7 @@ fn convert_chunks(
         }));
     }
 
-    debug_assert!(rtree.get(chunk_node).children().count() > 0);
+    debug_assert!(chunk_node.children().count() > 0);
 }
 
 fn resolve_pos(

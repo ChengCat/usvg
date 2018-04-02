@@ -91,7 +91,7 @@ pub fn convert_doc(
     let mut rtree = tree::Tree::create(svg_kind);
 
     convert_ref_nodes(svg_doc, opt, &mut rtree);
-    convert_nodes(&svg, rtree.root().id(), opt, &mut rtree);
+    convert_nodes(&svg, &rtree.root(), opt, &mut rtree);
 
     rtree
 }
@@ -138,14 +138,14 @@ fn convert_ref_nodes(
 
     for (node, new_node) in later_nodes {
         if node.is_tag_name(EId::ClipPath) {
-            clippath::convert_children(&node, new_node, rtree);
+            clippath::convert_children(&node, &new_node, rtree);
 
-            debug_assert!(rtree.get(new_node).has_children(),
+            debug_assert!(new_node.has_children(),
                           "clipPath must have at least 1 child");
         } else if node.is_tag_name(EId::Pattern) {
-            convert_nodes(&node, new_node, opt, rtree);
+            convert_nodes(&node, &new_node, opt, rtree);
 
-            debug_assert!(rtree.get(new_node).has_children(),
+            debug_assert!(new_node.has_children(),
                           "pattern must have at least 1 child");
         }
     }
@@ -153,7 +153,7 @@ fn convert_ref_nodes(
 
 pub(super) fn convert_nodes(
     parent: &svgdom::Node,
-    parent_node: tree::NodeId,
+    parent_node: &tree::Node,
     opt: &Options,
     rtree: &mut tree::Tree,
 ) {
@@ -182,15 +182,15 @@ pub(super) fn convert_nodes(
                     let mut v = None;
                     if let AValue::FuncLink(ref link) = *av {
                         if link.is_tag_name(EId::ClipPath) {
-                            if let Some(idx) = rtree.defs_by_svg_id(&link.id()) {
-                                v = Some(idx);
+                            if let Some(node) = rtree.defs_by_id(&link.id()) {
+                                v = Some(node);
                             }
                         }
                     }
 
                     debug_assert!(v.is_some(), "clipPath must be already resolved");
 
-                    v
+                    v.map(|v| v.id().to_string())
                 } else {
                     None
                 };
@@ -198,14 +198,14 @@ pub(super) fn convert_nodes(
                 let ts = attrs.get_transform(AId::Transform).unwrap_or_default();
                 let opacity = attrs.get_number(AId::Opacity).map(|v| v.into());
 
-                let g_node = rtree.append_child(parent_node, tree::NodeKind::Group(tree::Group {
+                let g_node = parent_node.append_kind(tree::NodeKind::Group(tree::Group {
                     id: node.id().clone(),
                     transform: ts,
                     opacity,
                     clip_path,
                 }));
 
-                convert_nodes(&node, g_node, opt, rtree);
+                convert_nodes(&node, &g_node, opt, rtree);
 
                 // TODO: check that opacity != 1.0
             }
@@ -236,7 +236,7 @@ pub(super) fn convert_nodes(
                 text::convert(&node, parent_node, rtree);
             }
             EId::Image => {
-                image::convert(&node, opt, parent_node, rtree);
+                image::convert(&node, opt, parent_node);
             }
             _ => {
                 warn!("Unsupported element '{}'.", id);

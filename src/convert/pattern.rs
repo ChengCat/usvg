@@ -19,7 +19,7 @@ use traits::{
 pub fn convert(
     node: &svgdom::Node,
     rtree: &mut tree::Tree,
-) -> tree::NodeId {
+) -> tree::Node {
     let ref attrs = node.attributes();
 
     let view_box = node.get_viewbox().map(|vb|

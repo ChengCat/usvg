@@ -16,7 +16,6 @@ pub use svgdom::{
 };
 
 // self
-use super::NodeId;
 use geom::*;
 
 
@@ -234,12 +233,12 @@ pub enum FontStretch {
 ///
 /// `paint` value type in the SVG.
 #[allow(missing_docs)]
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub enum Paint {
     /// Paint with a color.
     Color(Color),
     /// Paint using a referenced element.
-    Link(NodeId),
+    Link(String),
 }
 
 impl fmt::Debug for Paint {
@@ -254,7 +253,7 @@ impl fmt::Debug for Paint {
 
 /// A fill style.
 #[allow(missing_docs)]
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 pub struct Fill {
     pub paint: Paint,
     pub opacity: Opacity,

@@ -24,7 +24,7 @@ use super::{
 pub fn convert(
     node: &svgdom::Node,
     rtree: &mut tree::Tree,
-) -> tree::NodeId {
+) -> tree::Node {
     let attrs = node.attributes();
 
     rtree.append_to_defs(
@@ -38,7 +38,7 @@ pub fn convert(
 
 pub fn convert_children(
     node: &svgdom::Node,
-    parent: tree::NodeId,
+    parent: &tree::Node,
     rtree: &mut tree::Tree,
 ) {
     for (id, node) in node.children().svg() {

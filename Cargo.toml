@@ -16,16 +16,11 @@ path = "src/lib.rs"
 
 [dependencies]
 base64 = "0.9"
-ego-tree = "0.3"
 euclid = "0.17"
 log = "0.4"
 lyon_geom = "0.10"
-
-[dependencies.svgdom]
-# version = "0.10"
-git = "https://github.com/RazrFalcon/libsvgdom.git"
-rev = "2b9c6e3"
-# path = "../svgdom"
+rctree = { git = "https://github.com/RazrFalcon/rctree", rev = "f650c48" }
+svgdom = { git = "https://github.com/RazrFalcon/libsvgdom", rev = "2b9c6e3" }
 
 [dev-dependencies]
 assert_cli = "0.5.4"

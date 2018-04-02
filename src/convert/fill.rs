@@ -36,8 +36,8 @@ pub fn convert(
 
                 let mut p = None;
                 if link.is_gradient() || link.is_tag_name(EId::Pattern) {
-                    if let Some(id) = rtree.defs_by_svg_id(&link.id()) {
-                        p = Some(tree::Paint::Link(id));
+                    if let Some(node) = rtree.defs_by_id(&link.id()) {
+                        p = Some(tree::Paint::Link(node.id().to_string()));
                     }
                 }
 

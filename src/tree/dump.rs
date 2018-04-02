@@ -37,7 +37,7 @@ pub fn conv_doc(rtree: &Tree) -> svgdom::Document {
     svg.append(&defs);
 
     conv_defs(rtree, &mut new_doc, &mut defs);
-    conv_elements(rtree, rtree.root(), &defs, &mut new_doc, &mut svg);
+    conv_elements(rtree, &rtree.root(), &defs, &mut new_doc, &mut svg);
 
     new_doc
 }
@@ -50,7 +50,7 @@ fn conv_defs(
     let mut later_nodes = Vec::new();
 
     for n in rtree.defs().children() {
-        match *n.kind() {
+        match **n.borrow() {
             NodeKind::LinearGradient(ref lg) => {
                 let mut grad_elem = new_doc.create_element(EId::LinearGradient);
                 defs.append(&grad_elem);
@@ -62,7 +62,7 @@ fn conv_defs(
                 grad_elem.set_attribute((AId::X2, lg.x2));
                 grad_elem.set_attribute((AId::Y2, lg.y2));
 
-                conv_base_grad(n, &lg.d, new_doc, &mut grad_elem);
+                conv_base_grad(&n, &lg.d, new_doc, &mut grad_elem);
             }
             NodeKind::RadialGradient(ref rg) => {
                 let mut grad_elem = new_doc.create_element(EId::RadialGradient);
@@ -76,7 +76,7 @@ fn conv_defs(
                 grad_elem.set_attribute((AId::Fx, rg.fx));
                 grad_elem.set_attribute((AId::Fy, rg.fy));
 
-                conv_base_grad(n, &rg.d, new_doc, &mut grad_elem);
+                conv_base_grad(&n, &rg.d, new_doc, &mut grad_elem);
             }
             NodeKind::ClipPath(ref clip) => {
                 let mut clip_elem = new_doc.create_element(EId::ClipPath);
@@ -85,7 +85,7 @@ fn conv_defs(
                 clip_elem.set_id(clip.id.clone());
                 conv_units(AId::ClipPathUnits, clip.units, &mut clip_elem);
                 conv_transform(AId::Transform, &clip.transform, &mut clip_elem);
-                later_nodes.push((n, clip_elem.clone()));
+                later_nodes.push((n.clone(), clip_elem.clone()));
             }
             NodeKind::Pattern(ref pattern) => {
                 let mut pattern_elem = new_doc.create_element(EId::Pattern);
@@ -102,20 +102,20 @@ fn conv_defs(
                 conv_units(AId::PatternUnits, pattern.units, &mut pattern_elem);
                 conv_units(AId::PatternContentUnits, pattern.content_units, &mut pattern_elem);
                 conv_transform(AId::PatternTransform, &pattern.transform, &mut pattern_elem);
-                later_nodes.push((n, pattern_elem.clone()));
+                later_nodes.push((n.clone(), pattern_elem.clone()));
             }
             _ => {}
         }
     }
 
     for (rnode, mut elem) in later_nodes {
-        conv_elements(rtree, rnode, defs, new_doc, &mut elem);
+        conv_elements(rtree, &rnode, defs, new_doc, &mut elem);
     }
 }
 
 fn conv_elements(
     rtree: &Tree,
-    root: NodeRef,
+    root: &Node,
     defs: &svgdom::Node,
     new_doc: &mut svgdom::Document,
     parent: &mut svgdom::Node,
@@ -244,10 +244,10 @@ fn conv_elements(
                 conv_transform(AId::Transform, &g.transform, &mut g_elem);
                 g_elem.set_id(g.id.clone());
 
-                if let Some(id) = g.clip_path {
-                    if let Some(defs_id) = rtree.defs_at(id) {
-                        let defs_id = defs_id.svg_id();
-                        let link = defs.children().find(|n| *n.id() == defs_id).unwrap();
+                if let Some(ref id) = g.clip_path {
+                    if let Some(node) = rtree.defs_by_id(id) {
+                        let defs_id = node.id();
+                        let link = defs.children().find(|n| *n.id() == *defs_id).unwrap();
                         g_elem.set_attribute((AId::ClipPath, link));
                     }
                 }
@@ -260,7 +260,7 @@ fn conv_elements(
                     warn!("Group must have at least one attribute otherwise it's pointless.");
                 }
 
-                conv_elements(rtree, n, defs, new_doc, &mut g_elem);
+                conv_elements(rtree, &n, defs, new_doc, &mut g_elem);
             }
             _ => {}
         }
@@ -309,10 +309,10 @@ fn conv_fill(
         Some(ref fill) => {
             match fill.paint {
                 Paint::Color(c) => node.set_attribute((AId::Fill, c)),
-                Paint::Link(id) => {
-                    if let Some(defs_id) = rtree.defs_at(id) {
-                        let defs_id = defs_id.svg_id();
-                        let link = defs.children().find(|n| *n.id() == defs_id).unwrap();
+                Paint::Link(ref id) => {
+                    if let Some(defs_node) = rtree.defs_by_id(id) {
+                        let defs_id = defs_node.id();
+                        let link = defs.children().find(|n| *n.id() == *defs_id).unwrap();
                         node.set_attribute((AId::Fill, link));
                     }
                 }
@@ -342,10 +342,10 @@ fn conv_stroke(
         Some(ref stroke) => {
             match stroke.paint {
                 Paint::Color(c) => node.set_attribute((AId::Stroke, c)),
-                Paint::Link(id) => {
-                    if let Some(defs_id) = rtree.defs_at(id) {
-                        let defs_id = defs_id.svg_id();
-                        let link = defs.children().find(|n| *n.id() == defs_id).unwrap();
+                Paint::Link(ref id) => {
+                    if let Some(defs_node) = rtree.defs_by_id(id) {
+                        let defs_id = defs_node.id();
+                        let link = defs.children().find(|n| *n.id() == *defs_id).unwrap();
                         node.set_attribute((AId::Stroke, link));
                     }
                 }
@@ -385,7 +385,7 @@ fn conv_stroke(
 }
 
 fn conv_base_grad(
-    g_node: NodeRef,
+    g_node: &Node,
     g: &BaseGradient,
     doc: &mut svgdom::Document,
     node: &mut svgdom::Node,

@@ -7,7 +7,6 @@ use std::path::PathBuf;
 // self
 use geom::*;
 use super::attribute::*;
-use super::NodeId;
 
 
 /// Node's kind.
@@ -244,7 +243,7 @@ pub struct Group {
     /// it with a parent group using the specified opacity.
     pub opacity: Option<Opacity>,
     /// Element clip path.
-    pub clip_path: Option<NodeId>,
+    pub clip_path: Option<String>,
 }
 
 

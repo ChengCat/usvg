@@ -12,7 +12,6 @@ use std::io::{ self, Read, Write };
 
 use clap::{ App, Arg, ArgMatches };
 
-use usvg::tree::prelude::*;
 use usvg::svgdom;
 
 use svgdom::WriteBuffer;

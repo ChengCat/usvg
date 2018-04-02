@@ -38,7 +38,7 @@ pub fn convert_linear(
         })
     );
 
-    convert_stops(node, grad, rtree);
+    convert_stops(node, grad);
 }
 
 pub fn convert_radial(
@@ -64,7 +64,7 @@ pub fn convert_radial(
         })
     );
 
-    convert_stops(node, grad, rtree);
+    convert_stops(node, grad);
 }
 
 fn convert_spread_method(
@@ -82,8 +82,7 @@ fn convert_spread_method(
 
 fn convert_stops(
     node: &svgdom::Node,
-    parent: tree::NodeId,
-    rtree: &mut tree::Tree,
+    parent: tree::Node,
 ) {
     for s in node.children() {
         if !s.is_tag_name(EId::Stop) {
@@ -97,13 +96,13 @@ fn convert_stops(
         let color = attrs.get_color(AId::StopColor).unwrap_or(svgdom::Color::new(0, 0, 0));
         let opacity = attrs.get_number(AId::StopOpacity).unwrap_or(1.0).into();
 
-        rtree.append_child(parent, tree::NodeKind::Stop(tree::Stop {
+        parent.append_kind(tree::NodeKind::Stop(tree::Stop {
             offset,
             color,
             opacity,
         }));
     }
 
-    debug_assert!(rtree.get(parent).children().count() >= 2,
+    debug_assert!(parent.children().count() >= 2,
                   "gradient must have at least 2 children");
 }
