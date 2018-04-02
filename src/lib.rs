@@ -14,7 +14,9 @@
 
 pub extern crate svgdom;
 extern crate base64;
+extern crate libflate;
 #[macro_use] extern crate log;
+#[macro_use] extern crate failure;
 
 
 pub mod tree;
@@ -35,6 +37,8 @@ mod short {
 }
 
 
+use std::path;
+
 pub use options::*;
 pub use geom::*;
 
@@ -44,7 +48,7 @@ use preproc::{
 };
 
 
-/// Creates `Tree` from SVG data.
+/// Parsers `Tree` from SVG data.
 pub fn parse_tree_from_data(
     text: &str,
     opt: &Options,
@@ -53,7 +57,7 @@ pub fn parse_tree_from_data(
     parse_tree_from_dom(doc, opt)
 }
 
-/// Creates `Tree` from `svgdom::Document`.
+/// Parsers `Tree` from `svgdom::Document`.
 pub fn parse_tree_from_dom(
     mut doc: svgdom::Document,
     opt: &Options,
@@ -61,6 +65,73 @@ pub fn parse_tree_from_dom(
     preproc::prepare_doc(&mut doc, opt);
     convert::convert_doc(&doc, opt)
 }
+
+/// List of errors that can be produced by `parse_tree_from_file`.
+#[derive(Fail, Debug)]
+#[allow(missing_docs)]
+pub enum FileReadError {
+    #[fail(display = "{}", _0)]
+    Io(::std::io::Error),
+
+    #[fail(display = "{}", _0)]
+    Utf8(::std::string::FromUtf8Error),
+}
+
+impl From<::std::io::Error> for FileReadError {
+    fn from(value: ::std::io::Error) -> FileReadError {
+        FileReadError::Io(value)
+    }
+}
+
+impl From<::std::string::FromUtf8Error> for FileReadError {
+    fn from(value: ::std::string::FromUtf8Error) -> FileReadError {
+        FileReadError::Utf8(value)
+    }
+}
+
+/// Parsers `Tree` from file.
+pub fn parse_tree_from_file<P: AsRef<path::Path>>(
+    path: P,
+    opt: &Options,
+) -> Result<tree::Tree, FileReadError> {
+    let text = load_svg_file(path.as_ref())?;
+    Ok(parse_tree_from_data(&text, opt))
+}
+
+/// Loads SVG, SVGZ file content.
+pub fn load_svg_file(path: &path::Path) -> Result<String, FileReadError> {
+    use std::fs;
+    use std::io::Read;
+    use std::path::Path;
+
+    let mut file = fs::File::open(path)?;
+    let length = file.metadata()?.len() as usize;
+
+    let ext = if let Some(ext) = Path::new(path).extension() {
+        ext.to_str().map(|s| s.to_lowercase()).unwrap_or_default()
+    } else {
+        String::new()
+    };
+
+    match ext.as_str() {
+        "svgz" => {
+            let mut decoder = libflate::gzip::Decoder::new(&file)?;
+            let mut decoded = Vec::new();
+            decoder.read_to_end(&mut decoded)?;
+
+            Ok(String::from_utf8(decoded)?)
+        }
+        "svg" => {
+            let mut s = String::with_capacity(length + 1);
+            file.read_to_string(&mut s)?;
+            Ok(s)
+        }
+        _ => {
+            unreachable!()
+        }
+    }
+}
+
 
 /// Parses `svgdom::Document` object from the string data.
 fn parse_dom(text: &str) -> svgdom::Document {

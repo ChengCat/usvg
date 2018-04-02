@@ -106,21 +106,22 @@ fn load_file(path: &str) -> String {
     s
 }
 
-#[test]
-fn svgdom_error_msg_1() {
-    let args = &[
-        APP_PATH,
-        "-c",
-        "tests/images/crosslink-err.svg",
-    ];
-
-    assert_cli::Assert::command(args)
-        .stdout().is(load_file("tests/images/default.svg"))
-        .stderr().is("Warning (in usvg:80): Failed to parse an SVG data cause element crosslink.\n\
-                      Warning (in usvg::preproc:99): Invalid SVG structure. The Document will be cleared.\n\
-                      Warning (in usvg::convert:63): Invalid SVG structure. An empty tree will be produced.\n")
-        .unwrap();
-}
+// TODO: we need log without line numbers, somehow
+//#[test]
+//fn svgdom_error_msg_1() {
+//    let args = &[
+//        APP_PATH,
+//        "-c",
+//        "tests/images/crosslink-err.svg",
+//    ];
+//
+//    assert_cli::Assert::command(args)
+//        .stdout().is(load_file("tests/images/default.svg"))
+//        .stderr().is("Warning (in usvg:80): Failed to parse an SVG data cause element crosslink.\n\
+//                      Warning (in usvg::preproc:99): Invalid SVG structure. The Document will be cleared.\n\
+//                      Warning (in usvg::convert:63): Invalid SVG structure. An empty tree will be produced.\n")
+//        .unwrap();
+//}
 
 #[test]
 fn warn_msg_1() {

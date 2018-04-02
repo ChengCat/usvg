@@ -1,14 +1,13 @@
 #[macro_use] extern crate clap;
-#[macro_use] extern crate failure;
 extern crate usvg;
 extern crate fern;
 extern crate log;
-extern crate libflate;
 
 
 use std::fmt;
 use std::fs::File;
 use std::io::{ self, Read, Write };
+use std::path::Path;
 
 use clap::{ App, Arg, ArgMatches };
 
@@ -27,27 +26,6 @@ enum InputFrom<'a> {
 enum OutputTo<'a> {
     Stdout,
     File(&'a str),
-}
-
-#[derive(Fail, Debug)]
-enum Error {
-    #[fail(display = "{}", _0)]
-    Io(io::Error),
-
-    #[fail(display = "{}", _0)]
-    Utf8(::std::string::FromUtf8Error),
-}
-
-impl From<::std::io::Error> for Error {
-    fn from(value: ::std::io::Error) -> Error {
-        Error::Io(value)
-    }
-}
-
-impl From<::std::string::FromUtf8Error> for Error {
-    fn from(value: ::std::string::FromUtf8Error) -> Error {
-        Error::Utf8(value)
-    }
 }
 
 
@@ -117,7 +95,7 @@ fn is_dpi(val: String) -> Result<(), String> {
     }
 }
 
-fn process(args: &ArgMatches) -> Result<(), Error> {
+fn process(args: &ArgMatches) -> Result<(), usvg::FileReadError> {
     let (in_svg, out_svg) = {
         let in_svg = args.value_of("in-svg").unwrap();
         let out_svg = args.value_of("out-svg");
@@ -152,7 +130,7 @@ fn process(args: &ArgMatches) -> Result<(), Error> {
 
     let input_str = match in_svg {
         InputFrom::Stdin => load_stdin(),
-        InputFrom::File(path) => load_file(path),
+        InputFrom::File(path) => usvg::load_svg_file(Path::new(path)),
     }?;
 
     let tree = usvg::parse_tree_from_data(&input_str, &re_opt);
@@ -204,7 +182,7 @@ fn log_format(
     ))
 }
 
-fn load_stdin() -> Result<String, Error> {
+fn load_stdin() -> Result<String, usvg::FileReadError> {
     let mut s = String::new();
     let stdin = io::stdin();
     let mut handle = stdin.lock();
@@ -212,37 +190,4 @@ fn load_stdin() -> Result<String, Error> {
     handle.read_to_string(&mut s)?;
 
     Ok(s)
-}
-
-fn load_file(path: &str) -> Result<String, Error> {
-    use std::fs;
-    use std::io::Read;
-    use std::path::Path;
-
-    let mut file = fs::File::open(path)?;
-    let length = file.metadata()?.len() as usize;
-
-    let ext = if let Some(ext) = Path::new(path).extension() {
-        ext.to_str().map(|s| s.to_lowercase()).unwrap_or_default()
-    } else {
-        String::new()
-    };
-
-    match ext.as_str() {
-        "svgz" => {
-            let mut decoder = libflate::gzip::Decoder::new(&file)?;
-            let mut decoded = Vec::new();
-            decoder.read_to_end(&mut decoded)?;
-
-            Ok(String::from_utf8(decoded)?)
-        }
-        "svg" => {
-            let mut s = String::with_capacity(length + 1);
-            file.read_to_string(&mut s)?;
-            Ok(s)
-        }
-        _ => {
-            unreachable!()
-        }
-    }
 }
