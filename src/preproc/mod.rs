@@ -32,11 +32,8 @@ mod resolve_svg_size;
 mod resolve_tref;
 mod resolve_use;
 mod resolve_visibility;
-mod rm_invalid_clip_path;
 mod rm_invalid_font_size;
 mod rm_invalid_gradients;
-mod rm_invalid_patterns;
-mod rm_invalid_shapes;
 mod rm_invalid_ts;
 mod rm_invisible_elems;
 mod rm_unused_defs;
@@ -66,11 +63,8 @@ use self::resolve_svg_size::resolve_svg_size;
 use self::resolve_tref::resolve_tref;
 use self::resolve_use::resolve_use;
 use self::resolve_visibility::resolve_visibility;
-use self::rm_invalid_clip_path::remove_invalid_clip_path;
 use self::rm_invalid_font_size::remove_invalid_font_size;
 use self::rm_invalid_gradients::remove_invalid_gradients;
-use self::rm_invalid_patterns::remove_invalid_patterns;
-use self::rm_invalid_shapes::remove_invalid_shapes;
 use self::rm_invalid_ts::remove_invalid_transform;
 use self::rm_invisible_elems::remove_invisible_elements;
 use self::rm_unused_defs::remove_unused_defs;
@@ -161,12 +155,6 @@ pub fn prepare_doc(doc: &mut svgdom::Document, opt: &Options) {
     remove_invalid_transform(doc);
     remove_invisible_elements(doc);
 
-    // Run before groups processing.
-    remove_invalid_shapes(doc);
-
-    remove_invalid_patterns(doc);
-
-    remove_invalid_clip_path(doc);
     prepare_clip_path(doc);
 
     ungroup_groups(svg, opt);

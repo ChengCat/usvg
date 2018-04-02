@@ -17,41 +17,6 @@ extern crate base64;
 #[macro_use] extern crate log;
 
 
-macro_rules! guard_warn {
-    ($cond:expr, $ret:expr, $msg:expr) => {
-        if !$cond {
-            warn!($msg);
-            return $ret;
-        }
-    };
-    ($cond:expr, $ret:expr, $fmt:expr, $($arg:tt)*) => {
-        if !$cond {
-            warn!($fmt, $($arg)*);
-            return $ret;
-        }
-    };
-}
-
-macro_rules! guard_assert {
-    ($cond:expr, $ret:expr, $msg:expr) => {
-        debug_assert!($cond, $msg);
-
-        if !$cond {
-            warn!($msg);
-            return $ret;
-        }
-    };
-    ($cond:expr, $ret:expr, $fmt:expr, $($arg:tt)*) => {
-        debug_assert!($cond, $fmt, $($arg)*);
-
-        if !$cond {
-            warn!($fmt, $($arg)*);
-            return $ret;
-        }
-    };
-}
-
-
 pub mod tree;
 mod convert;
 mod geom;

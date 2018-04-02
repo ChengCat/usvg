@@ -51,16 +51,13 @@ pub fn convert(
                     if let Some(node) = rtree.defs_by_id(&link.id()) {
                         p = Some(tree::Paint::Link(node.id().to_string()));
                     }
+                } else {
+                    warn!("'{:?}' cannot be used for stroking.",
+                          link.tag_name());
+                    return None;
                 }
 
-                match p {
-                    Some(p) => p,
-                    None => {
-                        warn!("'{:?}' cannot be used for stroking.",
-                              link.tag_name());
-                        return None;
-                    }
-                }
+                p?
             }
             AValue::PredefValue(svgdom::ValueId::None) => {
                 return None;

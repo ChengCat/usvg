@@ -19,7 +19,7 @@ use traits::{
 pub fn convert(
     node: &svgdom::Node,
     rtree: &mut tree::Tree,
-) -> tree::Node {
+) -> Option<tree::Node> {
     let ref attrs = node.attributes();
 
     let view_box = node.get_viewbox().map(|vb|
@@ -30,13 +30,17 @@ pub fn convert(
     );
 
     let rect = super::convert_rect(attrs);
+    if !(rect.size.width > 0.0 && rect.size.height > 0.0) {
+        warn!("Pattern '{}' has an invalid size. Skipped.", node.id());
+        return None;
+    }
 
-    rtree.append_to_defs(tree::NodeKind::Pattern(tree::Pattern {
+    Some(rtree.append_to_defs(tree::NodeKind::Pattern(tree::Pattern {
         id: node.id().clone(),
         units: super::convert_element_units(attrs, AId::PatternUnits),
         content_units: super::convert_element_units(attrs, AId::PatternContentUnits),
         transform: attrs.get_transform(AId::PatternTransform).unwrap_or_default(),
         rect,
         view_box,
-    }))
+    })))
 }

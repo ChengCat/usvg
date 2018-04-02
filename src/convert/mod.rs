@@ -127,8 +127,9 @@ fn convert_ref_nodes(
                 later_nodes.push((node, new_node));
             }
             EId::Pattern => {
-                let new_node = pattern::convert(&node, rtree);
-                later_nodes.push((node, new_node));
+                if let Some(new_node) = pattern::convert(&node, rtree) {
+                    later_nodes.push((node, new_node));
+                }
             }
             _ => {
                 warn!("Unsupported element '{}'.", id);
@@ -140,13 +141,17 @@ fn convert_ref_nodes(
         if node.is_tag_name(EId::ClipPath) {
             clippath::convert_children(&node, &new_node, rtree);
 
-            debug_assert!(new_node.has_children(),
-                          "clipPath must have at least 1 child");
+            if !new_node.has_children() {
+                warn!("ClipPath '{}' has no children. Skipped.", node.id());
+                new_node.detach();
+            }
         } else if node.is_tag_name(EId::Pattern) {
             convert_nodes(&node, &new_node, opt, rtree);
 
-            debug_assert!(new_node.has_children(),
-                          "pattern must have at least 1 child");
+            if !new_node.has_children() {
+                warn!("Pattern '{}' has no children. Skipped.", node.id());
+                new_node.detach();
+            }
         }
     }
 }
@@ -188,7 +193,10 @@ pub(super) fn convert_nodes(
                         }
                     }
 
-                    debug_assert!(v.is_some(), "clipPath must be already resolved");
+                    // If a `clipPath` is invalid than all elements that uses it should be removed.
+                    if v.is_none() {
+                        continue;
+                    }
 
                     v.map(|v| v.id().to_string())
                 } else {
@@ -297,8 +305,8 @@ fn convert_rect(attrs: &svgdom::Attributes) -> Rect {
         ),
     );
 
-    debug_assert!(!rect.size.width.is_fuzzy_zero());
-    debug_assert!(!rect.size.height.is_fuzzy_zero());
+//    debug_assert!(!rect.size.width.is_fuzzy_zero());
+//    debug_assert!(!rect.size.height.is_fuzzy_zero());
 
     rect
 }

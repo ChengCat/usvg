@@ -38,8 +38,9 @@ pub(super) fn convert(
     let d = convert_path(d);
     let transform = attrs.get_transform(AId::Transform).unwrap_or_default();
 
-    // Path should contain at least two segments.
-    guard_assert!(d.len() >= 2, (), "Must be already removed.");
+    if d.len() < 2 {
+        return;
+    }
 
     parent.append_kind(tree::NodeKind::Path(tree::Path {
         id: node.id().clone(),

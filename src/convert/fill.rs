@@ -39,17 +39,14 @@ pub fn convert(
                     if let Some(node) = rtree.defs_by_id(&link.id()) {
                         p = Some(tree::Paint::Link(node.id().to_string()));
                     }
+                } else {
+                    // a-fill-023.svg
+                    warn!("'{:?}' cannot be used for filling.",
+                          link.tag_id().unwrap());
+                    return None;
                 }
 
-                match p {
-                    Some(p) => p,
-                    None => {
-                        // a-fill-023.svg
-                        warn!("'{:?}' cannot be used for filling.",
-                              link.tag_id().unwrap());
-                        return None;
-                    }
-                }
+                p?
             }
             AValue::PredefValue(svgdom::ValueId::None) => {
                 // a-fill-020.svg

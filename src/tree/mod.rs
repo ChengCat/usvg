@@ -87,7 +87,6 @@ impl Tree {
             }
         }
 
-        warn!("Node '{}' was not found in defs.", id);
         None
     }
 
