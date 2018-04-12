@@ -4,6 +4,7 @@
 
 // external
 use svgdom::{
+    Document,
     Node,
     ValueId,
 };
@@ -21,13 +22,13 @@ use traits::{
 // TODO: Note that if the 'visibility' property is set to hidden on a 'tspan', 'tref' or 'altGlyph'
 //       element, then the text is invisible but still takes up space in text layout calculations.
 
-pub fn resolve_visibility(svg: &Node) {
+pub fn resolve_visibility(doc: &mut Document, svg: &Node) {
     let mut nodes = Vec::with_capacity(16);
 
     _resolve(svg, &mut nodes);
 
-    while let Some(mut node) = nodes.pop() {
-        node.remove();
+    while let Some(node) = nodes.pop() {
+        doc.remove_node(node);
     }
 }
 

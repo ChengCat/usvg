@@ -173,7 +173,7 @@ impl FindAttribute for Node {
     }
 
     fn find_attribute_with_node<T: FromValue + Display + Clone>(&self, id: AId) -> Option<(Node, T)> {
-        for n in self.parents_with_self() {
+        for n in self.ancestors() {
             if n.has_attribute(id) {
                 let v = FromValue::get(n.attributes().get_value(id).unwrap()).cloned();
                 return match v {

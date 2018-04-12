@@ -37,7 +37,7 @@ pub struct Tree {
 impl Tree {
     /// Creates a new `Tree`.
     pub fn create(svg: Svg) -> Self {
-        let root_node = Node::new(Box::new(NodeKind::Svg(svg)));
+        let mut root_node = Node::new(Box::new(NodeKind::Svg(svg)));
         let defs_node = Node::new(Box::new(NodeKind::Defs));
         root_node.append(defs_node);
 
@@ -141,7 +141,7 @@ pub trait NodeExt {
     /// Appends `kind` as a node child.
     ///
     /// Shorthand for `Node::append(Node::new(Box::new(kind)))`.
-    fn append_kind(&self, kind: NodeKind) -> Node;
+    fn append_kind(&mut self, kind: NodeKind) -> Node;
 
     /// Returns a node's tree.
     fn tree(&self) -> Tree;
@@ -160,7 +160,7 @@ impl NodeExt for Node {
         Ref::map(self.borrow(), |v| &**v)
     }
 
-    fn append_kind(&self, kind: NodeKind) -> Node {
+    fn append_kind(&mut self, kind: NodeKind) -> Node {
         let new_node = Node::new(Box::new(kind));
         self.append(new_node.clone());
         new_node

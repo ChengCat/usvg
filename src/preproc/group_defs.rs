@@ -7,6 +7,7 @@ use svgdom::{
     AttributeType,
     Document,
     ElementType,
+    FilterSvg,
     Node,
 };
 
@@ -26,7 +27,7 @@ pub fn group_defs(doc: &mut Document, svg: &mut Node) {
     // Make 'defs' a first child of the 'svg'.
     if svg.first_child() != Some(defs.clone()) {
         defs.detach();
-        svg.prepend(&defs);
+        svg.prepend(defs.clone());
     }
 
     // Move all referenced elements to the main 'defs'.
@@ -46,7 +47,7 @@ pub fn group_defs(doc: &mut Document, svg: &mut Node) {
         for n in &mut nodes {
             resolve_attrs(n);
             n.detach();
-            defs.append(n);
+            defs.append(n.clone());
         }
     }
 
@@ -63,7 +64,7 @@ pub fn group_defs(doc: &mut Document, svg: &mut Node) {
 
         for n in &mut nodes {
             n.detach();
-            defs.append(n);
+            defs.append(n.clone());
         }
     }
 
@@ -79,7 +80,7 @@ pub fn group_defs(doc: &mut Document, svg: &mut Node) {
         for n in &mut nodes {
             // Unneeded defs already ungrouped and must be empty.
             debug_assert!(!n.has_children());
-            n.remove();
+            doc.remove_node(n.clone());
         }
     }
 }

@@ -5,6 +5,7 @@
 // external
 use svgdom::{
     Document,
+    FilterSvg,
 };
 
 // self
@@ -18,14 +19,14 @@ use short::{
 /// So, if an `a` element is inside a `text` - change tag name to `tspan`.
 /// Otherwise, to `g`.
 pub fn ungroup_a(doc: &Document) {
-    for (id, mut node) in doc.descendants().svg() {
+    for (id, mut node) in doc.root().descendants().svg() {
         if id != EId::A {
             continue;
         }
 
         node.remove_attribute(("xlink", AId::Href));
 
-        if node.parents().any(|n| n.is_tag_name(EId::Text)) {
+        if node.ancestors().skip(1).any(|n| n.is_tag_name(EId::Text)) {
             node.set_tag_name(EId::Tspan);
         } else {
             node.set_tag_name(EId::G);

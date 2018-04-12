@@ -5,6 +5,7 @@
 // external
 use svgdom::{
     Document,
+    FilterSvg,
     Length,
     Node,
     NodeType,

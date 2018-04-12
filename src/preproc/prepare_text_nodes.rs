@@ -5,6 +5,7 @@
 // external
 use svgdom::{
     Document,
+    FilterSvg,
     Node,
     NodeType,
 };
@@ -19,7 +20,7 @@ use short::{
 pub fn prepare_text_nodes(doc: &mut Document) {
     let mut rm_nodes = Vec::new();
 
-    for (id, mut node) in doc.descendants().svg() {
+    for (id, mut node) in doc.root().descendants().svg() {
         if id != EId::Text {
             continue;
         }
@@ -34,7 +35,7 @@ pub fn prepare_text_nodes(doc: &mut Document) {
             continue;
         }
 
-        node.insert_before(&new_text_elem);
+        node.insert_before(new_text_elem.clone());
 
         for (_, attr) in node.attributes().iter_svg() {
             new_text_elem.set_attribute(attr.clone());
@@ -42,7 +43,7 @@ pub fn prepare_text_nodes(doc: &mut Document) {
     }
 
     for mut node in rm_nodes {
-        node.remove();
+        doc.remove_node(node);
     }
 }
 
@@ -68,10 +69,10 @@ fn prepare_text_elem(doc: &mut Document, elem: &Node, new_elem: &mut Node) {
         let attrs = text_parent.attributes();
 
         let mut new_tspan = doc.create_element(EId::Tspan);
-        new_elem.append(&new_tspan);
+        new_elem.append(new_tspan.clone());
 
         let new_text_node = doc.create_node(NodeType::Text, &node.text());
-        new_tspan.append(&new_text_node);
+        new_tspan.append(new_text_node.clone());
 
         for (aid, attr) in attrs.iter_svg() {
             match aid {

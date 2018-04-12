@@ -6,6 +6,7 @@
 use svgdom::{
     Attribute,
     Document,
+    FilterSvg,
     Node,
     ValueId,
 };
@@ -25,7 +26,7 @@ use short::{
 pub fn resolve_inherit(doc: &Document) {
     let mut ids = Vec::new();
 
-    for (_, mut node) in doc.descendants().svg() {
+    for (_, mut node) in doc.root().descendants().svg() {
         ids.clear();
 
         {
@@ -46,7 +47,7 @@ pub fn resolve_inherit(doc: &Document) {
 }
 
 fn resolve_impl(node: &mut Node, attr: AId) {
-    if let Some(n) = node.parents().find(|n| n.has_attribute(attr)) {
+    if let Some(n) = node.ancestors().skip(1).find(|n| n.has_attribute(attr)) {
         let av = n.attributes().get_value(attr).cloned();
         if let Some(av) = av {
             node.set_attribute((attr, av.clone()));

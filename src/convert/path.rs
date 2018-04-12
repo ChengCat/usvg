@@ -28,7 +28,7 @@ use super::{
 pub(super) fn convert(
     node: &svgdom::Node,
     d: Path,
-    parent: &tree::Node,
+    mut parent: tree::Node,
     rtree: &mut tree::Tree,
 ) {
     let attrs = node.attributes();

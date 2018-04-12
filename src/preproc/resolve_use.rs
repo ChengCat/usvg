@@ -19,7 +19,7 @@ use traits::{
 };
 
 
-pub fn resolve_use(doc: &Document) {
+pub fn resolve_use(doc: &mut Document) {
     let mut nodes = Vec::new();
 
     // 'use' elements can be linked in any order,
@@ -29,7 +29,7 @@ pub fn resolve_use(doc: &Document) {
         is_any_resolved = false;
         nodes.clear();
 
-        for mut node in doc.descendants().filter(|n| n.is_tag_name(EId::Use)) {
+        for mut node in doc.root().descendants().filter(|n| n.is_tag_name(EId::Use)) {
             let av = node.attributes().get_value(("xlink", AId::Href)).cloned();
             if let Some(AValue::Link(link)) = av {
                 // Ignore 'use' elements linked to other 'use' elements.
@@ -48,7 +48,7 @@ pub fn resolve_use(doc: &Document) {
                     continue;
                 }
 
-                _resolve_use(&mut node, &link);
+                _resolve_use(doc, node.clone(), &link);
                 is_any_resolved = true;
             }
 
@@ -59,12 +59,12 @@ pub fn resolve_use(doc: &Document) {
         // Remove unresolved 'use' elements, since there is not need
         // to keep them around and they will be skipped anyway.
         for node in &mut nodes {
-            node.remove();
+            doc.remove_node(node.clone());
         }
     }
 }
 
-fn _resolve_use(use_node: &mut Node, linked_node: &Node) {
+fn _resolve_use(doc: &mut Document, mut use_node: Node, linked_node: &Node) {
     // Unlink 'use'.
     use_node.remove_attribute(("xlink", AId::Href));
 
@@ -92,8 +92,8 @@ fn _resolve_use(use_node: &mut Node, linked_node: &Node) {
     }
 
     // Create a deep copy of the linked node.
-    let mut new_node = linked_node.make_deep_copy();
-    use_node.insert_after(&new_node);
+    let mut new_node = doc.copy_node_deep(linked_node.clone());
+    use_node.insert_after(new_node.clone());
 
     // Copy attributes from 'use'.
     for (aid, attr) in use_node.attributes().iter_svg() {
@@ -107,10 +107,11 @@ fn _resolve_use(use_node: &mut Node, linked_node: &Node) {
     new_node.set_id(use_node.id().clone());
 
     // Relink linked nodes to the new node.
-    for mut n in use_node.linked_nodes().collect::<Vec<Node>>() {
+    let linked_nodes = use_node.linked_nodes().clone();
+    for mut n in linked_nodes {
         n.set_attribute((("xlink", AId::Href), new_node.clone()));
     }
 
     // Remove resolved 'use'.
-    use_node.remove();
+    doc.remove_node(use_node);
 }

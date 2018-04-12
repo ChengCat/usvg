@@ -25,7 +25,7 @@ use super::{
 
 pub(super) fn convert(
     text_elem: &svgdom::Node,
-    parent: &tree::Node,
+    mut parent: tree::Node,
     rtree: &mut tree::Tree,
 ) {
     let attrs = text_elem.attributes();
@@ -36,12 +36,12 @@ pub(super) fn convert(
         transform: ts,
     }));
 
-    convert_chunks(text_elem, &text_node, rtree);
+    convert_chunks(text_elem, text_node, rtree);
 }
 
 fn convert_chunks(
     text_elem: &svgdom::Node,
-    parent: &tree::Node,
+    mut parent: tree::Node,
     rtree: &mut tree::Tree,
 ) {
     let ref root_attrs = text_elem.attributes();

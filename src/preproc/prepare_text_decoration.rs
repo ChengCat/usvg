@@ -5,6 +5,7 @@
 // external
 use svgdom::{
     Document,
+    FilterSvg,
     Node,
     ValueId,
 };
@@ -32,7 +33,7 @@ use traits::{
 // without groups than collect all the options to the string.
 // It's not by the SVG spec, but easier than keeping all the groups.
 pub fn prepare_text_decoration(doc: &mut Document) {
-    for mut node in doc.descendants().filter(|n| n.is_tag_name(EId::Text)) {
+    for mut node in doc.root().descendants().filter(|n| n.is_tag_name(EId::Text)) {
         let mut td = String::new();
         if has_attr(&node, ValueId::Underline) {
             td.push_str("underline;");
@@ -54,7 +55,7 @@ pub fn prepare_text_decoration(doc: &mut Document) {
 }
 
 fn has_attr(root: &Node, decoration_id: ValueId) -> bool {
-    for (_, node) in root.parents_with_self().svg() {
+    for (_, node) in root.ancestors().svg() {
         let attrs = node.attributes();
 
         if let Some(id) = attrs.get_predef(AId::TextDecoration) {

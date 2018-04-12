@@ -5,6 +5,7 @@
 // external
 use svgdom::{
     Document,
+    FilterSvg,
     Node,
 };
 
@@ -47,13 +48,13 @@ static FEATURES: &[&str] = &[
     "http://www.w3.org/TR/SVG11/feature#XlinkAttribute", // only xlink:href
 ];
 
-pub fn ungroup_switch(doc: &Document) {
-    while let Some(mut node) = doc.descendants().find(|n| n.is_tag_name(EId::Switch)) {
+pub fn ungroup_switch(doc: &mut Document) {
+    while let Some(mut node) = doc.root().descendants().find(|n| n.is_tag_name(EId::Switch)) {
         for (_, mut child) in node.children().svg() {
             if is_valid_child(&child) {
                 child.detach();
-                node.insert_after(&child);
-                node.remove();
+                node.insert_after(child);
+                doc.remove_node(node);
 
                 break;
             }

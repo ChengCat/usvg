@@ -18,7 +18,8 @@ use short::{
 
 /// Removes ill-defined elements.
 pub fn remove_invalid_transform(doc: &mut Document) {
-    doc.drain(|n| is_invalid_transform(n));
+    let root = doc.root();
+    doc.drain(root, |n| is_invalid_transform(n));
 }
 
 /// Transform with 0 scale makes element invisible.

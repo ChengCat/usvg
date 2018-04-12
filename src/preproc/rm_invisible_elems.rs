@@ -35,7 +35,8 @@ fn rm_display_none(doc: &mut Document) {
     // available for referencing even when the `display` property on the
     // `clipPath` element or any of its ancestors is set to `none`.
 
-    doc.drain(|n| {
+    let root = doc.root();
+    doc.drain(root, |n| {
         if let Some(&AValue::PredefValue(id)) = n.attributes().get_value(AId::Display) {
             if id == ValueId::None {
                 if !n.is_tag_name(EId::ClipPath) {
@@ -50,7 +51,8 @@ fn rm_display_none(doc: &mut Document) {
 
 fn rm_use(doc: &mut Document) {
     fn _rm(doc: &mut Document) -> usize {
-        doc.drain(|n| {
+        let root = doc.root();
+        doc.drain(root, |n| {
             if n.is_tag_name(EId::Use) {
                 if !n.has_attribute(("xlink", AId::Href)) {
                     // remove 'use' element without the 'xlink:href' attribute

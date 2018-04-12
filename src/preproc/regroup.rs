@@ -43,7 +43,7 @@ pub fn regroup_elements(doc: &mut Document, parent: &Node) {
         }
 
         // Do not group elements inside the clipPath.
-        if node.parents_with_self().any(|n| n.is_tag_name(EId::ClipPath)) {
+        if node.ancestors().any(|n| n.is_tag_name(EId::ClipPath)) {
             continue;
         }
 
@@ -68,8 +68,8 @@ pub fn regroup_elements(doc: &mut Document, parent: &Node) {
             node.remove_attribute(*id);
         }
 
-        node.insert_before(&g_node);
+        node.insert_before(g_node.clone());
         node.detach();
-        g_node.append(&node);
+        g_node.append(node.clone());
     }
 }

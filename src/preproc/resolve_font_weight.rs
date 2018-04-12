@@ -5,6 +5,7 @@
 // external
 use svgdom::{
     Document,
+    FilterSvg,
     ValueId,
 };
 
@@ -19,7 +20,7 @@ use traits::{
 
 
 pub fn resolve_font_weight(doc: &Document) {
-    for (_, mut node) in doc.descendants().svg() {
+    for (_, mut node) in doc.root().descendants().svg() {
         let parent = match node.parent() {
             Some(p) => p,
             None => continue,

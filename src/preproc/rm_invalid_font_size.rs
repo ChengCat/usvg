@@ -29,7 +29,7 @@ use traits::{
 pub fn remove_invalid_font_size(doc: &mut Document) {
     let mut rm_nodes = Vec::new();
 
-    for text_node in doc.descendants().filter(|n| n.is_tag_name(EId::Text)) {
+    for text_node in doc.root().descendants().filter(|n| n.is_tag_name(EId::Text)) {
         for text_chunk in text_node.children() {
             let size = text_chunk.attributes().get_number(AId::FontSize)
                                  .unwrap_or(super::DEFAULT_FONT_SIZE);
@@ -47,28 +47,28 @@ pub fn remove_invalid_font_size(doc: &mut Document) {
             }
         }
     }
-    rm_nodes.iter_mut().for_each(|n| n.remove());
+    rm_nodes.iter_mut().for_each(|n| doc.remove_node(n.clone()));
     rm_nodes.clear();
 
 
     // Remove empty chunks.
-    for text_node in doc.descendants().filter(|n| n.is_tag_name(EId::Text)) {
+    for text_node in doc.root().descendants().filter(|n| n.is_tag_name(EId::Text)) {
         for text_chunk in text_node.children() {
             if !text_chunk.has_children() {
                 rm_nodes.push(text_chunk);
             }
         }
     }
-    rm_nodes.iter_mut().for_each(|n| n.remove());
+    rm_nodes.iter_mut().for_each(|n| doc.remove_node(n.clone()));
     rm_nodes.clear();
 
 
     // Remove empty text nodes.
     rm_nodes.clear();
-    for text_node in doc.descendants().filter(|n| n.is_tag_name(EId::Text)) {
+    for text_node in doc.root().descendants().filter(|n| n.is_tag_name(EId::Text)) {
         if !text_node.has_children() {
             rm_nodes.push(text_node);
         }
     }
-    rm_nodes.iter_mut().for_each(|n| n.remove());
+    rm_nodes.iter_mut().for_each(|n| doc.remove_node(n.clone()));
 }

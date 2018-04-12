@@ -4,6 +4,8 @@
 
 // external
 use svgdom::{
+    Document,
+    FilterSvg,
     Node,
     Transform,
 };
@@ -23,7 +25,7 @@ use {
 };
 
 
-pub fn ungroup_groups(svg: &Node, opt: &Options) {
+pub fn ungroup_groups(doc: &mut Document, svg: &Node, opt: &Options) {
     let mut groups = Vec::with_capacity(16);
 
     loop {
@@ -35,7 +37,7 @@ pub fn ungroup_groups(svg: &Node, opt: &Options) {
 
         while let Some(mut g) = groups.pop() {
             ungroup_group(&mut g);
-            g.remove();
+            doc.remove_node(g);
         }
     }
 }
@@ -58,7 +60,7 @@ fn _ungroup_groups(parent: &Node, opt: &Options, groups: &mut Vec<Node>) {
 
             // Do not ungroup groups inside `clipPath`.
             // They will be removed during conversion.
-            if node.parents().any(|n| n.is_tag_name(EId::ClipPath)) {
+            if node.ancestors().skip(1).any(|n| n.is_tag_name(EId::ClipPath)) {
                 continue;
             }
 
@@ -123,6 +125,6 @@ fn ungroup_group(g: &mut Node) {
     while g.has_children() {
         let mut c = g.last_child().unwrap();
         c.detach();
-        g.insert_after(&c);
+        g.insert_after(c);
     }
 }

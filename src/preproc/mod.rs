@@ -136,7 +136,7 @@ pub fn prepare_doc(doc: &mut svgdom::Document, opt: &Options) {
     resolve_pattern_children(doc);
     fix_recursive_pattern(doc);
 
-    remove_unused_defs(svg);
+    remove_unused_defs(doc, svg);
 
     // 'use' should be resolved before style attributes,
     // because 'use' can propagate own style.
@@ -145,7 +145,7 @@ pub fn prepare_doc(doc: &mut svgdom::Document, opt: &Options) {
     ungroup_a(doc);
 
     prepare_text_decoration(doc);
-    resolve_visibility(svg);
+    resolve_visibility(doc, svg);
     resolve_style_attributes(doc);
 
     resolve_tref(doc);
@@ -157,7 +157,7 @@ pub fn prepare_doc(doc: &mut svgdom::Document, opt: &Options) {
 
     prepare_clip_path(doc);
 
-    ungroup_groups(svg, opt);
+    ungroup_groups(doc, svg, opt);
     regroup_elements(doc, svg);
 
     prepare_text_nodes(doc);

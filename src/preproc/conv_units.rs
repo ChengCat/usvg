@@ -5,6 +5,7 @@
 // external
 use svgdom::{
     ElementType,
+    FilterSvg,
     FuzzyEq,
     Length,
     Node,

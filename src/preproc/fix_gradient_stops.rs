@@ -23,8 +23,8 @@ use traits::{
 };
 
 
-pub fn fix_gradient_stops(doc: &Document) {
-    let gradients: Vec<_> = doc.descendants().filter(|n| n.is_gradient()).collect();
+pub fn fix_gradient_stops(doc: &mut Document) {
+    let gradients: Vec<_> = doc.root().descendants().filter(|n| n.is_gradient()).collect();
 
     // Remove any non-`stop` children, so we can skip tag name checks in the code below.
     for node in &gradients {
@@ -33,7 +33,7 @@ pub fn fix_gradient_stops(doc: &Document) {
             stop_opt = stop.next_sibling();
 
             if !stop.is_tag_name(EId::Stop) {
-                stop.remove();
+                doc.remove_node(stop);
             }
         }
     }
@@ -76,7 +76,7 @@ pub fn fix_gradient_stops(doc: &Document) {
 
             if offset1.fuzzy_eq(&offset2) && offset2.fuzzy_eq(&offset3) {
                 // Remove offset in the middle.
-                stops[i + 1].remove();
+                doc.remove_node(stops[i + 1].clone());
                 stops.remove(1);
             } else {
                 i += 1;

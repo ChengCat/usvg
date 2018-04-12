@@ -120,7 +120,7 @@ pub fn resolve_pattern_attributes(doc: &Document) {
 
 /// Generates a list of elements from less used to most used.
 fn gen_order(doc: &Document, eid: EId) -> Vec<Node> {
-    let nodes = doc.descendants().filter(|n| n.is_tag_name(eid))
+    let nodes = doc.root().descendants().filter(|n| n.is_tag_name(eid))
                    .collect::<Vec<Node>>();
 
     let mut order = Vec::with_capacity(nodes.len());
@@ -131,8 +131,8 @@ fn gen_order(doc: &Document, eid: EId) -> Vec<Node> {
                 continue;
             }
 
-            let c = node.linked_nodes().filter(|n| {
-                n.is_tag_name(eid) && !order.iter().any(|on| on == n)
+            let c = node.linked_nodes().iter().filter(|n| {
+                n.is_tag_name(eid) && !order.iter().any(|on| on == *n)
             }).count();
 
             if c == 0 {

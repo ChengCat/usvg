@@ -27,11 +27,12 @@ pub fn remove_invalid_gradients(doc: &mut Document) {
     let mut ids = Vec::new();
     let mut nodes = Vec::new();
 
-    for gradient in doc.descendants().filter(|n| n.is_gradient()) {
+    for gradient in doc.root().descendants().filter(|n| n.is_gradient()) {
         let count = gradient.children().count();
 
         if count == 0 || count == 1 {
-            for mut linked in gradient.linked_nodes().collect::<Vec<Node>>() {
+            let linked_nodes = gradient.linked_nodes().clone();
+            for mut linked in linked_nodes {
                 collect_ids(&linked, &gradient, &mut ids);
 
                 for id in &ids {
@@ -57,7 +58,7 @@ pub fn remove_invalid_gradients(doc: &mut Document) {
     }
 
     for mut node in nodes {
-        node.remove();
+        doc.remove_node(node);
     }
 }
 
@@ -87,7 +88,8 @@ fn process_negative_r(
         None => return false,
     };
 
-    for mut linked in gradient.linked_nodes().collect::<Vec<Node>>() {
+    let linked_nodes = gradient.linked_nodes().clone();
+    for mut linked in linked_nodes {
         collect_ids(&linked, gradient, ids);
 
         for id in ids.iter() {

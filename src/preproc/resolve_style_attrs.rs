@@ -7,6 +7,7 @@ use svgdom::{
     AttributeType,
     Document,
     ElementType,
+    FilterSvg,
     Node,
 };
 
@@ -104,7 +105,7 @@ fn resolve(node: &mut Node, aid: AId) {
     debug_assert!(aid.is_inheritable(), "'{}' is not inheritable", aid);
 
     if !node.has_attribute(aid) {
-        if let Some(n) = node.parents().find(|n| n.has_attribute(aid)) {
+        if let Some(n) = node.ancestors().skip(1).find(|n| n.has_attribute(aid)) {
             // unwrap is safe, because we know that node contains an attribute
             node.set_attribute(n.attributes().get(aid).cloned().unwrap());
         } else {
@@ -137,7 +138,7 @@ fn resolve_default(node: &mut Node, aid: AId) {
 fn resolve_font_family(node: &mut Node) {
     let aid = AId::FontFamily;
     if !node.has_attribute(aid) {
-        if let Some(n) = node.parents().find(|n| n.has_attribute(aid)) {
+        if let Some(n) = node.ancestors().skip(1).find(|n| n.has_attribute(aid)) {
             // unwrap is safe, because we know that node contains an attribute
             node.set_attribute(n.attributes().get(aid).cloned().unwrap());
         } else {

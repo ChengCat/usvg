@@ -4,9 +4,10 @@
 
 // external
 use svgdom::{
-    Document,
-    ValueId,
     Color,
+    Document,
+    FilterSvg,
+    ValueId,
 };
 
 // self
@@ -22,7 +23,7 @@ use traits::{
 // The clipPath is implemented using a 1bit-like mask.
 // So to create it we have to draw all clipPath children with a black fill and without a stroke.
 pub fn prepare_clip_path(doc: &mut Document) {
-    for mut node in doc.descendants().filter(|n| n.is_tag_name(EId::ClipPath)) {
+    for mut node in doc.root().descendants().filter(|n| n.is_tag_name(EId::ClipPath)) {
         let units = node.attributes().get_predef(AId::ClipPathUnits)
                         .unwrap_or(ValueId::UserSpaceOnUse);
         node.set_attribute((AId::ClipPathUnits, units));

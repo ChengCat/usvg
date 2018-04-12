@@ -16,24 +16,26 @@ use short::{
 };
 
 
-pub fn resolve_gradient_stops(doc: &Document) {
-    let iter = doc.descendants().filter(|n| n.is_gradient())
-                                .filter(|n| n.has_attribute(("xlink", AId::Href)))
-                                .filter(|n| !n.has_children());
+pub fn resolve_gradient_stops(doc: &mut Document) {
+    let iter = doc.root().descendants()
+                  .filter(|n| n.is_gradient())
+                  .filter(|n| n.has_attribute(("xlink", AId::Href)))
+                  .filter(|n| !n.has_children());
     for mut node in iter {
         let link = node.clone();
-        resolve(&mut node, &link);
+        resolve(doc, node.clone(), &link);
     }
 
     // Remove 'xlink:href' in gradients, because we already resolved everything.
-    let iter = doc.descendants().filter(|n| n.is_gradient())
-                                .filter(|n| n.has_attribute(("xlink", AId::Href)));
+    let iter = doc.root().descendants()
+                  .filter(|n| n.is_gradient())
+                  .filter(|n| n.has_attribute(("xlink", AId::Href)));
     for mut node in iter {
         node.remove_attribute(("xlink", AId::Href));
     }
 }
 
-fn resolve(gradient: &mut Node, linked_gradient: &Node) {
+fn resolve(doc: &mut Document, mut gradient: Node, linked_gradient: &Node) {
     // We can resolve `stop` elements only from gradients.
     if !linked_gradient.is_gradient() {
         return;
@@ -43,14 +45,14 @@ fn resolve(gradient: &mut Node, linked_gradient: &Node) {
     match av {
         Some(av) => {
             match av {
-                AValue::Link(ref_node) => resolve(gradient, &ref_node),
+                AValue::Link(ref_node) => resolve(doc, gradient, &ref_node),
                 _ => unreachable!(),
             }
         }
         None => {
             for stop in linked_gradient.children() {
-                let new_stop = stop.make_copy();
-                gradient.append(&new_stop);
+                let new_stop = doc.copy_node(stop);
+                gradient.append(new_stop);
             }
         }
     }

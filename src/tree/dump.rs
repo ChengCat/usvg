@@ -21,7 +21,7 @@ pub fn conv_doc(rtree: &Tree) -> svgdom::Document {
     let mut new_doc = svgdom::Document::new();
 
     let mut svg = new_doc.create_element(EId::Svg);
-    new_doc.append(&svg);
+    new_doc.root().append(svg.clone());
 
     let svg_node = rtree.svg_node();
 
@@ -34,7 +34,7 @@ pub fn conv_doc(rtree: &Tree) -> svgdom::Document {
     svg.set_attribute((("usvg", "version"), env!("CARGO_PKG_VERSION")));
 
     let mut defs = new_doc.create_element(EId::Defs);
-    svg.append(&defs);
+    svg.append(defs.clone());
 
     conv_defs(rtree, &mut new_doc, &mut defs);
     conv_elements(rtree, &rtree.root(), &defs, &mut new_doc, &mut svg);
@@ -53,7 +53,7 @@ fn conv_defs(
         match **n.borrow() {
             NodeKind::LinearGradient(ref lg) => {
                 let mut grad_elem = new_doc.create_element(EId::LinearGradient);
-                defs.append(&grad_elem);
+                defs.append(grad_elem.clone());
 
                 grad_elem.set_id(lg.id.clone());
 
@@ -66,7 +66,7 @@ fn conv_defs(
             }
             NodeKind::RadialGradient(ref rg) => {
                 let mut grad_elem = new_doc.create_element(EId::RadialGradient);
-                defs.append(&grad_elem);
+                defs.append(grad_elem.clone());
 
                 grad_elem.set_id(rg.id.clone());
 
@@ -80,7 +80,7 @@ fn conv_defs(
             }
             NodeKind::ClipPath(ref clip) => {
                 let mut clip_elem = new_doc.create_element(EId::ClipPath);
-                defs.append(&clip_elem);
+                defs.append(clip_elem.clone());
 
                 clip_elem.set_id(clip.id.clone());
                 conv_units(AId::ClipPathUnits, clip.units, &mut clip_elem);
@@ -89,7 +89,7 @@ fn conv_defs(
             }
             NodeKind::Pattern(ref pattern) => {
                 let mut pattern_elem = new_doc.create_element(EId::Pattern);
-                defs.append(&pattern_elem);
+                defs.append(pattern_elem.clone());
 
                 pattern_elem.set_id(pattern.id.clone());
 
@@ -131,7 +131,7 @@ fn conv_elements(
         match *n.kind() {
             NodeKind::Path(ref p) => {
                 let mut path_elem = new_doc.create_element(EId::Path);
-                parent.append(&path_elem);
+                parent.append(path_elem.clone());
 
                 conv_transform(AId::Transform, &p.transform, &mut path_elem);
                 path_elem.set_id(p.id.clone());
@@ -164,7 +164,7 @@ fn conv_elements(
             }
             NodeKind::Text(ref text) => {
                 let mut text_elem = new_doc.create_element(EId::Text);
-                parent.append(&text_elem);
+                parent.append(text_elem.clone());
 
                 conv_transform(AId::Transform, &text.transform, &mut text_elem);
                 text_elem.set_id(text.id.clone());
@@ -174,7 +174,7 @@ fn conv_elements(
                 for chunk_node in n.children() {
                     if let NodeKind::TextChunk(ref chunk) = *chunk_node.kind() {
                         let mut chunk_tspan_elem = new_doc.create_element(EId::Tspan);
-                        text_elem.append(&chunk_tspan_elem);
+                        text_elem.append(chunk_tspan_elem.clone());
 
                         chunk_tspan_elem.set_attribute((AId::X, chunk.x));
                         chunk_tspan_elem.set_attribute((AId::Y, chunk.y));
@@ -192,13 +192,13 @@ fn conv_elements(
                         for tspan_node in chunk_node.children() {
                             if let NodeKind::TSpan(ref tspan) = *tspan_node.kind() {
                                 let mut tspan_elem = new_doc.create_element(EId::Tspan);
-                                chunk_tspan_elem.append(&tspan_elem);
+                                chunk_tspan_elem.append(tspan_elem.clone());
 
                                 let text_node = new_doc.create_node(
                                     svgdom::NodeType::Text,
                                     &tspan.text,
                                 );
-                                tspan_elem.append(&text_node);
+                                tspan_elem.append(text_node.clone());
 
                                 conv_fill(rtree, &tspan.fill, defs, parent, &mut tspan_elem);
                                 conv_stroke(rtree, &tspan.stroke, defs, &mut tspan_elem);
@@ -212,7 +212,7 @@ fn conv_elements(
             }
             NodeKind::Image(ref img) => {
                 let mut img_elem = new_doc.create_element(EId::Image);
-                parent.append(&img_elem);
+                parent.append(img_elem.clone());
 
                 conv_transform(AId::Transform, &img.transform, &mut img_elem);
                 img_elem.set_id(img.id.clone());
@@ -239,7 +239,7 @@ fn conv_elements(
             }
             NodeKind::Group(ref g) => {
                 let mut g_elem = new_doc.create_element(EId::G);
-                parent.append(&g_elem);
+                parent.append(g_elem.clone());
 
                 conv_transform(AId::Transform, &g.transform, &mut g_elem);
                 g_elem.set_id(g.id.clone());
@@ -405,7 +405,7 @@ fn conv_base_grad(
     for n in g_node.children() {
         if let NodeKind::Stop(s) = *n.kind() {
             let mut stop = doc.create_element(EId::Stop);
-            node.append(&stop);
+            node.append(stop.clone());
 
             stop.set_attribute((AId::Offset, s.offset.value()));
             stop.set_attribute((AId::StopColor, s.color));

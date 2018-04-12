@@ -25,7 +25,7 @@ use {
 pub(super) fn convert(
     node: &svgdom::Node,
     opt: &Options,
-    parent: &tree::Node,
+    mut parent: tree::Node,
 ) {
     let ref attrs = node.attributes();
 

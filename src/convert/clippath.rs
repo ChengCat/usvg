@@ -3,7 +3,10 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 // external
-use svgdom;
+use svgdom::{
+    self,
+    FilterSvg,
+};
 
 // self
 use tree::prelude::*;
@@ -52,17 +55,17 @@ pub fn convert_children(
             | EId::Circle
             | EId::Ellipse => {
                 if let Some(d) = shapes::convert(&node) {
-                    path::convert(&node, d, parent, rtree);
+                    path::convert(&node, d, parent.clone(), rtree);
                 }
             }
             EId::Path => {
                 let attrs = node.attributes();
                 if let Some(d) = attrs.get_path(AId::D) {
-                    path::convert(&node, d.clone(), parent, rtree);
+                    path::convert(&node, d.clone(), parent.clone(), rtree);
                 }
             }
             EId::Text => {
-                text::convert(&node, parent, rtree);
+                text::convert(&node, parent.clone(), rtree);
             }
             _ => {
                 warn!("Skipping the '{}' clipPath invalid child element '{}'.",

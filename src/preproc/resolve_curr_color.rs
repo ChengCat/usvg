@@ -6,6 +6,7 @@
 use svgdom::{
     Attribute,
     Document,
+    FilterSvg,
     Node,
     ValueId,
 };
@@ -25,7 +26,7 @@ use short::{
 pub fn resolve_current_color(doc: &Document) {
     let mut ids = Vec::new();
 
-    for (_, mut node) in doc.descendants().svg() {
+    for (_, mut node) in doc.root().descendants().svg() {
         ids.clear();
 
         {
@@ -51,7 +52,7 @@ pub fn resolve_current_color(doc: &Document) {
 }
 
 fn resolve_impl(node: &mut Node, curr_attr: AId, parent_attr: AId) {
-    if let Some(n) = node.parents().find(|n| n.has_attribute(parent_attr)) {
+    if let Some(n) = node.ancestors().skip(1).find(|n| n.has_attribute(parent_attr)) {
         let av = n.attributes().get_value(parent_attr).cloned();
         if let Some(av) = av {
             node.set_attribute((curr_attr, av.clone()));

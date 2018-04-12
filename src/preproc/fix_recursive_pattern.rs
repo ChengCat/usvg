@@ -20,7 +20,7 @@ pub fn fix_recursive_pattern(doc: &Document) {
     // If a pattern child has a link to the pattern itself
     // then we have to replace it with `none`.
     // Otherwise we will get endless loop/recursion and stack overflow.
-    for pattern_node in doc.descendants().filter(|n| n.is_tag_name(EId::Pattern)) {
+    for pattern_node in doc.root().descendants().filter(|n| n.is_tag_name(EId::Pattern)) {
         for mut node in pattern_node.descendants() {
             let mut check_attr = |aid: AId| {
                 let av = node.attributes().get_value(aid).cloned();

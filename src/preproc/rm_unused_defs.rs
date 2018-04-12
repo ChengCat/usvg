@@ -4,16 +4,17 @@
 
 // external
 use svgdom::{
+    Document,
     ElementType,
     Node,
 };
 
 
-pub fn remove_unused_defs(svg: &mut Node) {
-    remove_unused_defs_impl(svg);
+pub fn remove_unused_defs(doc: &mut Document, svg: &mut Node) {
+    remove_unused_defs_impl(doc, svg);
 }
 
-fn remove_unused_defs_impl(parent: &mut Node) {
+fn remove_unused_defs_impl(doc: &mut Document, parent: &mut Node) {
     let mut mv_nodes = Vec::new();
     let mut rm_nodes = Vec::new();
 
@@ -21,16 +22,16 @@ fn remove_unused_defs_impl(parent: &mut Node) {
         if node.is_referenced() && !node.is_used() {
             ungroup_children(&node, &mut mv_nodes, &mut rm_nodes);
         } else if node.has_children() {
-            remove_unused_defs_impl(&mut node);
+            remove_unused_defs_impl(doc, &mut node);
         }
     }
 
     for node in mv_nodes {
-        parent.append(&node);
+        parent.append(node);
     }
 
     for mut node in rm_nodes {
-        node.remove();
+        doc.remove_node(node);
     }
 }
 

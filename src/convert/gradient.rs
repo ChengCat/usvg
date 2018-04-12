@@ -82,7 +82,7 @@ fn convert_spread_method(
 
 fn convert_stops(
     node: &svgdom::Node,
-    parent: tree::Node,
+    mut parent: tree::Node,
 ) {
     for s in node.children() {
         if !s.is_tag_name(EId::Stop) {
