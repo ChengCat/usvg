@@ -6,10 +6,10 @@
 use svgdom::{
     ElementType,
     FilterSvg,
-    FuzzyEq,
+    FuzzyZero,
     Length,
     Node,
-    ValueId,
+    NumberList,
     ViewBox,
 };
 
@@ -74,8 +74,8 @@ pub fn convert_units(svg: &mut Node, opt: &Options) {
             is_bbox_gradient = true;
 
             let av = node.attributes().get_value(AId::GradientUnits).cloned();
-            if let Some(AValue::PredefValue(id)) = av {
-                if id == ValueId::UserSpaceOnUse {
+            if let Some(AValue::String(text)) = av {
+                if text == "userSpaceOnUse" {
                     is_bbox_gradient = false;
                 }
             }
@@ -114,9 +114,9 @@ pub fn convert_units(svg: &mut Node, opt: &Options) {
         for (aid, ref mut attr) in attrs.iter_svg_mut() {
             let mut list = None;
             if let AValue::LengthList(ref len_list) = attr.value {
-                list = Some(len_list.iter()
+                list = Some(NumberList(len_list.iter()
                     .map(|len| convert_len(*len, aid, font_size))
-                    .collect());
+                    .collect()));
             }
 
             if let Some(list) = list {

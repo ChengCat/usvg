@@ -9,7 +9,7 @@ extern crate rustc_test;
 use std::{env, fs, fmt};
 use std::path::Path;
 
-use svgdom::ToStringWithOptions;
+use svgdom::WriteBuffer;
 
 use rustc_test::{TestDesc, TestDescAndFn, DynTestName, DynTestFn};
 
@@ -74,7 +74,7 @@ fn actual_test(test: TestData) {
         .. svgdom::WriteOptions::default()
     };
 
-    assert_eq!(MStr(&tree.to_svgdom().to_string_with_opt(&dom_opt)),
+    assert_eq!(MStr(&tree.to_svgdom().with_write_opt(&dom_opt).to_string()),
                MStr(&test.output));
 }
 

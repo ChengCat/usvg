@@ -11,6 +11,7 @@ pub use svgdom::{
     AspectRatio,
     Color,
     FuzzyEq,
+    FuzzyZero,
     NumberList,
     Transform,
 };

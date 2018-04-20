@@ -5,7 +5,6 @@
 // external
 use svgdom::{
     Document,
-    ValueId,
 };
 
 // self
@@ -26,14 +25,14 @@ pub fn fix_recursive_pattern(doc: &Document) {
                 let av = node.attributes().get_value(aid).cloned();
                 if let Some(AValue::FuncLink(link)) = av {
                     if link == pattern_node {
-                        node.set_attribute((aid, ValueId::None));
+                        node.set_attribute((aid, AValue::None));
                     } else {
                         // Check that linked node children doesn't link this pattern.
                         for mut node2 in link.descendants() {
                             let av2 = node2.attributes().get_value(aid).cloned();
                             if let Some(AValue::FuncLink(link2)) = av2 {
                                 if link2 == pattern_node {
-                                    node.set_attribute((aid, ValueId::None));
+                                    node.set_attribute((aid, AValue::None));
                                 }
                             }
                         }

@@ -7,7 +7,6 @@ extern crate lyon_geom;
 use std::f64;
 
 // external
-use svgdom::path::*;
 use svgdom;
 
 // self
@@ -27,7 +26,7 @@ use super::{
 
 pub(super) fn convert(
     node: &svgdom::Node,
-    d: Path,
+    d: svgdom::Path,
     mut parent: tree::Node,
     rtree: &mut tree::Tree,
 ) {
@@ -51,7 +50,7 @@ pub(super) fn convert(
     }));
 }
 
-fn convert_path(mut path: Path) -> Vec<tree::PathSegment> {
+fn convert_path(mut path: svgdom::Path) -> Vec<tree::PathSegment> {
     let mut new_path = Vec::with_capacity(path.len());
 
     path.conv_to_absolute();
@@ -69,23 +68,23 @@ fn convert_path(mut path: Path) -> Vec<tree::PathSegment> {
     let mut pty = None;
 
     for seg in path.iter() {
-        match *seg.data() {
-            SegmentData::MoveTo { x, y } => {
+        match *seg {
+            svgdom::PathSegment::MoveTo { x, y, .. } => {
                 new_path.push(tree::PathSegment::MoveTo { x, y });
             }
-            SegmentData::LineTo { x, y } => {
+            svgdom::PathSegment::LineTo { x, y, .. } => {
                 new_path.push(tree::PathSegment::LineTo { x, y });
             }
-            SegmentData::HorizontalLineTo { x } => {
+            svgdom::PathSegment::HorizontalLineTo { x, .. } => {
                 new_path.push(tree::PathSegment::LineTo { x, y: py });
             }
-            SegmentData::VerticalLineTo { y } => {
+            svgdom::PathSegment::VerticalLineTo { y, .. } => {
                 new_path.push(tree::PathSegment::LineTo { x: px, y });
             }
-            SegmentData::CurveTo { x1, y1, x2, y2, x, y } => {
+            svgdom::PathSegment::CurveTo { x1, y1, x2, y2, x, y, .. } => {
                 new_path.push(tree::PathSegment::CurveTo { x1, y1, x2, y2, x, y });
             }
-            SegmentData::SmoothCurveTo { x2, y2, x, y } => {
+            svgdom::PathSegment::SmoothCurveTo { x2, y2, x, y, .. } => {
                 // 'The first control point is assumed to be the reflection of the second control
                 // point on the previous command relative to the current point.
                 // (If there is no previous command or if the previous command
@@ -108,14 +107,14 @@ fn convert_path(mut path: Path) -> Vec<tree::PathSegment> {
                     new_path.push(tree::PathSegment::CurveTo { x1: new_x1, y1: new_y1, x2, y2, x, y });
                 }
             }
-            SegmentData::Quadratic { x1, y1, x, y } => {
+            svgdom::PathSegment::Quadratic { x1, y1, x, y, .. } => {
                 // Remember last control point.
                 ptx = Some(x * 2.0 - x1);
                 pty = Some(y * 2.0 - y1);
 
                 new_path.push(quad_to_curve(px, py, x1, y1, x, y));
             }
-            SegmentData::SmoothQuadratic { x, y } => {
+            svgdom::PathSegment::SmoothQuadratic { x, y, .. } => {
                 // 'The control point is assumed to be the reflection of
                 // the control point on the previous command relative to
                 // the current point. (If there is no previous command or
@@ -137,7 +136,7 @@ fn convert_path(mut path: Path) -> Vec<tree::PathSegment> {
 
                 new_path.push(quad_to_curve(px, py, new_x1, new_y1, x, y));
             }
-            SegmentData::EllipticalArc { rx, ry, x_axis_rotation, large_arc, sweep, x, y } => {
+            svgdom::PathSegment::EllipticalArc { rx, ry, x_axis_rotation, large_arc, sweep, x, y, .. } => {
                 let arc = lyon_geom::SvgArc {
                     from: [px as f32, py as f32].into(),
                     to: [x as f32, y as f32].into(),
@@ -157,7 +156,7 @@ fn convert_path(mut path: Path) -> Vec<tree::PathSegment> {
                     new_path.push(curve);
                 });
             }
-            SegmentData::ClosePath => {
+            svgdom::PathSegment::ClosePath { .. } => {
                 new_path.push(tree::PathSegment::ClosePath);
             }
         }

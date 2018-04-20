@@ -7,7 +7,6 @@ use svgdom::{
     Document,
     FilterSvg,
     Node,
-    ValueId,
 };
 
 // self
@@ -35,15 +34,15 @@ use traits::{
 pub fn prepare_text_decoration(doc: &mut Document) {
     for mut node in doc.root().descendants().filter(|n| n.is_tag_name(EId::Text)) {
         let mut td = String::new();
-        if has_attr(&node, ValueId::Underline) {
+        if has_attr(&node, "underline") {
             td.push_str("underline;");
         }
 
-        if has_attr(&node, ValueId::Overline) {
+        if has_attr(&node, "overline") {
             td.push_str("overline;");
         }
 
-        if has_attr(&node, ValueId::LineThrough) {
+        if has_attr(&node, "line-through") {
             td.push_str("linethrough;");
         }
 
@@ -54,12 +53,12 @@ pub fn prepare_text_decoration(doc: &mut Document) {
     }
 }
 
-fn has_attr(root: &Node, decoration_id: ValueId) -> bool {
+fn has_attr(root: &Node, decoration_id: &str) -> bool {
     for (_, node) in root.ancestors().svg() {
         let attrs = node.attributes();
 
-        if let Some(id) = attrs.get_predef(AId::TextDecoration) {
-            if id == decoration_id {
+        if let Some(text) = attrs.get_str(AId::TextDecoration) {
+            if text == decoration_id {
                 return true;
             }
         }

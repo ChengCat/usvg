@@ -59,7 +59,7 @@ pub fn convert(
 
                 p?
             }
-            AValue::PredefValue(svgdom::ValueId::None) => {
+            AValue::None => {
                 return None;
             }
             _ => {
@@ -71,19 +71,19 @@ pub fn convert(
         return None;
     };
 
-    let linecap = attrs.get_predef(AId::StrokeLinecap).unwrap_or(svgdom::ValueId::Butt);
+    let linecap = attrs.get_str(AId::StrokeLinecap).unwrap_or("butt");
     let linecap = match linecap {
-        svgdom::ValueId::Butt => tree::LineCap::Butt,
-        svgdom::ValueId::Round => tree::LineCap::Round,
-        svgdom::ValueId::Square => tree::LineCap::Square,
+        "butt" => tree::LineCap::Butt,
+        "round" => tree::LineCap::Round,
+        "square" => tree::LineCap::Square,
         _ => tree::LineCap::Butt,
     };
 
-    let linejoin = attrs.get_predef(AId::StrokeLinejoin).unwrap_or(svgdom::ValueId::Miter);
+    let linejoin = attrs.get_str(AId::StrokeLinejoin).unwrap_or("miter");
     let linejoin = match linejoin {
-        svgdom::ValueId::Miter => tree::LineJoin::Miter,
-        svgdom::ValueId::Round => tree::LineJoin::Round,
-        svgdom::ValueId::Bevel => tree::LineJoin::Bevel,
+        "miter" => tree::LineJoin::Miter,
+        "round" => tree::LineJoin::Round,
+        "bevel" => tree::LineJoin::Bevel,
         _ => tree::LineJoin::Miter,
     };
 
@@ -122,7 +122,7 @@ fn conv_dasharray(av: Option<&AValue>) -> Option<svgdom::NumberList> {
             // no Iter::sum(), because of f64
 
             let mut sum = 0.0f64;
-            for n in list {
+            for n in list.iter() {
                 sum += *n;
             }
 

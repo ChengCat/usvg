@@ -33,7 +33,6 @@ fn resolve_inherit(parent: &Node) {
 
         if node.is_text_content() {
             // resolve(&mut node, AId::Direction)?;
-            // resolve(&mut node, AId::FontSize)?;
             // resolve(&mut node, AId::FontSizeAdjust)?;
             resolve(&mut node, AId::FontStretch);
             resolve(&mut node, AId::FontStyle);
@@ -89,7 +88,6 @@ fn resolve_inherit(parent: &Node) {
         // }
 
         // if id == EId::Path || id == EId::Line || id == EId::Polyline || id == EId::Polygon {
-        //     resolve(&mut node, AId::Marker);
         //     resolve(&mut node, AId::MarkerStart);
         //     resolve(&mut node, AId::MarkerMid);
         //     resolve(&mut node, AId::MarkerEnd);

@@ -5,7 +5,6 @@
 // external
 use svgdom::{
     self,
-    path,
     FuzzyEq
 };
 
@@ -19,7 +18,7 @@ use traits::{
 };
 
 
-pub fn convert(node: &svgdom::Node) -> Option<path::Path> {
+pub fn convert(node: &svgdom::Node) -> Option<svgdom::Path> {
     match node.tag_id().unwrap() {
         EId::Rect =>     convert_rect(node),
         EId::Line =>     convert_line(node),
@@ -32,7 +31,7 @@ pub fn convert(node: &svgdom::Node) -> Option<path::Path> {
 }
 
 // e-rect-001.svg
-fn convert_rect(node: &svgdom::Node) -> Option<path::Path> {
+fn convert_rect(node: &svgdom::Node) -> Option<svgdom::Path> {
     let attrs = node.attributes();
 
     // 'width' and 'height' attributes must be positive and non-zero.
@@ -105,7 +104,7 @@ fn convert_rect(node: &svgdom::Node) -> Option<path::Path> {
 
     // Conversion according to https://www.w3.org/TR/SVG/shapes.html#RectElement
     let path = if rx.fuzzy_eq(&0.0) {
-        path::Builder::with_capacity(5)
+        svgdom::PathBuilder::with_capacity(5)
             .move_to(x, y)
             .hline_to(x + width)
             .vline_to(y + height)
@@ -114,7 +113,7 @@ fn convert_rect(node: &svgdom::Node) -> Option<path::Path> {
             .finalize()
     } else {
         // e-rect-004.svg
-        path::Builder::with_capacity(9)
+        svgdom::PathBuilder::with_capacity(9)
             .move_to(x + rx, y)
             .line_to(x + width - rx, y)
             .arc_to(rx, ry, 0.0, false, true, x + width, y + ry)
@@ -130,7 +129,7 @@ fn convert_rect(node: &svgdom::Node) -> Option<path::Path> {
     Some(path)
 }
 
-fn convert_line(node: &svgdom::Node) -> Option<path::Path> {
+fn convert_line(node: &svgdom::Node) -> Option<svgdom::Path> {
     let attrs = node.attributes();
 
     let x1 = attrs.get_number(AId::X1).unwrap_or(0.0);
@@ -138,7 +137,7 @@ fn convert_line(node: &svgdom::Node) -> Option<path::Path> {
     let x2 = attrs.get_number(AId::X2).unwrap_or(0.0);
     let y2 = attrs.get_number(AId::Y2).unwrap_or(0.0);
 
-    let path = path::Builder::new()
+    let path = svgdom::PathBuilder::new()
         .move_to(x1, y1)
         .line_to(x2, y2)
         .finalize();
@@ -146,20 +145,20 @@ fn convert_line(node: &svgdom::Node) -> Option<path::Path> {
     Some(path)
 }
 
-fn convert_polyline(node: &svgdom::Node) -> Option<path::Path> {
+fn convert_polyline(node: &svgdom::Node) -> Option<svgdom::Path> {
     points_to_path(node, "Polyline")
 }
 
-fn convert_polygon(node: &svgdom::Node) -> Option<path::Path> {
+fn convert_polygon(node: &svgdom::Node) -> Option<svgdom::Path> {
     if let Some(mut path) = points_to_path(node, "Polygon") {
-        path.push(path::Segment::new_close_path());
+        path.push(svgdom::PathSegment::ClosePath { abs: true } );
         Some(path)
     } else {
         None
     }
 }
 
-fn points_to_path(node: &svgdom::Node, eid: &str) -> Option<path::Path> {
+fn points_to_path(node: &svgdom::Node, eid: &str) -> Option<svgdom::Path> {
     let attrs = node.attributes();
     let points = if let Some(p) = attrs.get_points(AId::Points) {
         p
@@ -174,12 +173,12 @@ fn points_to_path(node: &svgdom::Node, eid: &str) -> Option<path::Path> {
         return None;
     }
 
-    let mut path = path::Path::new();
+    let mut path = svgdom::Path::new();
     for (i, &(x, y)) in points.iter().enumerate() {
         let seg = if i == 0 {
-            path::Segment::new_move_to(x, y)
+            svgdom::PathSegment::MoveTo { abs: true, x, y }
         } else {
-            path::Segment::new_line_to(x, y)
+            svgdom::PathSegment::LineTo { abs: true, x, y }
         };
         path.push(seg);
     }
@@ -187,7 +186,7 @@ fn points_to_path(node: &svgdom::Node, eid: &str) -> Option<path::Path> {
     Some(path)
 }
 
-fn convert_circle(node: &svgdom::Node) -> Option<path::Path> {
+fn convert_circle(node: &svgdom::Node) -> Option<svgdom::Path> {
     let attrs = node.attributes();
 
     let cx = attrs.get_number(AId::Cx).unwrap_or(0.0);
@@ -202,7 +201,7 @@ fn convert_circle(node: &svgdom::Node) -> Option<path::Path> {
     Some(ellipse_to_path(cx, cy, r, r))
 }
 
-fn convert_ellipse(node: &svgdom::Node) -> Option<path::Path> {
+fn convert_ellipse(node: &svgdom::Node) -> Option<svgdom::Path> {
     let attrs = node.attributes();
 
     let cx = attrs.get_number(AId::Cx).unwrap_or(0.0);
@@ -223,8 +222,8 @@ fn convert_ellipse(node: &svgdom::Node) -> Option<path::Path> {
     Some(ellipse_to_path(cx, cy, rx, ry))
 }
 
-fn ellipse_to_path(cx: f64, cy: f64, rx: f64, ry: f64) -> path::Path {
-    path::Builder::with_capacity(6)
+fn ellipse_to_path(cx: f64, cy: f64, rx: f64, ry: f64) -> svgdom::Path {
+    svgdom::PathBuilder::with_capacity(6)
         .move_to(cx + rx, cy)
         .arc_to(rx, ry, 0.0, false, true, cx,      cy + ry)
         .arc_to(rx, ry, 0.0, false, true, cx - rx, cy)

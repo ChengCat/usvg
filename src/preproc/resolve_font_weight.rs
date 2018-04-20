@@ -6,7 +6,7 @@
 use svgdom::{
     Document,
     FilterSvg,
-    ValueId,
+    Node,
 };
 
 // self
@@ -15,9 +15,14 @@ use short::{
     AValue,
 };
 use traits::{
-    FindAttribute,
+    GetValue,
 };
 
+fn bound<T: ::std::cmp::Ord>(min: T, val: T, max: T) -> T {
+    use std::cmp;
+
+    cmp::max(min, cmp::min(max, val))
+}
 
 pub fn resolve_font_weight(doc: &Document) {
     for (_, mut node) in doc.root().descendants().svg() {
@@ -27,58 +32,40 @@ pub fn resolve_font_weight(doc: &Document) {
         };
 
         let av = node.attributes().get_value(AId::FontWeight).cloned();
-        if let Some(AValue::PredefValue(id)) = av {
-            match id {
-                ValueId::Bolder => {
+        if let Some(AValue::String(name)) = av {
+            match name.as_str() {
+                "bolder" => {
                     // By the CSS2 spec the default value should be 400
                     // so `bolder` will result in 500.
                     // But Chrome and Inkscape will give us 700.
                     // Have no idea is it a bug or something, but
                     // we will follow such behavior for now.
-                    let parent_w = parent.find_attribute(AId::FontWeight)
-                                         .unwrap_or(ValueId::N600);
-
-                    let weight = match parent_w {
-                        ValueId::N100 => ValueId::N200,
-                        ValueId::N200 => ValueId::N300,
-                        ValueId::N300 => ValueId::N400,
-                        ValueId::N400 => ValueId::N500,
-                        ValueId::N500 => ValueId::N600,
-                        ValueId::N600 => ValueId::N700,
-                        ValueId::N700 => ValueId::N800,
-                        ValueId::N800 => ValueId::N900,
-                        ValueId::N900 => ValueId::N900,
-                        _ => ValueId::N700,
-                    };
-
-                    node.set_attribute((AId::FontWeight, weight));
+                    let weight = find_font_weight(&parent, 600);
+                    let weight = bound(100, weight + 100, 900);
+                    node.set_attribute((AId::FontWeight, weight.to_string()));
                 }
-                ValueId::Lighter => {
+                "lighter" => {
                     // By the CSS2 spec the default value should be 400
                     // so `lighter` will result in 300.
                     // But Chrome and Inkscape will give us 200.
                     // Have no idea is it a bug or something, but
                     // we will follow such behavior for now.
-                    let parent_w = parent.find_attribute(AId::FontWeight)
-                                         .unwrap_or(ValueId::N300);
-
-                    let weight = match parent_w {
-                        ValueId::N100 => ValueId::N100,
-                        ValueId::N200 => ValueId::N100,
-                        ValueId::N300 => ValueId::N200,
-                        ValueId::N400 => ValueId::N300,
-                        ValueId::N500 => ValueId::N400,
-                        ValueId::N600 => ValueId::N500,
-                        ValueId::N700 => ValueId::N600,
-                        ValueId::N800 => ValueId::N700,
-                        ValueId::N900 => ValueId::N800,
-                        _ => ValueId::N400,
-                    };
-
-                    node.set_attribute((AId::FontWeight, weight));
+                    let weight = find_font_weight(&parent, 300);
+                    let weight = bound(100, weight - 100, 900);
+                    node.set_attribute((AId::FontWeight, weight.to_string()));
                 }
                 _ => {}
             }
         }
     }
+}
+
+fn find_font_weight(node: &Node, default: i32) -> i32 {
+    for n in node.ancestors() {
+        if let Some(v) = n.attributes().get_str(AId::FontWeight) {
+            return v.parse().unwrap_or(default);
+        }
+    }
+
+    default
 }

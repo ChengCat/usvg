@@ -3,7 +3,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 /*!
-*usvg* (micro SVG) is an [SVG] simplification tool.
+`usvg` (micro SVG) is an [SVG] simplification tool.
 
 [SVG]: https://en.wikipedia.org/wiki/Scalable_Vector_Graphics
 */

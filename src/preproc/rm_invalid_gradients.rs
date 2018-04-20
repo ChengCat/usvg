@@ -8,8 +8,8 @@ use svgdom::{
     Document,
     ElementType,
     FuzzyEq,
+    FuzzyZero,
     Node,
-    ValueId,
 };
 
 // self
@@ -37,7 +37,7 @@ pub fn remove_invalid_gradients(doc: &mut Document) {
 
                 for id in &ids {
                     if count == 0 {
-                        linked.set_attribute((*id, ValueId::None));
+                        linked.set_attribute((*id, AValue::None));
                     } else {
                         // We know that gradient has first child.
                         let stop = gradient.first_child().unwrap();

@@ -11,6 +11,7 @@ use super::*;
 use geom::*;
 use short::{
     AId,
+    AValue,
     EId,
 };
 
@@ -136,23 +137,23 @@ fn conv_elements(
                 conv_transform(AId::Transform, &p.transform, &mut path_elem);
                 path_elem.set_id(p.id.clone());
 
-                use svgdom::path::Path as SvgDomPath;
-                use svgdom::path::Segment;
+                use svgdom::Path as SvgDomPath;
+                use svgdom::PathSegment as SvgDomPathSegment;
 
                 let mut path = SvgDomPath::with_capacity(p.segments.len());
                 for seg in &p.segments {
                     match *seg {
                         PathSegment::MoveTo { x, y } => {
-                            path.push(Segment::new_move_to(x, y));
+                            path.push(SvgDomPathSegment::MoveTo { abs: true, x, y });
                         }
                         PathSegment::LineTo { x, y } => {
-                            path.push(Segment::new_line_to(x, y));
+                            path.push(SvgDomPathSegment::LineTo { abs: true, x, y });
                         }
                         PathSegment::CurveTo { x1, y1, x2, y2, x, y } => {
-                            path.push(Segment::new_curve_to(x1, y1, x2, y2, x, y));
+                            path.push(SvgDomPathSegment::CurveTo { abs: true, x1, y1, x2, y2, x, y });
                         }
                         PathSegment::ClosePath => {
-                            path.push(Segment::new_close_path());
+                            path.push(SvgDomPathSegment::ClosePath { abs: true });
                         }
                     }
                 }
@@ -182,9 +183,9 @@ fn conv_elements(
                         if chunk.anchor != TextAnchor::Start {
                             chunk_tspan_elem.set_attribute((AId::TextAnchor,
                                 match chunk.anchor {
-                                    TextAnchor::Start => svgdom::ValueId::Start,
-                                    TextAnchor::Middle => svgdom::ValueId::Middle,
-                                    TextAnchor::End => svgdom::ValueId::End,
+                                    TextAnchor::Start => "start",
+                                    TextAnchor::Middle => "middle",
+                                    TextAnchor::End => "end",
                                 }
                             ));
                         }
@@ -321,13 +322,13 @@ fn conv_fill(
             node.set_attribute((AId::FillOpacity, fill.opacity.value()));
 
             if parent.is_tag_name(EId::ClipPath) {
-                node.set_attribute((AId::ClipRule, svgdom::ValueId::Evenodd));
+                node.set_attribute((AId::ClipRule, "evenodd"));
             } else {
-                node.set_attribute((AId::FillRule, svgdom::ValueId::Evenodd));
+                node.set_attribute((AId::FillRule, "evenodd"));
             }
         }
         None => {
-            node.set_attribute((AId::Fill, svgdom::ValueId::None));
+            node.set_attribute((AId::Fill, AValue::None));
         }
     }
 }
@@ -358,28 +359,28 @@ fn conv_stroke(
 
             node.set_attribute((AId::StrokeLinecap,
                 match stroke.linecap {
-                    LineCap::Butt => svgdom::ValueId::Butt,
-                    LineCap::Round => svgdom::ValueId::Round,
-                    LineCap::Square => svgdom::ValueId::Square,
+                    LineCap::Butt => "butt",
+                    LineCap::Round => "round",
+                    LineCap::Square => "square",
                 }
             ));
 
             node.set_attribute((AId::StrokeLinejoin,
                 match stroke.linejoin {
-                    LineJoin::Miter => svgdom::ValueId::Miter,
-                    LineJoin::Round => svgdom::ValueId::Round,
-                    LineJoin::Bevel => svgdom::ValueId::Bevel,
+                    LineJoin::Miter => "miter",
+                    LineJoin::Round => "round",
+                    LineJoin::Bevel => "bevel",
                 }
             ));
 
             if let Some(ref array) = stroke.dasharray {
                 node.set_attribute((AId::StrokeDasharray, array.clone()));
             } else {
-                node.set_attribute((AId::StrokeDasharray, svgdom::ValueId::None));
+                node.set_attribute((AId::StrokeDasharray, AValue::None));
             }
         }
         None => {
-            node.set_attribute((AId::Stroke, svgdom::ValueId::None));
+            node.set_attribute((AId::Stroke, AValue::None));
         }
     }
 }
@@ -394,9 +395,9 @@ fn conv_base_grad(
 
     node.set_attribute((AId::SpreadMethod,
         match g.spread_method {
-            SpreadMethod::Pad => svgdom::ValueId::Pad,
-            SpreadMethod::Reflect => svgdom::ValueId::Reflect,
-            SpreadMethod::Repeat => svgdom::ValueId::Repeat,
+            SpreadMethod::Pad => "pad",
+            SpreadMethod::Reflect => "reflect",
+            SpreadMethod::Repeat => "repeat",
         }
     ));
 
@@ -421,8 +422,8 @@ fn conv_units(
 ) {
     node.set_attribute((aid,
         match units {
-            Units::UserSpaceOnUse => svgdom::ValueId::UserSpaceOnUse,
-            Units::ObjectBoundingBox => svgdom::ValueId::ObjectBoundingBox,
+            Units::UserSpaceOnUse => "userSpaceOnUse",
+            Units::ObjectBoundingBox => "objectBoundingBox",
         }
     ));
 }
@@ -446,46 +447,46 @@ fn conv_font(
 
     node.set_attribute((AId::FontStyle,
         match font.style {
-            FontStyle::Normal => svgdom::ValueId::Normal,
-            FontStyle::Italic => svgdom::ValueId::Italic,
-            FontStyle::Oblique => svgdom::ValueId::Oblique,
+            FontStyle::Normal => "normal",
+            FontStyle::Italic => "italic",
+            FontStyle::Oblique => "oblique",
         }
     ));
 
     node.set_attribute((AId::FontVariant,
         match font.variant {
-            FontVariant::Normal => svgdom::ValueId::Normal,
-            FontVariant::SmallCaps => svgdom::ValueId::SmallCaps,
+            FontVariant::Normal => "normal",
+            FontVariant::SmallCaps => "small-caps",
         }
     ));
 
     node.set_attribute((AId::FontWeight,
         match font.weight {
-            FontWeight::W100 => svgdom::ValueId::N100,
-            FontWeight::W200 => svgdom::ValueId::N200,
-            FontWeight::W300 => svgdom::ValueId::N300,
-            FontWeight::W400 => svgdom::ValueId::N400,
-            FontWeight::W500 => svgdom::ValueId::N500,
-            FontWeight::W600 => svgdom::ValueId::N600,
-            FontWeight::W700 => svgdom::ValueId::N700,
-            FontWeight::W800 => svgdom::ValueId::N800,
-            FontWeight::W900 => svgdom::ValueId::N900,
+            FontWeight::W100 => "100",
+            FontWeight::W200 => "200",
+            FontWeight::W300 => "300",
+            FontWeight::W400 => "400",
+            FontWeight::W500 => "500",
+            FontWeight::W600 => "600",
+            FontWeight::W700 => "700",
+            FontWeight::W800 => "800",
+            FontWeight::W900 => "900",
         }
     ));
 
     node.set_attribute((AId::FontStretch,
         match font.stretch {
-            FontStretch::Normal => svgdom::ValueId::Normal,
-            FontStretch::Wider => svgdom::ValueId::Wider,
-            FontStretch::Narrower => svgdom::ValueId::Narrower,
-            FontStretch::UltraCondensed => svgdom::ValueId::UltraCondensed,
-            FontStretch::ExtraCondensed => svgdom::ValueId::ExtraCondensed,
-            FontStretch::Condensed => svgdom::ValueId::Condensed,
-            FontStretch::SemiCondensed => svgdom::ValueId::SemiCondensed,
-            FontStretch::SemiExpanded => svgdom::ValueId::SemiExpanded,
-            FontStretch::Expanded => svgdom::ValueId::Expanded,
-            FontStretch::ExtraExpanded => svgdom::ValueId::ExtraExpanded,
-            FontStretch::UltraExpanded => svgdom::ValueId::UltraExpanded,
+            FontStretch::Normal => "normal",
+            FontStretch::Wider => "wider",
+            FontStretch::Narrower => "narrower",
+            FontStretch::UltraCondensed => "ultra-condensed",
+            FontStretch::ExtraCondensed => "extra-condensed",
+            FontStretch::Condensed => "condensed",
+            FontStretch::SemiCondensed => "semi-condensed",
+            FontStretch::SemiExpanded => "semi-expanded",
+            FontStretch::Expanded => "expanded",
+            FontStretch::ExtraExpanded => "extra-expanded",
+            FontStretch::UltraExpanded => "ultra-expanded",
         }
     ));
 }

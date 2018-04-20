@@ -283,10 +283,9 @@ fn get_view_box(svg: &svgdom::Node, size: Size) -> Rect {
 }
 
 fn convert_element_units(attrs: &svgdom::Attributes, aid: AId) -> tree::Units {
-    let av = attrs.get_predef(aid);
-    match av {
-        Some(svgdom::ValueId::UserSpaceOnUse) => tree::Units::UserSpaceOnUse,
-        Some(svgdom::ValueId::ObjectBoundingBox) => tree::Units::ObjectBoundingBox,
+    match attrs.get_str(aid) {
+        Some("userSpaceOnUse") => tree::Units::UserSpaceOnUse,
+        Some("objectBoundingBox") => tree::Units::ObjectBoundingBox,
         _ => {
             warn!("{} must be already resolved.", aid);
             tree::Units::UserSpaceOnUse

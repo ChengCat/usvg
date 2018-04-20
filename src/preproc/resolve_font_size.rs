@@ -9,7 +9,6 @@ use svgdom::{
     Length,
     Node,
     NodeType,
-    ValueId,
 };
 
 // self
@@ -61,11 +60,10 @@ pub fn _resolve_font_size(parent: &Node) {
                     len
                 }
             }
-            AValue::PredefValue(id) => {
-                process_named_font_size(parent, id, &font_size)
+            AValue::String(ref name) => {
+                process_named_font_size(parent, name, &font_size)
             }
             _ => {
-                // Technically unreachable, because 'svgparser' should validate it.
                 warn!("Invalid 'font-size' value: {}.", font_size);
                 Length::new(DEFAULT_FONT_SIZE, Unit::None)
             }
@@ -109,19 +107,18 @@ fn process_percent_font_size(parent: &Node, len: Length) -> Length {
 
 // a-font-size-005.svg
 // a-font-size-008.svg
-fn process_named_font_size(parent: &Node, id: ValueId, font_size: &AValue) -> Length {
-    let factor = match id {
-        ValueId::XxSmall => -3,
-        ValueId::XSmall => -2,
-        ValueId::Small => -1,
-        ValueId::Medium => 0,
-        ValueId::Large => 1,
-        ValueId::XLarge => 2,
-        ValueId::XxLarge => 3,
-        ValueId::Smaller => -1,
-        ValueId::Larger => 1,
+fn process_named_font_size(parent: &Node, name: &str, font_size: &AValue) -> Length {
+    let factor = match name {
+        "xx-small" => -3,
+        "x-small" => -2,
+        "small" => -1,
+        "medium" => 0,
+        "large" => 1,
+        "x-large" => 2,
+        "xx-large" => 3,
+        "smaller" => -1,
+        "larger" => 1,
         _ => {
-            // Technically unreachable, because 'svgparser' should validate it.
             warn!("Invalid 'font-size' value: {}.", font_size);
             0
         }

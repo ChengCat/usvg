@@ -6,7 +6,6 @@
 use svgdom::{
     Document,
     Node,
-    ValueId,
 };
 
 // self
@@ -51,7 +50,7 @@ fn _resolve(parent: &Node, nodes: &mut Vec<Node>) {
             node.remove_attribute(AId::Visibility);
 
             for child in node.children() {
-                if child.attributes().get_predef(AId::Visibility) != Some(ValueId::Visible) {
+                if child.attributes().get_str(AId::Visibility) != Some("visible") {
                     nodes.push(child.clone());
                 }
             }
@@ -65,8 +64,8 @@ fn _resolve(parent: &Node, nodes: &mut Vec<Node>) {
 
 /// Checks that element has 'visibility' set to 'hidden' or 'collapse'.
 fn is_hidden(node: &Node) -> bool {
-    match node.attributes().get_predef(AId::Visibility) {
-        Some(ValueId::Visible) | None => false,
+    match node.attributes().get_str(AId::Visibility) {
+        Some("visible") | None => false,
         _ => true,
     }
 }

@@ -139,8 +139,7 @@ fn conv_text_decoration(node: &svgdom::Node) -> TextDecoTypes {
 
     let attrs = node.attributes();
 
-    let def = String::new();
-    let text = attrs.get_string(AId::TextDecoration).unwrap_or(&def);
+    let text = attrs.get_str(AId::TextDecoration).unwrap_or("");
 
     TextDecoTypes {
         has_underline: text.contains("underline"),
@@ -155,8 +154,8 @@ fn conv_tspan_decoration(tspan: &svgdom::Node) -> TextDecoTypes {
 
     let attrs = tspan.attributes();
 
-    let has_attr = |decoration_id: svgdom::ValueId| {
-        if let Some(id) = attrs.get_predef(AId::TextDecoration) {
+    let has_attr = |decoration_id: &str| {
+        if let Some(id) = attrs.get_str(AId::TextDecoration) {
             if id == decoration_id {
                 return true;
             }
@@ -166,9 +165,9 @@ fn conv_tspan_decoration(tspan: &svgdom::Node) -> TextDecoTypes {
     };
 
     TextDecoTypes {
-        has_underline: has_attr(svgdom::ValueId::Underline),
-        has_overline: has_attr(svgdom::ValueId::Overline),
-        has_line_through: has_attr(svgdom::ValueId::LineThrough),
+        has_underline: has_attr("underline"),
+        has_overline: has_attr("overline"),
+        has_line_through: has_attr("line-through"),
     }
 }
 
@@ -207,65 +206,65 @@ fn conv_tspan_decoration2(
 }
 
 fn conv_text_anchor(attrs: &svgdom::Attributes) -> tree::TextAnchor {
-    let av = attrs.get_predef(AId::TextAnchor).unwrap_or(svgdom::ValueId::Start);
+    let av = attrs.get_str(AId::TextAnchor).unwrap_or("start");
 
     match av {
-        svgdom::ValueId::Start => tree::TextAnchor::Start,
-        svgdom::ValueId::Middle => tree::TextAnchor::Middle,
-        svgdom::ValueId::End => tree::TextAnchor::End,
+        "start" => tree::TextAnchor::Start,
+        "middle" => tree::TextAnchor::Middle,
+        "end" => tree::TextAnchor::End,
         _ => tree::TextAnchor::Start,
     }
 }
 
 fn convert_font(attrs: &svgdom::Attributes) -> tree::Font {
-    let style = attrs.get_predef(AId::FontStyle).unwrap_or(svgdom::ValueId::Normal);
+    let style = attrs.get_str(AId::FontStyle).unwrap_or("normal");
     let style = match style {
-        svgdom::ValueId::Normal => tree::FontStyle::Normal,
-        svgdom::ValueId::Italic => tree::FontStyle::Italic,
-        svgdom::ValueId::Oblique => tree::FontStyle::Oblique,
+        "normal" => tree::FontStyle::Normal,
+        "italic" => tree::FontStyle::Italic,
+        "oblique" => tree::FontStyle::Oblique,
         _ => tree::FontStyle::Normal,
     };
 
-    let variant = attrs.get_predef(AId::FontVariant).unwrap_or(svgdom::ValueId::Normal);
+    let variant = attrs.get_str(AId::FontVariant).unwrap_or("normal");
     let variant = match variant {
-        svgdom::ValueId::Normal => tree::FontVariant::Normal,
-        svgdom::ValueId::SmallCaps => tree::FontVariant::SmallCaps,
+        "normal" => tree::FontVariant::Normal,
+        "small-caps" => tree::FontVariant::SmallCaps,
         _ => tree::FontVariant::Normal,
     };
 
-    let weight = attrs.get_predef(AId::FontWeight).unwrap_or(svgdom::ValueId::Normal);
+    let weight = attrs.get_str(AId::FontWeight).unwrap_or("normal");
     let weight = match weight {
-        svgdom::ValueId::Normal => tree::FontWeight::W400,
-        svgdom::ValueId::Bold => tree::FontWeight::W700,
-        svgdom::ValueId::N100 => tree::FontWeight::W100,
-        svgdom::ValueId::N200 => tree::FontWeight::W200,
-        svgdom::ValueId::N300 => tree::FontWeight::W300,
-        svgdom::ValueId::N400 => tree::FontWeight::W400,
-        svgdom::ValueId::N500 => tree::FontWeight::W500,
-        svgdom::ValueId::N600 => tree::FontWeight::W600,
-        svgdom::ValueId::N700 => tree::FontWeight::W700,
-        svgdom::ValueId::N800 => tree::FontWeight::W800,
-        svgdom::ValueId::N900 => tree::FontWeight::W900,
-        svgdom::ValueId::Bolder | svgdom::ValueId::Lighter => {
+        "normal" => tree::FontWeight::W400,
+        "bold" => tree::FontWeight::W700,
+        "100" => tree::FontWeight::W100,
+        "200" => tree::FontWeight::W200,
+        "300" => tree::FontWeight::W300,
+        "400" => tree::FontWeight::W400,
+        "500" => tree::FontWeight::W500,
+        "600" => tree::FontWeight::W600,
+        "700" => tree::FontWeight::W700,
+        "800" => tree::FontWeight::W800,
+        "900" => tree::FontWeight::W900,
+        "bolder" | "lighter" => {
             warn!("'bolder' and 'lighter' font-weight must be already resolved.");
             tree::FontWeight::W400
         }
         _ => tree::FontWeight::W400,
     };
 
-    let stretch = attrs.get_predef(AId::FontStretch).unwrap_or(svgdom::ValueId::Normal);
+    let stretch = attrs.get_str(AId::FontStretch).unwrap_or("normal");
     let stretch = match stretch {
-        svgdom::ValueId::Normal => tree::FontStretch::Normal,
-        svgdom::ValueId::Wider => tree::FontStretch::Wider,
-        svgdom::ValueId::Narrower => tree::FontStretch::Narrower,
-        svgdom::ValueId::UltraCondensed => tree::FontStretch::UltraCondensed,
-        svgdom::ValueId::ExtraCondensed => tree::FontStretch::ExtraCondensed,
-        svgdom::ValueId::Condensed => tree::FontStretch::Condensed,
-        svgdom::ValueId::SemiCondensed => tree::FontStretch::SemiCondensed,
-        svgdom::ValueId::SemiExpanded => tree::FontStretch::SemiExpanded,
-        svgdom::ValueId::Expanded => tree::FontStretch::Expanded,
-        svgdom::ValueId::ExtraExpanded => tree::FontStretch::ExtraExpanded,
-        svgdom::ValueId::UltraExpanded => tree::FontStretch::UltraExpanded,
+        "normal" => tree::FontStretch::Normal,
+        "wider" => tree::FontStretch::Wider,
+        "narrower" => tree::FontStretch::Narrower,
+        "ultra-condensed" => tree::FontStretch::UltraCondensed,
+        "extra-condensed" => tree::FontStretch::ExtraCondensed,
+        "condensed" => tree::FontStretch::Condensed,
+        "semi-condensed" => tree::FontStretch::SemiCondensed,
+        "semi-expanded" => tree::FontStretch::SemiExpanded,
+        "expanded" => tree::FontStretch::Expanded,
+        "extra-expanded" => tree::FontStretch::ExtraExpanded,
+        "ultra-expanded" => tree::FontStretch::UltraExpanded,
         _ => tree::FontStretch::Normal,
     };
 
@@ -273,8 +272,8 @@ fn convert_font(attrs: &svgdom::Attributes) -> tree::Font {
     let size = attrs.get_number(AId::FontSize).unwrap_or(::DEFAULT_FONT_SIZE);
     debug_assert!(size > 0.0);
 
-    let family = attrs.get_string(AId::FontFamily)
-                      .unwrap_or(&::DEFAULT_FONT_FAMILY.to_owned()).clone();
+    let family = attrs.get_str(AId::FontFamily)
+                      .unwrap_or(&::DEFAULT_FONT_FAMILY).to_owned();
 
     tree::Font {
         family,

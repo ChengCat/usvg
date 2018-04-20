@@ -48,7 +48,7 @@ pub fn convert(
 
                 p?
             }
-            AValue::PredefValue(svgdom::ValueId::None) => {
+            AValue::None => {
                 // a-fill-020.svg
                 return None;
             }
@@ -63,10 +63,9 @@ pub fn convert(
 
     let fill_opacity = attrs.get_number(AId::FillOpacity).unwrap_or(1.0);
 
-    let fill_rule = attrs.get_predef(AId::FillRule)
-                         .unwrap_or(svgdom::ValueId::Nonzero);
+    let fill_rule = attrs.get_str(AId::FillRule).unwrap_or("nonzero");
     let fill_rule = match fill_rule {
-        svgdom::ValueId::Evenodd => tree::FillRule::EvenOdd,
+        "evenodd" => tree::FillRule::EvenOdd,
         _ => tree::FillRule::NonZero,
     };
 

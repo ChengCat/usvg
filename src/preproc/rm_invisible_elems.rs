@@ -5,7 +5,6 @@
 // external
 use svgdom::{
     Document,
-    ValueId,
 };
 
 // self
@@ -37,11 +36,9 @@ fn rm_display_none(doc: &mut Document) {
 
     let root = doc.root();
     doc.drain(root, |n| {
-        if let Some(&AValue::PredefValue(id)) = n.attributes().get_value(AId::Display) {
-            if id == ValueId::None {
-                if !n.is_tag_name(EId::ClipPath) {
-                    return true;
-                }
+        if let Some(&AValue::None) = n.attributes().get_value(AId::Display) {
+            if !n.is_tag_name(EId::ClipPath) {
+                return true;
             }
         }
 

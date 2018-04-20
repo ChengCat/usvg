@@ -70,12 +70,12 @@ pub fn convert_radial(
 fn convert_spread_method(
     attrs: &svgdom::Attributes
 ) -> tree::SpreadMethod {
-    let av = attrs.get_predef(AId::SpreadMethod).unwrap_or(svgdom::ValueId::Pad);
+    let av = attrs.get_str(AId::SpreadMethod).unwrap_or("pad");
 
     match av {
-        svgdom::ValueId::Pad => tree::SpreadMethod::Pad,
-        svgdom::ValueId::Reflect => tree::SpreadMethod::Reflect,
-        svgdom::ValueId::Repeat => tree::SpreadMethod::Repeat,
+        "pad" => tree::SpreadMethod::Pad,
+        "reflect" => tree::SpreadMethod::Reflect,
+        "repeat" => tree::SpreadMethod::Repeat,
         _ => tree::SpreadMethod::Pad,
     }
 }

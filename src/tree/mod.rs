@@ -23,6 +23,7 @@ mod node;
 pub mod prelude {
     pub use tree;
     pub use tree::FuzzyEq;
+    pub use tree::FuzzyZero;
     pub use super::NodeExt;
 }
 

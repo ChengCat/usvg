@@ -6,7 +6,7 @@
 use svgdom::{
     Document,
     Node,
-    ValueId,
+    AspectRatio,
 };
 
 // self
@@ -40,8 +40,8 @@ use traits::{
 pub fn resolve_linear_gradient_attributes(doc: &Document) {
     for node in &mut gen_order(doc, EId::LinearGradient) {
         check_attr(node, AId::GradientUnits,
-            Some(AValue::from(ValueId::ObjectBoundingBox)));
-        check_attr(node, AId::SpreadMethod, Some(AValue::from(ValueId::Pad)));
+            Some(AValue::from("objectBoundingBox")));
+        check_attr(node, AId::SpreadMethod, Some(AValue::from("pad")));
         check_attr(node, AId::X1, Some(AValue::from(0.0)));
         check_attr(node, AId::Y1, Some(AValue::from(0.0)));
         check_attr(node, AId::X2, Some(AValue::from(1.0)));
@@ -74,8 +74,8 @@ pub fn resolve_radial_gradient_attributes(doc: &Document) {
 
     for node in &mut gen_order(doc, EId::RadialGradient) {
         check_attr(node, AId::GradientUnits,
-            Some(AValue::from(ValueId::ObjectBoundingBox)));
-        check_attr(node, AId::SpreadMethod, Some(AValue::from(ValueId::Pad)));
+            Some(AValue::from("objectBoundingBox")));
+        check_attr(node, AId::SpreadMethod, Some(AValue::from("pad")));
         check_attr(node, AId::Cx, Some(AValue::from(0.5)));
         check_attr(node, AId::Cy, Some(AValue::from(0.5)));
         check_attr(node, AId::R,  Some(AValue::from(0.5)));
@@ -104,16 +104,14 @@ pub fn resolve_radial_gradient_attributes(doc: &Document) {
 /// Resolve attributes of `pattern` elements.
 pub fn resolve_pattern_attributes(doc: &Document) {
     for node in &mut gen_order(doc, EId::Pattern) {
-        check_attr(node, AId::PatternUnits,
-                   Some(AValue::from(ValueId::ObjectBoundingBox)));
-        check_attr(node, AId::PatternContentUnits,
-                   Some(AValue::from(ValueId::UserSpaceOnUse)));
+        check_attr(node, AId::PatternUnits, Some(AValue::from("objectBoundingBox")));
+        check_attr(node, AId::PatternContentUnits, Some(AValue::from("userSpaceOnUse")));
         check_attr(node, AId::PatternTransform, None);
         check_attr(node, AId::X, Some(AValue::from(0.0)));
         check_attr(node, AId::Y, Some(AValue::from(0.0)));
         check_attr(node, AId::Width, Some(AValue::from(0.0)));
         check_attr(node, AId::Height, Some(AValue::from(0.0)));
-        check_attr(node, AId::PreserveAspectRatio, Some(AValue::from("xMidYMid meet")));
+        check_attr(node, AId::PreserveAspectRatio, Some(AValue::from(AspectRatio::default())));
         check_attr(node, AId::ViewBox, None);
     }
 }

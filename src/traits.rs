@@ -7,7 +7,6 @@ use std::fmt::Display;
 
 // external
 use svgdom::{
-    path,
     AspectRatio,
     Attributes,
     Color,
@@ -16,9 +15,9 @@ use svgdom::{
     LengthList,
     Node,
     NumberList,
+    Path,
     Points,
     Transform,
-    ValueId,
     ViewBox,
 };
 
@@ -73,7 +72,7 @@ impl GetDefsNode for Document {
 }
 
 
-pub trait FromValue: Sized {
+pub trait FromValue {
     fn get(v: &AValue) -> Option<&Self>;
 }
 
@@ -92,13 +91,20 @@ impl_from_value!(f64, Number);
 impl_from_value!(Length, Length);
 impl_from_value!(LengthList, LengthList);
 impl_from_value!(NumberList, NumberList);
-impl_from_value!(path::Path, Path);
-impl_from_value!(String, String);
+impl_from_value!(Path, Path);
 impl_from_value!(Transform, Transform);
-impl_from_value!(ValueId, PredefValue);
 impl_from_value!(ViewBox, ViewBox);
 impl_from_value!(Points, Points);
 impl_from_value!(AspectRatio, AspectRatio);
+
+impl FromValue for str {
+    fn get(v: &AValue) -> Option<&Self> {
+        match v {
+            &AValue::String(ref s) => Some(s.as_str()),
+            _ => None,
+        }
+    }
+}
 
 impl FromValue for AValue {
     fn get(v: &AValue) -> Option<&Self> {
@@ -108,7 +114,7 @@ impl FromValue for AValue {
 
 
 pub trait GetValue {
-    fn get_type<T: FromValue>(&self, id: AId) -> Option<&T>;
+    fn get_type<T: FromValue + ?Sized>(&self, id: AId) -> Option<&T>;
 
     fn get_number(&self, id: AId) -> Option<f64> {
         self.get_type(id).cloned()
@@ -126,15 +132,11 @@ pub trait GetValue {
         self.get_type(id)
     }
 
-    fn get_predef(&self, id: AId) -> Option<ValueId> {
-        self.get_type(id).cloned()
-    }
-
     fn get_color(&self, id: AId) -> Option<Color> {
         self.get_type(id).cloned()
     }
 
-    fn get_path(&self, id: AId) -> Option<&path::Path> {
+    fn get_path(&self, id: AId) -> Option<&Path> {
         self.get_type(id)
     }
 
@@ -142,13 +144,13 @@ pub trait GetValue {
         self.get_type(id)
     }
 
-    fn get_string(&self, id: AId) -> Option<&String> {
+    fn get_str(&self, id: AId) -> Option<&str> {
         self.get_type(id)
     }
 }
 
 impl GetValue for Attributes {
-    fn get_type<T: FromValue>(&self, id: AId) -> Option<&T> {
+    fn get_type<T: FromValue + ?Sized>(&self, id: AId) -> Option<&T> {
         match self.get_value(id) {
             Some(av) => {
                 FromValue::get(av)
@@ -162,9 +164,12 @@ impl GetValue for Attributes {
 }
 
 
+// TODO: remove
+
 pub trait FindAttribute {
     fn find_attribute<T: FromValue + Display + Clone>(&self, id: AId) -> Option<T>;
     fn find_attribute_with_node<T: FromValue + Display + Clone>(&self, id: AId) -> Option<(Node, T)>;
+    fn find_node_with_attribute(&self, id: AId) -> Option<Node>;
 }
 
 impl FindAttribute for Node {
@@ -180,6 +185,16 @@ impl FindAttribute for Node {
                     Some(v) => Some((n.clone(), v)),
                     None => None,
                 };
+            }
+        }
+
+        None
+    }
+
+    fn find_node_with_attribute(&self, id: AId) -> Option<Node> {
+        for n in self.ancestors() {
+            if n.has_attribute(id) {
+                return Some(n.clone())
             }
         }
 
