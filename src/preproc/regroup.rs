@@ -21,7 +21,7 @@ use traits::{
 
 // TODO: images should not be grouped
 pub fn regroup_elements(doc: &mut Document, parent: &Node) {
-    let g_attrs = [AId::ClipPath, AId::Opacity];
+    let g_attrs = [AId::ClipPath, AId::Mask, AId::Opacity];
 
     let mut ids = Vec::new();
     let mut curr_node = parent.first_child();
@@ -38,7 +38,10 @@ pub fn regroup_elements(doc: &mut Document, parent: &Node) {
         }
 
         let opacity = node.attributes().get_number(AId::Opacity).unwrap_or(1.0);
-        if opacity.fuzzy_eq(&1.0) && !node.has_attribute(AId::ClipPath) {
+        if      opacity.fuzzy_eq(&1.0)
+            && !node.has_attribute(AId::ClipPath)
+            && !node.has_attribute(AId::Mask)
+        {
             continue;
         }
 

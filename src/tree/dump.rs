@@ -88,6 +88,16 @@ fn conv_defs(
                 conv_transform(AId::Transform, &clip.transform, &mut clip_elem);
                 later_nodes.push((n.clone(), clip_elem.clone()));
             }
+            NodeKind::Mask(ref mask) => {
+                let mut mask_elem = new_doc.create_element(EId::Mask);
+                defs.append(mask_elem.clone());
+
+                mask_elem.set_id(mask.id.clone());
+                conv_units(AId::MaskUnits, mask.units, &mut mask_elem);
+                conv_units(AId::MaskContentUnits, mask.content_units, &mut mask_elem);
+                conv_rect(mask.rect, &mut mask_elem);
+                later_nodes.push((n.clone(), mask_elem.clone()));
+            }
             NodeKind::Pattern(ref pattern) => {
                 let mut pattern_elem = new_doc.create_element(EId::Pattern);
                 defs.append(pattern_elem.clone());
@@ -250,6 +260,14 @@ fn conv_elements(
                         let defs_id = node.id();
                         let link = defs.children().find(|n| *n.id() == *defs_id).unwrap();
                         g_elem.set_attribute((AId::ClipPath, link));
+                    }
+                }
+
+                if let Some(ref id) = g.mask {
+                    if let Some(node) = rtree.defs_by_id(id) {
+                        let defs_id = node.id();
+                        let link = defs.children().find(|n| *n.id() == *defs_id).unwrap();
+                        g_elem.set_attribute((AId::Mask, link));
                     }
                 }
 

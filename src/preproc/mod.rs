@@ -17,6 +17,7 @@ mod fix_recursive_pattern;
 mod fix_xlinks;
 mod group_defs;
 mod prepare_clip_path;
+mod prepare_mask;
 mod prepare_text_decoration;
 mod prepare_text_nodes;
 mod regroup;
@@ -48,6 +49,7 @@ use self::fix_recursive_pattern::fix_recursive_pattern;
 use self::fix_xlinks::fix_xlinks;
 use self::group_defs::group_defs;
 use self::prepare_clip_path::prepare_clip_path;
+use self::prepare_mask::prepare_mask;
 use self::prepare_text_decoration::prepare_text_decoration;
 use self::prepare_text_nodes::prepare_text_nodes;
 use self::regroup::regroup_elements;
@@ -118,6 +120,8 @@ pub fn prepare_doc(doc: &mut svgdom::Document, opt: &Options) {
     resolve_current_color(doc);
 
     group_defs(doc, svg);
+
+    prepare_mask(doc);
 
     resolve_font_size(doc);
     resolve_font_weight(doc);

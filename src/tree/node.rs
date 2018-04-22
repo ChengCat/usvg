@@ -9,6 +9,8 @@ use geom::*;
 use super::attribute::*;
 
 
+// TODO: use Box for large types
+
 /// Node's kind.
 #[allow(missing_docs)]
 pub enum NodeKind {
@@ -18,6 +20,7 @@ pub enum NodeKind {
     RadialGradient(RadialGradient),
     Stop(Stop),
     ClipPath(ClipPath),
+    Mask(Mask),
     Pattern(Pattern),
     Path(Path),
     Text(Text),
@@ -40,6 +43,7 @@ impl NodeKind {
             NodeKind::RadialGradient(ref e) => e.id.as_str(),
             NodeKind::Stop(_) => "",
             NodeKind::ClipPath(ref e) => e.id.as_str(),
+            NodeKind::Mask(ref e) => e.id.as_str(),
             NodeKind::Pattern(ref e) => e.id.as_str(),
             NodeKind::Path(ref e) => e.id.as_str(),
             NodeKind::Text(ref e) => e.id.as_str(),
@@ -62,6 +66,7 @@ impl NodeKind {
             NodeKind::RadialGradient(ref e) => e.d.transform,
             NodeKind::Stop(_) => Transform::default(),
             NodeKind::ClipPath(ref e) => e.transform,
+            NodeKind::Mask(_) => Transform::default(),
             NodeKind::Pattern(ref e) => e.transform,
             NodeKind::Path(ref e) => e.transform,
             NodeKind::Text(ref e) => e.transform,
@@ -244,6 +249,8 @@ pub struct Group {
     pub opacity: Option<Opacity>,
     /// Element clip path.
     pub clip_path: Option<String>,
+    /// Element mask.
+    pub mask: Option<String>,
 }
 
 
@@ -333,6 +340,30 @@ pub struct ClipPath {
     ///
     /// `transform` in the SVG.
     pub transform: Transform,
+}
+
+
+/// A mask element.
+///
+/// `mask` element in the SVG.
+pub struct Mask {
+    /// Element's ID.
+    ///
+    /// Taken from the SVG itself.
+    /// Can't be empty.
+    pub id: String,
+    /// Coordinate system units.
+    ///
+    /// `maskUnits` in the SVG.
+    pub units: Units,
+    /// Content coordinate system units.
+    ///
+    /// `maskContentUnits` in the SVG.
+    pub content_units: Units,
+    /// Pattern rectangle.
+    ///
+    /// `x`, `y`, `width` and `height` in the SVG.
+    pub rect: Rect,
 }
 
 

@@ -94,8 +94,8 @@ fn resolve_attrs(node: &Node) {
         | EId::Mask
         | EId::Pattern
         | EId::Symbol => {
-            let mut parent = node.clone();
-            while let Some(p) = parent.parent() {
+            let mut parent = Some(node.clone());
+            while let Some(p) = parent {
                 let attrs = p.attributes();
                 for (aid, attr) in attrs.iter_svg().filter(|&(_, a)| a.is_inheritable()) {
                     for mut child in node.children() {
@@ -107,7 +107,7 @@ fn resolve_attrs(node: &Node) {
                     }
                 }
 
-                parent = p.clone();
+                parent = p.parent();
             }
         }
         _ => {}

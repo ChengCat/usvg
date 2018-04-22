@@ -64,8 +64,13 @@ fn _ungroup_groups(parent: &Node, opt: &Options, groups: &mut Vec<Node>) {
                 continue;
             }
 
-            // Groups with `clip-path` attribute can't be ungroupped.
+            // Groups with a `clip-path` attribute can't be ungroupped.
             if let Some(&AValue::FuncLink(_)) = node.attributes().get_type(AId::ClipPath) {
+                continue;
+            }
+
+            // Groups with a `mask` attribute can't be ungroupped.
+            if let Some(&AValue::FuncLink(_)) = node.attributes().get_type(AId::Mask) {
                 continue;
             }
 
@@ -118,7 +123,7 @@ fn ungroup_group(g: &mut Node) {
                 continue;
             }
 
-            child.set_attribute_if_none(aid, &attr.value);
+            child.set_attribute_if_none((aid, attr.value.clone()));
         }
     }
 

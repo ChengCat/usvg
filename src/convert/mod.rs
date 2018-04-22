@@ -31,6 +31,7 @@ mod clippath;
 mod fill;
 mod gradient;
 mod image;
+mod mask;
 mod path;
 mod pattern;
 mod shapes;
@@ -127,6 +128,11 @@ fn convert_ref_nodes(
                 let new_node = clippath::convert(&node, rtree);
                 later_nodes.push((node, new_node));
             }
+            EId::Mask => {
+                if let Some(new_node) = mask::convert(&node, rtree) {
+                    later_nodes.push((node, new_node));
+                }
+            }
             EId::Pattern => {
                 if let Some(new_node) = pattern::convert(&node, rtree) {
                     later_nodes.push((node, new_node));
@@ -144,6 +150,13 @@ fn convert_ref_nodes(
 
             if !new_node.has_children() {
                 warn!("ClipPath '{}' has no children. Skipped.", node.id());
+                new_node.detach();
+            }
+        } else if node.is_tag_name(EId::Mask) {
+            convert_nodes(&node, new_node.clone(), opt, rtree);
+
+            if !new_node.has_children() {
+                warn!("Mask '{}' has no children. Skipped.", node.id());
                 new_node.detach();
             }
         } else if node.is_tag_name(EId::Pattern) {
@@ -183,6 +196,7 @@ pub(super) fn convert_nodes(
 
                 let attrs = node.attributes();
 
+                // TODO: simplify
                 // After preprocessing, `clip-path` can be set only on groups.
                 let clip_path = if let Some(av) = attrs.get_type(AId::ClipPath) {
                     let mut v = None;
@@ -204,6 +218,27 @@ pub(super) fn convert_nodes(
                     None
                 };
 
+                // After preprocessing, `mask` can be set only on groups.
+                let mask = if let Some(av) = attrs.get_type(AId::Mask) {
+                    let mut v = None;
+                    if let AValue::FuncLink(ref link) = *av {
+                        if link.is_tag_name(EId::Mask) {
+                            if let Some(node) = rtree.defs_by_id(&link.id()) {
+                                v = Some(node);
+                            }
+                        }
+                    }
+
+                    // If a `mask` is invalid than all elements that uses it should be removed.
+                    if v.is_none() {
+                        continue;
+                    }
+
+                    v.map(|v| v.id().to_string())
+                } else {
+                    None
+                };
+
                 let ts = attrs.get_transform(AId::Transform).unwrap_or_default();
                 let opacity = attrs.get_number(AId::Opacity).map(|v| v.into());
 
@@ -212,6 +247,7 @@ pub(super) fn convert_nodes(
                     transform: ts,
                     opacity,
                     clip_path,
+                    mask,
                 }));
 
                 convert_nodes(&node, g_node, opt, rtree);
