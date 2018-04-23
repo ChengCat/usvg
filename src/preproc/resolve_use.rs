@@ -39,16 +39,44 @@ pub fn resolve_use(doc: &mut Document) {
 
                 // We don't support 'use' elements linked to 'svg' element.
                 if link.is_tag_name(EId::Svg) {
-                    nodes.push(node);
+                    nodes.push(node.clone());
                     continue;
                 }
 
                 if link.is_tag_name(EId::Symbol) {
-                    nodes.push(node);
+                    nodes.push(node.clone());
+                    continue;
+                }
+
+                // Check that none of the linked node's children reference current `use` node
+                // via other `use` node.
+                //
+                // Example:
+                // <g id="g1">
+                //     <use xlink:href="#use1" id="use2"/>
+                // </g>
+                // <use xlink:href="#g1" id="use1"/>
+                //
+                // `use2` should be removed.
+                let mut is_recursive = false;
+                for link_child in link.descendants().skip(1).filter(|n| n.is_tag_name(EId::Use)) {
+                    let av = link_child.attributes().get_value(("xlink", AId::Href)).cloned();
+                    if let Some(AValue::Link(link2)) = av {
+                        if link2 == node {
+                            is_recursive = true;
+                            break;
+                        }
+                    }
+                }
+
+                if is_recursive {
+                    warn!("Recursive 'use' detected. '{}' will be deleted.", node.id());
+                    nodes.push(node.clone());
                     continue;
                 }
 
                 _resolve_use(doc, node.clone(), &link);
+
                 is_any_resolved = true;
             }
 
