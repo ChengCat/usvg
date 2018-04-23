@@ -52,7 +52,7 @@ pub fn convert(
                         p = Some(tree::Paint::Link(node.id().to_string()));
                     }
                 } else {
-                    warn!("'{:?}' cannot be used for stroking.",
+                    warn!("'{}' cannot be used for stroking.",
                           link.tag_name());
                     return None;
                 }

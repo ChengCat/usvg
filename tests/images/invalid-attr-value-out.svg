@@ -11,7 +11,7 @@
   <path
      fill="#000000"
      fill-opacity="1"
-     fill-rule="evenodd"
+     fill-rule="nonzero"
      stroke="none"
      d="M 0 0 L 20 0 L 20 20 L 0 20 Z"/>
 </svg>

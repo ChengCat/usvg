@@ -41,8 +41,8 @@ pub fn convert(
                     }
                 } else {
                     // a-fill-023.svg
-                    warn!("'{:?}' cannot be used for filling.",
-                          link.tag_id().unwrap());
+                    warn!("'{}' cannot be used for filling.",
+                          link.tag_name());
                     return None;
                 }
 
