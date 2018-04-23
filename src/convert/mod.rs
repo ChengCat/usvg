@@ -68,7 +68,7 @@ pub fn convert_doc(
             size: Size::new(100.0, 100.0),
             view_box: tree::ViewBox {
                 rect: rect(0.0, 0.0, 100.0, 100.0),
-                .. tree::ViewBox::default()
+                aspect: tree::AspectRatio::default(),
             },
         };
 

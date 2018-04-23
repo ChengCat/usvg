@@ -341,19 +341,6 @@ pub struct ViewBox {
     pub aspect: AspectRatio,
 }
 
-impl Default for ViewBox {
-    fn default() -> Self {
-        ViewBox {
-            rect: Rect::new(Point::new(0.0, 0.0), Size::new(0.0, 0.0)),
-            aspect: AspectRatio {
-                defer: false,
-                align: Align::XMidYMid,
-                slice: false,
-            }
-        }
-    }
-}
-
 
 /// A path absolute segment.
 ///

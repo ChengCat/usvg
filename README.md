@@ -50,7 +50,6 @@ Full spec can be found [here](docs/usvg_spec.adoc).
 - Unsupported elements:
   - filter-based elements
   - font-based elements
-  - `mask`
   - `marker`
   - `symbol`
   - `view`
