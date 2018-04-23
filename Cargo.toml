@@ -21,7 +21,7 @@ failure = "0.1.1"
 libflate = "0.1"
 log = "0.4"
 lyon_geom = "0.10"
-rctree = { git = "https://github.com/RazrFalcon/rctree", rev = "de6ff01" }
+rctree = "0.2.1"
 svgdom = { git = "https://github.com/RazrFalcon/svgdom", rev = "393ed77" }
 
 [dev-dependencies]
