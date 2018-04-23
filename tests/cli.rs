@@ -133,6 +133,6 @@ fn warn_msg_1() {
 
     assert_cli::Assert::command(args)
         .stdout().is(load_file("tests/images/invalid-attr-value-out.svg"))
-        .stderr().is("Warning (in svgdom::parser:439): Attribute 'fill' has an invalid value: 'qwe'.\n")
+        .stderr().is("Warning (in svgdom::parser:440): Attribute 'fill' has an invalid value: 'qwe'.\n")
         .unwrap();
 }

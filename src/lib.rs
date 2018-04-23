@@ -144,6 +144,7 @@ fn parse_dom(text: &str) -> svgdom::Document {
         skip_invalid_attributes: true,
         skip_invalid_css: true,
         skip_paint_fallback: true,
+        skip_elements_crosslink: true,
         .. svgdom::ParseOptions::default()
     };
 
