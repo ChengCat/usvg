@@ -85,10 +85,14 @@ pub struct Svg {
     /// Image size.
     ///
     /// Size of an image that should be created to fit the SVG.
+    ///
+    /// `width` and `height` in the SVG.
     pub size: Size,
     /// SVG viewbox.
     ///
     /// Specifies which part of the SVG image should be rendered.
+    ///
+    /// `viewBox` and `preserveAspectRatio` in the SVG.
     pub view_box: ViewBox,
 }
 

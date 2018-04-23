@@ -10,9 +10,11 @@ It's defined only once and can't be nested, unlike the SVG spec.
 
 Children: `defs`, `g`, `path`, `text` and `image`.
 
+Attributes: `width`, `height`, `viewBox` and `preserveAspectRatio`.
+
 === defs
 
-Children: `linearGradient`, `radialGradient`, `clipPath` and `pattern`.
+Children: `linearGradient`, `radialGradient`, `clipPath`, `mask` and `pattern`.
 
 [[linearGradient_elem]]
 
@@ -25,27 +27,27 @@ Gradient has all attributes resolved and at least two `stop` children.
 Gradient doesn't have `xlink:href` attribute because all attributes and `stop` children
 are already resolved and copied to the gradient.
 
+Children: `<<stop_elem,stop>>`.
+
 Attributes: `id`, `x1`, `y1`, `x2`, `y2`, `gradientUnits`, `spreadMethod`,
 `gradientTransform`.
 
-* `id` always set. Never empty.
+* `id` is always set and never empty.
 * See `<<transform_attr,transform>>` for `gradientTransform`.
-
-Children: `<<stop_elem,stop>>`
 
 === radialGradient
 
 See `<<linearGradient_elem,linearGradient>>`.
 
+Children: `<<stop_elem,stop>>`.
+
 Attributes: `id`, `cx`, `cy`, `r`, `fx`, `fy`, `gradientUnits`, `spreadMethod`,
 `gradientTransform`.
 
-* `id` always set. Never empty.
+* `id` is always set and never empty.
 * `r` always > 0.
 * `fx` and `fy` are always inside the circle defined by `cx`, `cy` and `r`.
 * See `<<transform_attr,transform>>` for `gradientTransform`.
-
-Children: `<<stop_elem,stop>>`
 
 [[stop_elem]]
 
@@ -62,11 +64,29 @@ Pattern defines a texture image that can be used by `fill` and `stroke`.
 
 Children: `g`, `path`, `text` and `image`.
 
+Attributes: `id`, `patternUnits`, `patternContentUnits`, `transform`,
+`x`, `y`, `width`, `height`, `viewBox` and `preserveAspectRatio`.
+
+* `id` is always set and never empty.
+* `width` and `height` are always > 0.
+
 === clipPath
 
 `clipPath` defines a 1-bit mask using children elements.
 
 Children: `path` and `text`.
+
+Attributes: `id`, `clipPathUnits`, `transform`.
+
+* `id` is always set and never empty.
+
+=== mask
+
+Children: `g`, `path`, `text` and `image`.
+
+Attributes: `id`, `maskUnits`, `maskContentUnits`, `x`, `y`, `width` and `height`.
+
+* `id` is always set and never empty.
 
 === g
 
@@ -80,14 +100,20 @@ All the remaining one will indicate that a new canvas must be created.
 
 Children: `g`, `path`, `text` and `image`.
 
+Attributes: `id`, `transform`, `opacity`, `clip-path` and `mask`.
+
+* `id` is optional but never empty.
+
 === path
 
 First, the _usvg_ preprocessor will convert all the shapes into paths.
 Then it will simplify path's data so it will contain only absolute
 MoveTo, LineTo, CurveTo and ClosePath segments.
 
-The `path` element can have <<fill_attrs, filling>> and
-<<stroke_attrs,stroking>> attributes.
+Attributes: `id`, <<fill_attrs, filling>>, <<stroke_attrs,stroking>>,
+`clip-rule` (when inside the `clipPath`) and `transform`.
+
+* `id` is optional but never empty.
 
 === text
 
@@ -121,12 +147,16 @@ So all `text` elements will have a three-level structure:
 ** `tspan` - text chunk
 *** `tspan` - text container
 
-The `text` itself can have only a `transform` attribute.
+The `text` itself can have only `id` and `transform` attributes.
 
 _Text chunk_ can have `x`, `y` and `text-anchor` attributes.
 
 And the _text container_ can have <<fill_attrs, filling>>,
 <<stroke_attrs,stroking>>, <<font_attrs,font>> and `text-decoration` attributes.
+
+* `id` is optional but never empty.
+
+*Note:* `text-decoration` is currently ignored.
 
 // TODO: explain text-decoration
 
@@ -136,6 +166,8 @@ An image can have base64 encoded data or a path to an image.
 
 Attributes: `id`, `x`, `y`, `width`, `height`, `preserveAspectRatio`, `xlink:href`
 and `transform`.
+
+* `id` is optional but never empty.
 
 == Attributes
 
@@ -153,7 +185,7 @@ Filling attributes refers to:
 
 * `fill`
 ** Possible values: `none`, `#RRGGBB`, `url(#id)`.
-** Impossible values: `currentColor`, icccolor, FuncIRI with fallback color.
+** Impossible values: `currentColor`, icccolor, FuncIRI with a fallback color.
 ** FuncIRI is always valid and points to an existing element.
 * `fill-opacity`
 ** Possible values: 0..1.
@@ -176,6 +208,7 @@ Stroking attributes refers to:
 * `stroke-opacity`
 ** Possible values: 0..1.
 * `stroke-width`
+** Possible values: number > 0.
 * `stroke-linecap`
 * `stroke-linejoin`
 

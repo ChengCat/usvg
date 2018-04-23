@@ -84,7 +84,7 @@ output = '''
                 fill="#000000"
                 fill-opacity="1"
                 stroke="none"
-                clip-rule="evenodd"
+                clip-rule="nonzero"
                 d="M 0 0 L 10 0 L 10 10 L 0 10 Z"/>
         </clipPath>
         <pattern
@@ -98,7 +98,7 @@ output = '''
             <path
                 fill="#000000"
                 fill-opacity="1"
-                fill-rule="evenodd"
+                fill-rule="nonzero"
                 stroke="none"
                 d="M 0 0 L 10 0 L 10 10 L 0 10 Z"/>
         </pattern>
@@ -109,7 +109,7 @@ output = '''
             id="rect1"
             fill="url(#lg1)"
             fill-opacity="1"
-            fill-rule="evenodd"
+            fill-rule="nonzero"
             stroke="url(#rg1)"
             stroke-dasharray="none"
             stroke-dashoffset="0"
@@ -124,7 +124,7 @@ output = '''
         id="path1"
         fill="url(#patt1)"
         fill-opacity="1"
-        fill-rule="evenodd"
+        fill-rule="nonzero"
         stroke="none"
         d="M 10 20 L 30 40"/>
     <text
@@ -133,7 +133,7 @@ output = '''
         y="0"><tspan
         fill="#000000"
         fill-opacity="1"
-        fill-rule="evenodd"
+        fill-rule="nonzero"
         stroke="none"
         font-family="Times New Roman"
         font-size="12"
@@ -147,7 +147,7 @@ output = '''
         y="0"><tspan
         fill="#000000"
         fill-opacity="1"
-        fill-rule="evenodd"
+        fill-rule="nonzero"
         stroke="none"
         font-family="Times New Roman"
         font-size="12"

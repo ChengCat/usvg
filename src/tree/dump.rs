@@ -339,11 +339,13 @@ fn conv_fill(
 
             node.set_attribute((AId::FillOpacity, fill.opacity.value()));
 
-            if parent.is_tag_name(EId::ClipPath) {
-                node.set_attribute((AId::ClipRule, "evenodd"));
+            let rule = if fill.rule == FillRule::NonZero { "nonzero" } else { "evenodd" };
+            let rule_aid = if parent.is_tag_name(EId::ClipPath) {
+                AId::ClipRule
             } else {
-                node.set_attribute((AId::FillRule, "evenodd"));
-            }
+                AId::FillRule
+            };
+            node.set_attribute((rule_aid, rule));
         }
         None => {
             node.set_attribute((AId::Fill, AValue::None));
