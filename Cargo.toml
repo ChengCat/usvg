@@ -6,6 +6,9 @@ keywords = ["svg"]
 license = "MPL-2.0"
 description = "An SVG simplification library."
 categories = ["multimedia::images"]
+repository = "https://github.com/RazrFalcon/usvg"
+documentation = "https://docs.rs/usvg/"
+readme = "README.md"
 
 [workspace]
 members = ["cli"]
@@ -22,13 +25,13 @@ libflate = "0.1"
 log = "0.4"
 lyon_geom = "0.10"
 rctree = "0.2.1"
-svgdom = { git = "https://github.com/RazrFalcon/svgdom", rev = "a9e239d" }
+svgdom = "0.12"
 
 [dev-dependencies]
 assert_cli = "0.5.4"
-tempdir = "0.3"
 pretty_assertions = "0.5.1"
-toml = "0.4.5"
+rustc-test = "0.3"
 serde = "1.0.34"
 serde_derive = "1.0.34"
-rustc-test = "0.3"
+tempdir = "0.3"
+toml = "0.4.5"

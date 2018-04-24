@@ -67,4 +67,4 @@ pub type Size = euclid::Size2D<f64>;
 /// Alias for `euclid::Rect<f64>`.
 pub type Rect = euclid::Rect<f64>;
 
-pub use self::euclid::rect;
+pub(crate) use self::euclid::rect;
