@@ -9,7 +9,7 @@ use svgdom::{
 };
 
 // self
-use tree::prelude::*;
+use tree;
 use short::{
     AId,
     EId,

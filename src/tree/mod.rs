@@ -19,9 +19,8 @@ mod attribute;
 mod dump;
 mod node;
 
-/// Basic modules and traits for tree manipulation.
+/// Basic traits for tree manipulations.
 pub mod prelude {
-    pub use tree;
     pub use tree::FuzzyEq;
     pub use tree::FuzzyZero;
     pub use super::NodeExt;

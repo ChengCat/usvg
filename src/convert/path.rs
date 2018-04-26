@@ -10,6 +10,7 @@ use std::f64;
 use svgdom;
 
 // self
+use tree;
 use tree::prelude::*;
 use short::{
     AId,
