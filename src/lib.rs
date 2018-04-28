@@ -70,6 +70,7 @@ Full spec can be found [here](https://github.com/RazrFalcon/usvg/blob/master/doc
 pub extern crate svgdom;
 extern crate base64;
 extern crate libflate;
+extern crate lyon_geom;
 #[macro_use] extern crate log;
 #[macro_use] extern crate failure;
 

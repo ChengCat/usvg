@@ -9,8 +9,6 @@ use geom::*;
 use super::attribute::*;
 
 
-// TODO: use Box for large types
-
 /// Node's kind.
 #[allow(missing_docs)]
 pub enum NodeKind {
