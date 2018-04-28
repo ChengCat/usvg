@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+- Rename `Tree::node_by_svg_id` to `Tree::node_by_id`.
+
 ### Fixed
 - Panic during `visibility` resolving.
 

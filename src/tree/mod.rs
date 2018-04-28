@@ -16,7 +16,7 @@ pub use self::node::*;
 pub use self::attribute::*;
 
 mod attribute;
-mod dump;
+mod convert;
 mod node;
 
 /// Basic traits for tree manipulations.
@@ -79,7 +79,7 @@ impl Tree {
         new_node
     }
 
-    /// Searches for `NodeId` in `Defs` children by ID.
+    /// Returns `defs` child node by ID.
     pub fn defs_by_id(&self, id: &str) -> Option<Node> {
         for n in self.defs().children() {
             if &*n.id() == id {
@@ -94,7 +94,7 @@ impl Tree {
     ///
     /// If an empty ID is provided, than this method will always return `None`.
     /// Even if tree has nodes with empty ID.
-    pub fn node_by_svg_id(&self, id: &str) -> Option<Node> {
+    pub fn node_by_id(&self, id: &str) -> Option<Node> {
         if id.is_empty() {
             return None;
         }
@@ -114,7 +114,7 @@ impl Tree {
     ///
     /// Used to save document to file for debug purposes.
     pub fn to_svgdom(&self) -> svgdom::Document {
-        dump::conv_doc(self)
+        convert::conv_doc(self)
     }
 }
 
