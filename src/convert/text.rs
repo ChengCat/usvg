@@ -83,7 +83,7 @@ fn convert_chunks(
                     }));
                 } else {
                     // Update existing chunk.
-                    if let tree::NodeKind::TextChunk(ref mut d) = **chunk_node.borrow_mut() {
+                    if let tree::NodeKind::TextChunk(ref mut d) = *chunk_node.borrow_mut() {
                         d.x = tx;
                         d.y = ty;
                         d.anchor = conv_text_anchor(attrs);
@@ -98,13 +98,13 @@ fn convert_chunks(
         let fill = fill::convert(rtree, attrs);
         let stroke = stroke::convert(rtree, attrs);
         let decoration = conv_tspan_decoration2(rtree, text_elem, &tspan);
-        chunk_node.append_kind(tree::NodeKind::TSpan(tree::TSpan {
+        chunk_node.append_kind(tree::NodeKind::TSpan(Box::new(tree::TSpan {
             fill,
             stroke,
             font: convert_font(attrs),
             decoration,
             text,
-        }));
+        })));
     }
 
     debug_assert!(chunk_node.children().count() > 0);

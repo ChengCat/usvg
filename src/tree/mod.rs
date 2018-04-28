@@ -4,9 +4,9 @@
 
 //! Implementation of the nodes tree.
 
-use std::cell::Ref;
-
 extern crate rctree;
+
+use std::cell::Ref;
 
 // external
 use svgdom;
@@ -26,8 +26,8 @@ pub mod prelude {
     pub use super::NodeExt;
 }
 
-/// Alias for `rctree::Node<Box<NodeKind>>`.
-pub type Node = rctree::Node<Box<NodeKind>>;
+/// Alias for `rctree::Node<NodeKind>`.
+pub type Node = rctree::Node<NodeKind>;
 
 /// A nodes tree container.
 pub struct Tree {
@@ -37,8 +37,8 @@ pub struct Tree {
 impl Tree {
     /// Creates a new `Tree`.
     pub fn create(svg: Svg) -> Self {
-        let mut root_node = Node::new(Box::new(NodeKind::Svg(svg)));
-        let defs_node = Node::new(Box::new(NodeKind::Defs));
+        let mut root_node = Node::new(NodeKind::Svg(svg));
+        let defs_node = Node::new(NodeKind::Defs);
         root_node.append(defs_node);
 
         Tree {
@@ -54,7 +54,7 @@ impl Tree {
     /// Returns the `Svg` node value.
     pub fn svg_node(&self) -> Ref<Svg> {
         Ref::map(self.root.borrow(), |v| {
-            match **v {
+            match *v {
                 NodeKind::Svg(ref svg) => svg,
                 _ => unreachable!(),
             }
@@ -74,7 +74,7 @@ impl Tree {
 
     /// Appends `NodeKind` to the `Defs` node.
     pub fn append_to_defs(&mut self, kind: NodeKind) -> Node {
-        let new_node = Node::new(Box::new(kind));
+        let new_node = Node::new(kind);
         self.defs().append(new_node.clone());
         new_node
     }
@@ -132,12 +132,6 @@ pub trait NodeExt {
     /// transform will be returned.
     fn transform(&self) -> Transform;
 
-    /// Returns `NodeKind` instead of `Box<NodeKind>`.
-    ///
-    /// Use it instead of `Node::value()`.
-    fn kind(&self) -> Ref<NodeKind>;
-
-
     /// Appends `kind` as a node child.
     ///
     /// Shorthand for `Node::append(Node::new(Box::new(kind)))`.
@@ -156,12 +150,8 @@ impl NodeExt for Node {
         self.borrow().transform()
     }
 
-    fn kind(&self) -> Ref<NodeKind> {
-        Ref::map(self.borrow(), |v| &**v)
-    }
-
     fn append_kind(&mut self, kind: NodeKind) -> Node {
-        let new_node = Node::new(Box::new(kind));
+        let new_node = Node::new(kind);
         self.append(new_node.clone());
         new_node
     }

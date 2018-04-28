@@ -25,7 +25,7 @@ pub enum NodeKind {
     Path(Path),
     Text(Text),
     TextChunk(TextChunk),
-    TSpan(TSpan),
+    TSpan(Box<TSpan>), // We are using Box because TSpan is too big.
     Image(Image),
     Group(Group),
 }
