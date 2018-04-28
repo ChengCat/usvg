@@ -26,7 +26,11 @@ pub fn resolve_visibility(doc: &mut Document, svg: &Node) {
 
     _resolve(svg, &mut nodes);
 
-    while let Some(node) = nodes.pop() {
+    // `_resolve` can add duplicated nodes so we should remove them,
+    // otherwise `remove_node` will panic.
+    nodes.dedup();
+
+    for mut node in nodes {
         doc.remove_node(node);
     }
 }
