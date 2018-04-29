@@ -8,6 +8,7 @@ use svgdom::{
     Document,
     ElementType,
     FilterSvg,
+    FilterSvgAttrs,
     Node,
 };
 
@@ -97,7 +98,7 @@ fn resolve_attrs(node: &Node) {
             let mut parent = Some(node.clone());
             while let Some(p) = parent {
                 let attrs = p.attributes();
-                for (aid, attr) in attrs.iter_svg().filter(|&(_, a)| a.is_inheritable()) {
+                for (aid, attr) in attrs.iter().svg().filter(|&(_, a)| a.is_inheritable()) {
                     for mut child in node.children() {
                         if child.has_attribute(aid) {
                             continue;

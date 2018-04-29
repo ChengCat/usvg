@@ -5,6 +5,7 @@
 // external
 use svgdom::{
     Document,
+    FilterSvgAttrs,
     Node,
 };
 
@@ -124,9 +125,12 @@ fn _resolve_use(doc: &mut Document, mut use_node: Node, linked_node: &Node) {
     use_node.insert_after(new_node.clone());
 
     // Copy attributes from 'use'.
-    for (aid, attr) in use_node.attributes().iter_svg() {
+    for (aid, attr) in use_node.attributes().iter().svg() {
+        let is_resolved_font_size = aid == AId::FontSize
+                                    && new_node.has_attribute("resolved-font-size");
+
         // Do not replace existing attributes.
-        if !new_node.has_visible_attribute(aid) {
+        if !new_node.has_attribute(aid) || is_resolved_font_size {
             new_node.set_attribute(attr.clone());
         }
     }

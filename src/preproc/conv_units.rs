@@ -6,6 +6,7 @@
 use svgdom::{
     ElementType,
     FilterSvg,
+    FilterSvgAttrsMut,
     FuzzyZero,
     Length,
     Node,
@@ -92,7 +93,7 @@ pub fn convert_units(svg: &mut Node, opt: &Options) {
         let mut attrs = node.attributes_mut();
 
         // Convert Length to Number.
-        for (aid, ref mut attr) in attrs.iter_svg_mut() {
+        for (aid, ref mut attr) in attrs.iter_mut().svg() {
             if let AValue::Length(len) = attr.value {
                 let n = if is_bbox_gradient && len.unit == Unit::Percent && !len.num.is_fuzzy_zero() {
                     // In gradients with gradientUnits="objectBoundingBox"
@@ -111,7 +112,7 @@ pub fn convert_units(svg: &mut Node, opt: &Options) {
         }
 
         // Convert LengthList to NumberList.
-        for (aid, ref mut attr) in attrs.iter_svg_mut() {
+        for (aid, ref mut attr) in attrs.iter_mut().svg() {
             let mut list = None;
             if let AValue::LengthList(ref len_list) = attr.value {
                 list = Some(NumberList(len_list.iter()

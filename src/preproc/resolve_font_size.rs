@@ -8,7 +8,6 @@ use svgdom::{
     FilterSvg,
     Length,
     Node,
-    NodeType,
 };
 
 // self
@@ -69,17 +68,13 @@ pub fn _resolve_font_size(parent: &Node) {
             }
         };
 
-        let had_attr = node.has_attribute(AId::FontSize);
-
-        node.set_attribute((AId::FontSize, font_size));
-
         // We have to mark this attribute as invisible,
         // otherwise it will break the 'use' resolving.
-        if !had_attr {
-            if let Some(ref mut attr) = node.attributes_mut().get_mut(AId::FontSize) {
-                attr.visible = false;
-            }
+        if !node.has_attribute(AId::FontSize) {
+            node.set_attribute(("resolved-font-size", "1"));
         }
+
+        node.set_attribute((AId::FontSize, font_size));
 
         if node.has_children() {
             _resolve_font_size(&node);
@@ -94,7 +89,7 @@ pub fn _resolve_font_size(parent: &Node) {
 // a-font-size-004.svg
 // a-font-size-007.svg
 fn process_percent_font_size(parent: &Node, len: Length) -> Length {
-    if parent.node_type() == NodeType::Root {
+    if parent.is_root() {
         Length::new(DEFAULT_FONT_SIZE, Unit::None)
     } else {
         let parent_len = parent.find_attribute(AId::FontSize)

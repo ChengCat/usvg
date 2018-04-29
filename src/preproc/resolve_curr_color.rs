@@ -7,6 +7,7 @@ use svgdom::{
     Attribute,
     Document,
     FilterSvg,
+    FilterSvgAttrs,
     Node,
 };
 
@@ -30,7 +31,7 @@ pub fn resolve_current_color(doc: &Document) {
 
         {
             let attrs = node.attributes();
-            for (aid, attr) in attrs.iter_svg() {
+            for (aid, attr) in attrs.iter().svg() {
                 if let AValue::CurrentColor = attr.value {
                     ids.push(aid);
                 }

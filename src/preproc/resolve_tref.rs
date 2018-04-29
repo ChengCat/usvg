@@ -6,6 +6,7 @@
 use svgdom::{
     AttributeType,
     Document,
+    FilterSvgAttrs,
     NodeType,
 };
 
@@ -31,7 +32,7 @@ pub fn resolve_tref(doc: &mut Document) {
         //
         // So we don't care about attributes and everything. Just collecting text nodes data.
         let mut text = String::new();
-        for node in text_elem.descendants().filter(|n| n.node_type() == NodeType::Text) {
+        for node in text_elem.descendants().filter(|n| n.is_text()) {
             text.push_str(&node.text());
         }
 
@@ -41,7 +42,7 @@ pub fn resolve_tref(doc: &mut Document) {
         tref.set_tag_name(EId::Tspan);
         tref.remove_attribute(("xlink", AId::Href));
 
-        for (aid, attr) in text_elem.attributes().iter_svg() {
+        for (aid, attr) in text_elem.attributes().iter().svg() {
             if !tref.has_attribute(aid) && attr.is_inheritable() {
                 tref.set_attribute(attr.clone());
             }

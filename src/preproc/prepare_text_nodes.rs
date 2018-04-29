@@ -6,6 +6,7 @@
 use svgdom::{
     Document,
     FilterSvg,
+    FilterSvgAttrs,
     Node,
     NodeType,
 };
@@ -37,7 +38,7 @@ pub fn prepare_text_nodes(doc: &mut Document) {
 
         node.insert_before(new_text_elem.clone());
 
-        for (_, attr) in node.attributes().iter_svg() {
+        for (_, attr) in node.attributes().iter().svg() {
             new_text_elem.set_attribute(attr.clone());
         }
     }
@@ -48,7 +49,7 @@ pub fn prepare_text_nodes(doc: &mut Document) {
 }
 
 fn prepare_text_elem(doc: &mut Document, elem: &Node, new_elem: &mut Node) {
-    for node in elem.descendants().filter(|n| n.node_type() == NodeType::Text) {
+    for node in elem.descendants().filter(|n| n.is_text()) {
         let text_parent = node.parent().unwrap();
 
         if node.text().is_empty() {
@@ -74,7 +75,7 @@ fn prepare_text_elem(doc: &mut Document, elem: &Node, new_elem: &mut Node) {
         let new_text_node = doc.create_node(NodeType::Text, &node.text());
         new_tspan.append(new_text_node.clone());
 
-        for (aid, attr) in attrs.iter_svg() {
+        for (aid, attr) in attrs.iter().svg() {
             match aid {
                 AId::X | AId::Y => {
                     if text_parent.is_tag_name(EId::Tspan) {

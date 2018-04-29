@@ -6,6 +6,7 @@
 use svgdom::{
     Document,
     FilterSvg,
+    FilterSvgAttrs,
     Node,
     Transform,
 };
@@ -87,7 +88,7 @@ fn _ungroup_groups(parent: &Node, opt: &Options, groups: &mut Vec<Node>) {
 }
 
 fn ungroup_group(g: &mut Node) {
-    for (aid, attr) in g.attributes().iter_svg() {
+    for (aid, attr) in g.attributes().iter().svg() {
         for (_, mut child) in g.children().svg() {
             if aid == AId::Opacity {
                 if child.has_attribute(aid) {

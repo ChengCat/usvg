@@ -7,6 +7,7 @@ use svgdom::{
     Color,
     Document,
     ElementType,
+    FilterSvgAttrs,
     FuzzyEq,
     FuzzyZero,
     Node,
@@ -125,7 +126,7 @@ fn process_negative_r(
 fn collect_ids(linked: &Node, gradient: &Node, ids: &mut Vec<AId>) {
     ids.clear();
 
-    for (aid, attr) in linked.attributes().iter_svg() {
+    for (aid, attr) in linked.attributes().iter().svg() {
         match attr.value {
               AValue::Link(ref link)
             | AValue::FuncLink(ref link) => {
