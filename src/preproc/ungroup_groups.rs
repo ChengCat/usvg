@@ -128,9 +128,16 @@ fn ungroup_group(g: &mut Node) {
         }
     }
 
+    let is_single_child = g.children().count() == 1;
+
     while g.has_children() {
-        let mut c = g.last_child().unwrap();
-        c.detach();
-        g.insert_after(c);
+        let mut child = g.last_child().unwrap();
+        child.detach();
+        g.insert_after(child.clone());
+
+        // Transfer the group ID to the child.
+        if is_single_child && !child.has_id() {
+            child.set_id(g.id().clone());
+        }
     }
 }

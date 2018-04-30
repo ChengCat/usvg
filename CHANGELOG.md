@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Remove elements with `opacity="0"`.
+- Transfer the group `id` attribute to the child when group has only one child.
+
 ### Changed
 - Rename `Tree::node_by_svg_id` to `Tree::node_by_id`.
 - Use `rctree::Node<NodeKind>` instead of `rctree::Node<Box<NodeKind>>`.

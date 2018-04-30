@@ -17,6 +17,7 @@ output = '''
     usvg:version="0.1.1">
     <defs/>
     <path
+        id="some_group"
         fill="#000000"
         fill-opacity="1"
         fill-rule="nonzero"

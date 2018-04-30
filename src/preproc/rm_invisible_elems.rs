@@ -5,6 +5,7 @@
 // external
 use svgdom::{
     Document,
+    FuzzyZero,
 };
 
 // self
@@ -18,6 +19,7 @@ use short::{
 /// Removes well-defined, but invisible, elements.
 pub fn remove_invisible_elements(doc: &mut Document) {
     rm_display_none(doc);
+    rm_zero_opacity(doc);
 
     // Since 'svgdom' automatically removes (Func)IRI attributes
     // from linked elements, 'use' elements may became obsolete, because
@@ -39,6 +41,28 @@ fn rm_display_none(doc: &mut Document) {
         if let Some(&AValue::None) = n.attributes().get_value(AId::Display) {
             if !n.is_tag_name(EId::ClipPath) {
                 return true;
+            }
+        }
+
+        false
+    });
+}
+
+fn rm_zero_opacity(doc: &mut Document) {
+    // Remove elements with opacity="0".
+    //
+    // Remove only unused elements that are not inside the `defs` element.
+
+    let root = doc.root();
+    doc.drain(root, |n| {
+        if !n.is_used() {
+            if let Some(&AValue::Number(opacity)) = n.attributes().get_value(AId::Opacity) {
+                if opacity.is_fuzzy_zero() {
+                    // This check is expensive so run it at last.
+                    if !n.ancestors().any(|n| n.is_tag_name(EId::Defs)) {
+                        return true;
+                    }
+                }
             }
         }
 
