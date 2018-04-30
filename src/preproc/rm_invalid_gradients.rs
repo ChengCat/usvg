@@ -44,7 +44,10 @@ pub fn remove_invalid_gradients(doc: &mut Document) {
                         let stop = gradient.first_child().unwrap();
                         let color = stop.attributes().get_color(AId::StopColor)
                                         .unwrap_or(Color::new(0, 0, 0));
+                        let opacity = stop.attributes().get_number(AId::StopOpacity)
+                                          .unwrap_or(1.0);
 
+                        prepare_link_opacity(&mut linked, *id, opacity);
                         linked.set_attribute((*id, color));
                     }
                 }
@@ -99,23 +102,7 @@ fn process_negative_r(
             let opacity = stop.attributes().get_number(AId::StopOpacity)
                               .unwrap_or(1.0);
 
-            // If `stop` has `stop-opacity` than we should apply it too,
-            // but not as `opacity`, but as `fill-opacity` and `stroke-opacity`
-            // respectively.
-            if opacity.fuzzy_ne(&1.0) {
-                match *id {
-                    AId::Fill => {
-                        update_opacity(&mut linked, AId::FillOpacity, opacity);
-                    }
-                    AId::Stroke => {
-                        update_opacity(&mut linked, AId::StrokeOpacity, opacity);
-                    }
-                    _ => {
-                        // unreachable
-                    }
-                }
-            }
-
+            prepare_link_opacity(&mut linked, *id, opacity);
             linked.set_attribute((*id, color));
         }
     }
@@ -135,6 +122,25 @@ fn collect_ids(linked: &Node, gradient: &Node, ids: &mut Vec<AId>) {
                 }
             }
             _ => {}
+        }
+    }
+}
+
+fn prepare_link_opacity(linked: &mut Node, aid: AId, opacity: f64) {
+    // If `stop` has `stop-opacity` than we should apply it too,
+    // but not as `opacity`, but as `fill-opacity` and `stroke-opacity`
+    // respectively.
+    if opacity.fuzzy_ne(&1.0) {
+        match aid {
+            AId::Fill => {
+                update_opacity(linked, AId::FillOpacity, opacity);
+            }
+            AId::Stroke => {
+                update_opacity(linked, AId::StrokeOpacity, opacity);
+            }
+            _ => {
+                // unreachable
+            }
         }
     }
 }
