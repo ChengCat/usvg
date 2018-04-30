@@ -126,6 +126,10 @@ fn _resolve_use(doc: &mut Document, mut use_node: Node, linked_node: &Node) {
 
     // Copy attributes from 'use'.
     for (aid, attr) in use_node.attributes().iter().svg() {
+        if super::ungroup_groups::prepare_attribute(&mut new_node, aid, attr) {
+            continue;
+        }
+
         let is_resolved_font_size = aid == AId::FontSize
                                     && new_node.has_attribute("resolved-font-size");
 

@@ -19,5 +19,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - Panic during `visibility` resolving.
 - Gradients with one stop resolving.
+- `use` attributes resolving.
 
 [Unreleased]: https://github.com/RazrFalcon/usvg/compare/v0.1.1...HEAD

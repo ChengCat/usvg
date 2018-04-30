@@ -4,6 +4,7 @@
 
 // external
 use svgdom::{
+    Attribute,
     Document,
     FilterSvg,
     FilterSvgAttrs,
@@ -90,37 +91,7 @@ fn _ungroup_groups(parent: &Node, opt: &Options, groups: &mut Vec<Node>) {
 fn ungroup_group(g: &mut Node) {
     for (aid, attr) in g.attributes().iter().svg() {
         for (_, mut child) in g.children().svg() {
-            if aid == AId::Opacity {
-                if child.has_attribute(aid) {
-                    // We can't just replace 'opacity' attribute,
-                    // we should multiply it.
-                    let op1 = if let AValue::Number(n) = attr.value { n } else { 1.0 };
-                    let op2 = child.attributes().get_number(aid).unwrap_or(1.0);
-                    child.set_attribute((aid, op1 * op2));
-                    continue;
-                }
-            }
-
-            if aid == AId::Transform {
-                if child.has_attribute(aid) {
-                    // We should multiply transform matrices.
-                    let mut t1 = if let AValue::Transform(n) = attr.value {
-                        n
-                    } else {
-                        Transform::default()
-                    };
-                    let t2 = child.attributes().get_transform(aid).unwrap_or_default();
-
-                    t1.append(&t2);
-                    child.set_attribute((aid, t1));
-                    continue;
-                }
-            }
-
-            if aid == AId::Display {
-                // Display attribute has a priority during rendering, so we must
-                // copy it even if a child has it already.
-                child.set_attribute((aid, attr.value.clone()));
+            if prepare_attribute(&mut child, aid, attr) {
                 continue;
             }
 
@@ -140,4 +111,42 @@ fn ungroup_group(g: &mut Node) {
             child.set_id(g.id().clone());
         }
     }
+}
+
+pub fn prepare_attribute(node: &mut Node, aid: AId, attr: &Attribute) -> bool {
+    if aid == AId::Opacity {
+        if node.has_attribute(aid) {
+            // We can't just replace 'opacity' attribute,
+            // we should multiply it.
+            let op1 = if let AValue::Number(n) = attr.value { n } else { 1.0 };
+            let op2 = node.attributes().get_number(aid).unwrap_or(1.0);
+            node.set_attribute((aid, op1 * op2));
+            return true;
+        }
+    }
+
+    if aid == AId::Transform {
+        if node.has_attribute(aid) {
+            // We should multiply transform matrices.
+            let mut t1 = if let AValue::Transform(n) = attr.value {
+                n
+            } else {
+                Transform::default()
+            };
+            let t2 = node.attributes().get_transform(aid).unwrap_or_default();
+
+            t1.append(&t2);
+            node.set_attribute((aid, t1));
+            return true;
+        }
+    }
+
+    if aid == AId::Display {
+        // Display attribute has a priority during rendering, so we must
+        // copy it even if a child has it already.
+        node.set_attribute((aid, attr.value.clone()));
+        return true;
+    }
+
+    false
 }
