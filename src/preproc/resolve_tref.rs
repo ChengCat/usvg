@@ -36,7 +36,7 @@ pub fn resolve_tref(doc: &mut Document) {
             text.push_str(&node.text());
         }
 
-        let text_node = doc.create_node(NodeType::Text, &text);
+        let text_node = doc.create_node(NodeType::Text, text);
         tref.append(text_node);
 
         tref.set_tag_name(EId::Tspan);

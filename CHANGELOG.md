@@ -15,4 +15,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - Panic during `visibility` resolving.
 
-[Unreleased]: https://github.com/RazrFalcon/xmlparser/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/RazrFalcon/usvg/compare/v0.1.1...HEAD

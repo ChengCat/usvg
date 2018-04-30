@@ -72,7 +72,7 @@ fn prepare_text_elem(doc: &mut Document, elem: &Node, new_elem: &mut Node) {
         let mut new_tspan = doc.create_element(EId::Tspan);
         new_elem.append(new_tspan.clone());
 
-        let new_text_node = doc.create_node(NodeType::Text, &node.text());
+        let new_text_node = doc.create_node(NodeType::Text, node.text().clone());
         new_tspan.append(new_text_node.clone());
 
         for (aid, attr) in attrs.iter().svg() {

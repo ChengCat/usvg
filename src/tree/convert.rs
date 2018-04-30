@@ -207,7 +207,7 @@ fn conv_elements(
 
                                 let text_node = new_doc.create_node(
                                     svgdom::NodeType::Text,
-                                    &tspan.text,
+                                    tspan.text.clone(),
                                 );
                                 tspan_elem.append(text_node.clone());
 
