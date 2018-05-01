@@ -186,7 +186,8 @@ pub(super) fn convert_nodes(
               EId::Title
             | EId::Desc
             | EId::Metadata
-            | EId::Defs => {
+            | EId::Defs
+            | EId::View => {
                 // skip, because pointless
             }
             EId::G => {

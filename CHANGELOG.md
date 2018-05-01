@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Rename `Tree::node_by_svg_id` to `Tree::node_by_id`.
 - Use `rctree::Node<NodeKind>` instead of `rctree::Node<Box<NodeKind>>`.
+- `view` element is out of scope now.
 
 ### Removed
 - `NodeExt::kind`. Use `Node::borrow` instead.
