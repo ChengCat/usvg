@@ -45,9 +45,6 @@ pub fn convert_children(
     rtree: &mut tree::Tree,
 ) {
     for (id, node) in node.children().svg() {
-        // `line` doesn't impact rendering because stroke is always disabled
-        // for `clipPath` children.
-        // So we can ignore `line` completely.
         match id {
               EId::Rect
             | EId::Polyline
@@ -66,6 +63,11 @@ pub fn convert_children(
             }
             EId::Text => {
                 text::convert(&node, parent.clone(), rtree);
+            }
+            EId::Line => {
+                // `line` doesn't impact rendering because stroke is always disabled
+                // for `clipPath` children.
+                // So we can ignore it completely.
             }
             _ => {
                 warn!("Skipping the '{}' clipPath invalid child element '{}'.",
