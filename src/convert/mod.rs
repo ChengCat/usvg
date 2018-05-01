@@ -104,10 +104,7 @@ fn convert_ref_nodes(
     opt: &Options,
     rtree: &mut tree::Tree,
 ) {
-    let defs_elem = match svg_doc.defs_element() {
-        Some(e) => e.clone(),
-        None => return,
-    };
+    let defs_elem = try_opt!(svg_doc.defs_element(), ());
 
     let mut later_nodes = Vec::new();
 
@@ -138,6 +135,9 @@ fn convert_ref_nodes(
                 if let Some(new_node) = pattern::convert(&node, rtree) {
                     later_nodes.push((node, new_node));
                 }
+            }
+            EId::Symbol => {
+                // Already resolved. Skip it.
             }
             _ => {
                 warn!("Unsupported element '{}'.", id);
@@ -268,10 +268,10 @@ pub(super) fn convert_nodes(
             }
               EId::Use
             | EId::Switch => {
-                warn!("'{}' must be resolved.", id);
+                warn!("'{}' must be already resolved.", id);
             }
             EId::Svg => {
-                warn!("Nested 'svg' unsupported.");
+                warn!("Nested 'svg' is unsupported.");
             }
             EId::Path => {
                 let attrs = node.attributes();

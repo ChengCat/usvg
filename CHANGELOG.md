@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Remove elements with `opacity="0"`.
 - Transfer the group `id` attribute to the child when group has only one child.
+- `symbol` element support.
 
 ### Changed
 - Rename `Tree::node_by_svg_id` to `Tree::node_by_id`.

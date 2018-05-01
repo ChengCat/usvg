@@ -63,7 +63,7 @@ use self::resolve_pattern_children::resolve_pattern_children;
 use self::resolve_style_attrs::resolve_style_attributes;
 use self::resolve_svg_size::resolve_svg_size;
 use self::resolve_tref::resolve_tref;
-use self::resolve_use::resolve_use;
+use self::resolve_use::*;
 use self::resolve_visibility::resolve_visibility;
 use self::rm_invalid_font_size::remove_invalid_font_size;
 use self::rm_invalid_gradients::remove_invalid_gradients;
@@ -122,6 +122,7 @@ pub fn prepare_doc(doc: &mut svgdom::Document, opt: &Options) {
     group_defs(doc, svg);
 
     prepare_mask(doc);
+    prepare_use(doc);
 
     resolve_font_size(doc);
     resolve_font_weight(doc);

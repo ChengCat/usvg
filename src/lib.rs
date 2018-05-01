@@ -75,7 +75,43 @@ extern crate lyon_geom;
 #[macro_use] extern crate failure;
 
 
+/// Task, return value.
+#[macro_export]
+macro_rules! try_opt {
+    ($task:expr, $ret:expr) => {
+        match $task {
+            Some(v) => v,
+            None => return $ret,
+        }
+    };
+}
+
+/// Task, return value, warning message.
+#[macro_export]
+macro_rules! try_opt_warn {
+    ($task:expr, $ret:expr, $msg:expr) => {
+        match $task {
+            Some(v) => v,
+            None => {
+                warn!($msg);
+                return $ret;
+            }
+        }
+    };
+    ($task:expr, $ret:expr, $fmt:expr, $($arg:tt)*) => {
+        match $task {
+            Some(v) => v,
+            None => {
+                warn!($fmt, $($arg)*);
+                return $ret;
+            }
+        }
+    };
+}
+
+
 pub mod tree;
+pub mod utils;
 mod convert;
 mod geom;
 mod options;
