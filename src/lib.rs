@@ -140,8 +140,46 @@ use preproc::{
 };
 
 
-/// Parsers `Tree` from SVG data.
+/// List of all errors.
+#[derive(Fail, Debug)]
+pub enum Error {
+    /// Only `svg` and `svgz` suffixes are supported.
+    #[fail(display = "Invalid file suffix")]
+    InvalidFileSuffix,
+
+    /// Failed to open the provided file.
+    #[fail(display = "Failed to open the provided file")]
+    FileOpenFailed,
+
+    /// Only UTF-8 content are supported.
+    #[fail(display = "Provided data has not an UTF-8 encoding")]
+    NotAnUtf8Str,
+
+    /// Compressed SVG must use the GZip algorithm.
+    #[fail(display = "Provided data has a malformed GZip content")]
+    MalformedGZip,
+}
+
+/// Parsers `Tree` from the SVG data.
+///
+/// Can contain SVG string or gzip compressed data.
 pub fn parse_tree_from_data(
+    data: &[u8],
+    opt: &Options,
+) -> Result<tree::Tree, Error> {
+    if data.starts_with(&[0x1f, 0x8b]) {
+        let text = deflate(data, data.len())?;
+        Ok(parse_tree_from_str(&text, opt))
+    } else {
+        let text = ::std::str::from_utf8(data).map_err(|_| Error::NotAnUtf8Str)?;
+        Ok(parse_tree_from_str(text, opt))
+    }
+}
+
+/// Parsers `Tree` from the SVG string.
+///
+/// An empty `Tree` will be returned on any error.
+pub fn parse_tree_from_str(
     text: &str,
     opt: &Options,
 ) -> tree::Tree {
@@ -149,7 +187,9 @@ pub fn parse_tree_from_data(
     parse_tree_from_dom(doc, opt)
 }
 
-/// Parsers `Tree` from `svgdom::Document`.
+/// Parsers `Tree` from the `svgdom::Document`.
+///
+/// An empty `Tree` will be returned on any error.
 pub fn parse_tree_from_dom(
     mut doc: svgdom::Document,
     opt: &Options,
@@ -158,46 +198,23 @@ pub fn parse_tree_from_dom(
     convert::convert_doc(&doc, opt)
 }
 
-/// List of errors that can be produced by `parse_tree_from_file`.
-#[derive(Fail, Debug)]
-#[allow(missing_docs)]
-pub enum FileReadError {
-    #[fail(display = "{}", _0)]
-    Io(::std::io::Error),
-
-    #[fail(display = "{}", _0)]
-    Utf8(::std::string::FromUtf8Error),
-}
-
-impl From<::std::io::Error> for FileReadError {
-    fn from(value: ::std::io::Error) -> FileReadError {
-        FileReadError::Io(value)
-    }
-}
-
-impl From<::std::string::FromUtf8Error> for FileReadError {
-    fn from(value: ::std::string::FromUtf8Error) -> FileReadError {
-        FileReadError::Utf8(value)
-    }
-}
-
-/// Parsers `Tree` from file.
+/// Parsers `Tree` from the file.
 pub fn parse_tree_from_file<P: AsRef<path::Path>>(
     path: P,
     opt: &Options,
-) -> Result<tree::Tree, FileReadError> {
+) -> Result<tree::Tree, Error> {
     let text = load_svg_file(path.as_ref())?;
-    Ok(parse_tree_from_data(&text, opt))
+    Ok(parse_tree_from_str(&text, opt))
 }
 
 /// Loads SVG, SVGZ file content.
-pub fn load_svg_file(path: &path::Path) -> Result<String, FileReadError> {
+pub fn load_svg_file(path: &path::Path) -> Result<String, Error> {
     use std::fs;
     use std::io::Read;
     use std::path::Path;
 
-    let mut file = fs::File::open(path)?;
-    let length = file.metadata()?.len() as usize;
+    let mut file = fs::File::open(path).map_err(|_| Error::FileOpenFailed)?;
+    let length = file.metadata().map_err(|_| Error::FileOpenFailed)?.len() as usize + 1;
 
     let ext = if let Some(ext) = Path::new(path).extension() {
         ext.to_str().map(|s| s.to_lowercase()).unwrap_or_default()
@@ -207,23 +224,27 @@ pub fn load_svg_file(path: &path::Path) -> Result<String, FileReadError> {
 
     match ext.as_str() {
         "svgz" => {
-            let mut decoder = libflate::gzip::Decoder::new(&file)?;
-            let mut decoded = Vec::new();
-            decoder.read_to_end(&mut decoded)?;
-
-            Ok(String::from_utf8(decoded)?)
+            deflate(&file, length)
         }
         "svg" => {
-            let mut s = String::with_capacity(length + 1);
-            file.read_to_string(&mut s)?;
+            let mut s = String::with_capacity(length);
+            file.read_to_string(&mut s).map_err(|_| Error::NotAnUtf8Str)?;
             Ok(s)
         }
         _ => {
-            unreachable!()
+            Err(Error::InvalidFileSuffix)
         }
     }
 }
 
+fn deflate<R: ::std::io::Read>(inner: R, len: usize) -> Result<String, Error> {
+    use std::io::Read;
+
+    let mut decoder = libflate::gzip::Decoder::new(inner).map_err(|_| Error::MalformedGZip)?;
+    let mut decoded = String::with_capacity(len * 2);
+    decoder.read_to_string(&mut decoded).map_err(|_| Error::NotAnUtf8Str)?;
+    Ok(decoded)
+}
 
 /// Parses `svgdom::Document` object from the string data.
 fn parse_dom(text: &str) -> svgdom::Document {

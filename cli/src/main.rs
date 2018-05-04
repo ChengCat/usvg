@@ -1,8 +1,8 @@
 #[macro_use] extern crate clap;
+#[macro_use] extern crate failure;
 extern crate usvg;
 extern crate fern;
 extern crate log;
-
 
 use std::fmt;
 use std::fs::File;
@@ -28,6 +28,24 @@ enum OutputTo<'a> {
     File(&'a str),
 }
 
+#[derive(Fail, Debug)]
+#[allow(missing_docs)]
+pub enum Error {
+    #[fail(display = "Failed to write to the provided file")]
+    FileWriteFailed,
+
+    #[fail(display = "Failed to write to the stdout")]
+    StdOutWriteFailed,
+
+    #[fail(display = "{}", _0)]
+    USvgError(usvg::Error),
+}
+
+impl From<usvg::Error> for Error {
+    fn from(value: usvg::Error) -> Self {
+        Error::USvgError(value)
+    }
+}
 
 fn main() {
     let args = App::new("usvg")
@@ -95,7 +113,7 @@ fn is_dpi(val: String) -> Result<(), String> {
     }
 }
 
-fn process(args: &ArgMatches) -> Result<(), usvg::FileReadError> {
+fn process(args: &ArgMatches) -> Result<(), Error> {
     let (in_svg, out_svg) = {
         let in_svg = args.value_of("in-svg").unwrap();
         let out_svg = args.value_of("out-svg");
@@ -133,7 +151,7 @@ fn process(args: &ArgMatches) -> Result<(), usvg::FileReadError> {
         InputFrom::File(path) => usvg::load_svg_file(Path::new(path)),
     }?;
 
-    let tree = usvg::parse_tree_from_data(&input_str, &re_opt);
+    let tree = usvg::parse_tree_from_str(&input_str, &re_opt);
 
     let dom_opt = svgdom::WriteOptions {
         indent: svgdom::Indent::Spaces(2),
@@ -149,11 +167,11 @@ fn process(args: &ArgMatches) -> Result<(), usvg::FileReadError> {
 
     match out_svg {
         OutputTo::Stdout => {
-            io::stdout().write_all(&output_data)?;
+            io::stdout().write_all(&output_data).map_err(|_| Error::StdOutWriteFailed)?;
         }
         OutputTo::File(path) => {
-            let mut f = File::create(path)?;
-            f.write_all(&output_data)?;
+            let mut f = File::create(path).map_err(|_| Error::FileWriteFailed)?;
+            f.write_all(&output_data).map_err(|_| Error::FileWriteFailed)?;
         }
     }
 
@@ -182,12 +200,12 @@ fn log_format(
     ))
 }
 
-fn load_stdin() -> Result<String, usvg::FileReadError> {
+fn load_stdin() -> Result<String, usvg::Error> {
     let mut s = String::new();
     let stdin = io::stdin();
     let mut handle = stdin.lock();
 
-    handle.read_to_string(&mut s)?;
+    handle.read_to_string(&mut s).map_err(|_| usvg::Error::NotAnUtf8Str)?;
 
     Ok(s)
 }
