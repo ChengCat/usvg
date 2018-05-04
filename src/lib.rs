@@ -110,13 +110,13 @@ macro_rules! try_opt_warn {
 }
 
 
-pub mod tree;
 pub mod utils;
 mod convert;
 mod geom;
 mod options;
 mod preproc;
 mod traits;
+mod tree;
 
 /// Shorthand names for modules.
 mod short {
@@ -131,6 +131,7 @@ mod short {
 
 pub use options::*;
 pub use geom::*;
+pub use tree::*;
 
 use preproc::{
     DEFAULT_FONT_FAMILY,

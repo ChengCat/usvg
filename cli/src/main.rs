@@ -148,10 +148,10 @@ fn process(args: &ArgMatches) -> Result<(), Error> {
 
     let input_str = match in_svg {
         InputFrom::Stdin => load_stdin(),
-        InputFrom::File(path) => usvg::tree::load_svg_file(Path::new(path)),
+        InputFrom::File(path) => usvg::load_svg_file(Path::new(path)),
     }?;
 
-    let tree = usvg::tree::Tree::from_str(&input_str, &re_opt);
+    let tree = usvg::Tree::from_str(&input_str, &re_opt);
 
     let dom_opt = svgdom::WriteOptions {
         indent: svgdom::Indent::Spaces(2),

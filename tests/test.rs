@@ -66,7 +66,7 @@ fn actual_test(test: TestData) {
         keep_named_groups: test.keep_named_groups.unwrap_or(false),
         .. usvg::Options::default()
     };
-    let tree = usvg::tree::Tree::from_str(&test.input, &re_opt);
+    let tree = usvg::Tree::from_str(&test.input, &re_opt);
 
     let dom_opt = svgdom::WriteOptions {
         attributes_indent: svgdom::Indent::Spaces(4),
