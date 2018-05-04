@@ -7,6 +7,7 @@
 extern crate rctree;
 
 use std::cell::Ref;
+use std::path;
 
 // external
 use svgdom;
@@ -14,10 +15,16 @@ use svgdom;
 // self
 pub use self::node::*;
 pub use self::attribute::*;
+pub use self::io::load_svg_file;
+use {
+    Error,
+    Options,
+};
 
 mod attribute;
 mod convert;
 mod node;
+mod io;
 
 /// Basic traits for tree manipulations.
 pub mod prelude {
@@ -35,6 +42,44 @@ pub struct Tree {
 }
 
 impl Tree {
+    /// Parsers `Tree` from the SVG data.
+    ///
+    /// Can contain SVG string or gzip compressed data.
+    pub fn from_data(data: &[u8], opt: &Options) -> Result<Self, Error> {
+        if data.starts_with(&[0x1f, 0x8b]) {
+            let text = io::deflate(data, data.len())?;
+            Ok(Self::from_str(&text, opt))
+        } else {
+            let text = ::std::str::from_utf8(data).map_err(|_| Error::NotAnUtf8Str)?;
+            Ok(Self::from_str(text, opt))
+        }
+    }
+
+    /// Parsers `Tree` from the SVG string.
+    ///
+    /// An empty `Tree` will be returned on any error.
+    pub fn from_str(text: &str, opt: &Options) -> Self {
+        let doc = io::parse_dom(text);
+        Self::from_dom(doc, opt)
+    }
+
+    /// Parsers `Tree` from the `svgdom::Document`.
+    ///
+    /// An empty `Tree` will be returned on any error.
+    pub fn from_dom(mut doc: svgdom::Document, opt: &Options) -> Self {
+        super::preproc::prepare_doc(&mut doc, opt);
+        super::convert::convert_doc(&doc, opt)
+    }
+
+    /// Parsers `Tree` from the file.
+    pub fn from_file<P: AsRef<path::Path>>(
+        path: P,
+        opt: &Options,
+    ) -> Result<Self, Error> {
+        let text = io::load_svg_file(path.as_ref())?;
+        Ok(Self::from_str(&text, opt))
+    }
+
     /// Creates a new `Tree`.
     pub fn create(svg: Svg) -> Self {
         let mut root_node = Node::new(NodeKind::Svg(svg));

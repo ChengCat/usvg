@@ -9,9 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Remove elements with `opacity="0"`.
 - Transfer the group `id` attribute to the child when group has only one child.
 - `symbol` element support.
-- `parse_tree_from_str`.
+- `Tree::from_str`.
 
 ### Changed
+- `parse_tree_from_*` methods move to the `Tree`. Use `Tree::from_*` instead.
 - Rename `Tree::node_by_svg_id` to `Tree::node_by_id`.
 - Use `rctree::Node<NodeKind>` instead of `rctree::Node<Box<NodeKind>>`.
 - `view` element is out of scope now.
