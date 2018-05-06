@@ -27,5 +27,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Panic during `visibility` resolving.
 - Gradients with one stop resolving.
 - `use` attributes resolving.
+- `clipPath` and `mask` attributes resolving.
 
 [Unreleased]: https://github.com/RazrFalcon/usvg/compare/v0.1.1...HEAD

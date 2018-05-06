@@ -198,47 +198,18 @@ pub(super) fn convert_nodes(
 
                 let attrs = node.attributes();
 
-                // TODO: simplify
                 // After preprocessing, `clip-path` can be set only on groups.
-                let clip_path = if let Some(av) = attrs.get_type(AId::ClipPath) {
-                    let mut v = None;
-                    if let AValue::FuncLink(ref link) = *av {
-                        if link.is_tag_name(EId::ClipPath) {
-                            if let Some(node) = rtree.defs_by_id(&link.id()) {
-                                v = Some(node);
-                            }
-                        }
-                    }
-
-                    // If a `clipPath` is invalid than all elements that uses it should be removed.
-                    if v.is_none() {
-                        continue;
-                    }
-
-                    v.map(|v| v.id().to_string())
-                } else {
-                    None
+                let clip_path = match resolve_iri(&node, EId::ClipPath, AId::ClipPath, rtree) {
+                    IriResolveResult::Id(id) => Some(id),
+                    IriResolveResult::Skip => continue,
+                    IriResolveResult::None => None,
                 };
 
                 // After preprocessing, `mask` can be set only on groups.
-                let mask = if let Some(av) = attrs.get_type(AId::Mask) {
-                    let mut v = None;
-                    if let AValue::FuncLink(ref link) = *av {
-                        if link.is_tag_name(EId::Mask) {
-                            if let Some(node) = rtree.defs_by_id(&link.id()) {
-                                v = Some(node);
-                            }
-                        }
-                    }
-
-                    // If a `mask` is invalid than all elements that uses it should be removed.
-                    if v.is_none() {
-                        continue;
-                    }
-
-                    v.map(|v| v.id().to_string())
-                } else {
-                    None
+                let mask = match resolve_iri(&node, EId::Mask, AId::Mask, rtree) {
+                    IriResolveResult::Id(id) => Some(id),
+                    IriResolveResult::Skip => continue,
+                    IriResolveResult::None => None,
                 };
 
                 let ts = attrs.get_transform(AId::Transform).unwrap_or_default();
@@ -290,6 +261,28 @@ pub(super) fn convert_nodes(
             }
         }
     }
+}
+
+enum IriResolveResult {
+    Id(String),
+    Skip,
+    None,
+}
+
+fn resolve_iri(node: &svgdom::Node, eid: EId, aid: AId, rtree: &tree::Tree) -> IriResolveResult {
+    let attrs = node.attributes();
+    if let Some(&AValue::FuncLink(ref link)) = attrs.get_type(aid) {
+        if link.is_tag_name(eid) {
+            if let Some(node) = rtree.defs_by_id(&link.id()) {
+                return IriResolveResult::Id(node.id().to_string());
+            } else {
+                // If an IRI is invalid than all elements that uses it should be removed/skipped.
+                return IriResolveResult::Skip;
+            }
+        }
+    }
+
+    IriResolveResult::None
 }
 
 fn get_img_size(svg: &svgdom::Node) -> Size {
