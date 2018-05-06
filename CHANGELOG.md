@@ -28,5 +28,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Gradients with one stop resolving.
 - `use` attributes resolving.
 - `clipPath` and `mask` attributes resolving.
+- `offset` attribute in `stop` element resolving.
 
 [Unreleased]: https://github.com/RazrFalcon/usvg/compare/v0.1.1...HEAD

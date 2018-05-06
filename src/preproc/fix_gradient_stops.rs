@@ -9,6 +9,7 @@ use svgdom::{
     Document,
     ElementType,
     FuzzyEq,
+    FuzzyZero,
 };
 
 // self
@@ -27,8 +28,8 @@ pub fn fix_gradient_stops(doc: &mut Document) {
     let gradients: Vec<_> = doc.root().descendants().filter(|n| n.is_gradient()).collect();
 
     // Remove any non-`stop` children, so we can skip tag name checks in the code below.
-    for node in &gradients {
-        let mut stop_opt = node.first_child();
+    for grad in &gradients {
+        let mut stop_opt = grad.first_child();
         while let Some(mut stop) = stop_opt {
             stop_opt = stop.next_sibling();
 
@@ -39,8 +40,8 @@ pub fn fix_gradient_stops(doc: &mut Document) {
     }
 
     // Clamp offsets.
-    for node in &gradients {
-        for mut stop in node.children() {
+    for grad in &gradients {
+        for mut stop in grad.children() {
             let mut attrs = stop.attributes_mut();
             let av = attrs.get_value_mut(AId::Offset);
             if let Some(&mut AValue::Number(ref mut offset)) = av {
@@ -58,9 +59,9 @@ pub fn fix_gradient_stops(doc: &mut Document) {
     // offset="0.7"
     // offset="0.9"
     let mut stops = Vec::new();
-    for node in &gradients {
+    for grad in &gradients {
         stops.clear();
-        for stop in node.children() {
+        for stop in grad.children() {
             stops.push(stop);
         }
 
@@ -95,10 +96,15 @@ pub fn fix_gradient_stops(doc: &mut Document) {
     // offset="0.5"
     // offset="0.699999999"
     // offset="0.7"
-    for node in &gradients {
+    for grad in &gradients {
         let mut prev_offset = 0.0;
-        for mut stop in node.children() {
+        for mut stop in grad.children() {
             let mut offset = stop.attributes().get_number(AId::Offset).unwrap_or(0.0);
+
+            if offset.is_fuzzy_zero() {
+                prev_offset = 0.0;
+                continue;
+            }
 
             // Next offset must be smaller then previous.
             if offset < prev_offset || offset.fuzzy_eq(&prev_offset) {
@@ -113,6 +119,35 @@ pub fn fix_gradient_stops(doc: &mut Document) {
 
             stop.set_attribute((AId::Offset, offset));
             prev_offset = offset;
+        }
+    }
+
+    // Remove zeros.
+    //
+    // From:
+    // offset="0.0"
+    // offset="0.0"
+    // offset="0.7"
+    //
+    // To:
+    // offset="0.0"
+    // offset="0.7"
+    for grad in &gradients {
+        stops.clear();
+        for stop in grad.children() {
+            stops.push(stop);
+        }
+
+        while stops.len() >= 2 {
+            let offset1 = stops[0].attributes().get_number(AId::Offset).unwrap_or(0.0);
+            let offset2 = stops[1].attributes().get_number(AId::Offset).unwrap_or(0.0);
+
+            if offset1.is_fuzzy_zero() && offset2.is_fuzzy_zero() {
+                doc.remove_node(stops[0].clone());
+                stops.remove(0);
+            } else {
+                break;
+            }
         }
     }
 }

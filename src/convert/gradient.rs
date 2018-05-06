@@ -8,6 +8,9 @@ use svgdom;
 // self
 use tree;
 use tree::prelude::*;
+use geom::{
+    f64_bound,
+};
 use short::{
     AId,
     EId,
@@ -93,9 +96,10 @@ fn convert_stops(
 
         let attrs = s.attributes();
 
+        // Do not use `f64_bound` here because `offset` must be already resolved.
         let offset = attrs.get_number(AId::Offset).unwrap_or(0.0).into();
         let color = attrs.get_color(AId::StopColor).unwrap_or(svgdom::Color::new(0, 0, 0));
-        let opacity = attrs.get_number(AId::StopOpacity).unwrap_or(1.0).into();
+        let opacity = f64_bound(0.0, attrs.get_number(AId::StopOpacity).unwrap_or(1.0), 1.0).into();
 
         parent.append_kind(tree::NodeKind::Stop(tree::Stop {
             offset,
