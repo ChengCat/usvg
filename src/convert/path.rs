@@ -34,7 +34,7 @@ pub(super) fn convert(
 
     let fill = fill::convert(rtree, &attrs);
     let stroke = stroke::convert(rtree, &attrs);
-    let d = convert_path(d);
+    let d = convert_path(d, &stroke);
     let transform = attrs.get_transform(AId::Transform).unwrap_or_default();
 
     if d.len() < 2 {
@@ -50,7 +50,7 @@ pub(super) fn convert(
     }));
 }
 
-fn convert_path(mut path: svgdom::Path) -> Vec<tree::PathSegment> {
+fn convert_path(mut path: svgdom::Path, stroke: &Option<tree::Stroke>) -> Vec<tree::PathSegment> {
     let mut new_path = Vec::with_capacity(path.len());
 
     path.conv_to_absolute();
@@ -188,6 +188,29 @@ fn convert_path(mut path: svgdom::Path) -> Vec<tree::PathSegment> {
         }
     }
 
+    if stroke.is_some() {
+        // If the controls point coordinate is too close to the end point
+        // we have to snap it to the end point. Otherwise, it will produce rendering errors.
+        //
+        // See e-path-044.svg
+
+        // Just a magic/heuristic number.
+        //
+        // TODO: find a better way
+        let sw = 0.25;
+
+        for seg in &mut new_path {
+            if let &mut tree::PathSegment::CurveTo
+                { ref mut x1, ref mut y1,ref mut x2, ref mut y2, x, y } = seg
+            {
+                if (x - *x1).abs() < sw { *x1 = x; }
+                if (y - *y1).abs() < sw { *y1 = y; }
+                if (x - *x2).abs() < sw { *x2 = x; }
+                if (y - *y2).abs() < sw { *y2 = y; }
+            }
+        }
+    }
+
     new_path
 }
 
@@ -202,7 +225,7 @@ fn quad_to_curve(
     let quad = lyon_geom::QuadraticBezierSegment {
         from: [px as f32, py as f32].into(),
         ctrl: [x1 as f32, y1 as f32].into(),
-        to:   [x as f32,   y as f32].into(),
+        to:   [x  as f32,  y as f32].into(),
     };
 
     let cubic = quad.to_cubic();
