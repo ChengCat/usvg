@@ -44,8 +44,28 @@ pub fn _resolve_font_size(parent: &Node) {
             }
             None => {
                 // If not set - lookup in parent nodes or use default.
-                let len = node.find_attribute(AId::FontSize)
-                              .unwrap_or(Length::new_number(DEFAULT_FONT_SIZE));
+                let mut len = node.find_attribute(AId::FontSize)
+                                  .unwrap_or(Length::new_number(DEFAULT_FONT_SIZE));
+
+                // If 'font-size' is not set and the parent one is 'em' or 'ex'
+                // then the current 'font-size' is '1em' or '2ex' respectively.
+                // This way do not introduce an additional scaling.
+                //
+                // Example:
+                // <g font-size='12'>
+                //   <g font-size='3em'>
+                //     <g>
+                //
+                // The values are '12', '3em' and 'None'.
+                // And the expected results are '12', '36' and '36'.
+                // But if we simply copy the '3em' to the 'None' place we will
+                // get '12', '36' and '108'.
+                if len.unit == Unit::Em {
+                    len.num = 1.0;
+                } else if len.unit == Unit::Ex {
+                    // The same coefficient as in convert_units::convert.
+                    len.num = 2.0;
+                }
 
                 AValue::Length(len)
             }

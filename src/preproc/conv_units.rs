@@ -129,11 +129,30 @@ pub fn convert_units(svg: &mut Node, opt: &Options) {
 
 fn convert_font_size(svg: &Node, dpi: f64) {
     for (_, mut node) in svg.descendants().svg() {
+        // Get parent `font-size` in case of em/ex.
+        //
+        // Check only a parent, because `font-size` was already resolved for
+        // all element by `resolve_font_size`.
+        let parent_size = match node.parent() {
+            Some(p) => {
+                if p.is_root() {
+                    DEFAULT_FONT_SIZE
+                } else {
+                    // Check that parent already resolved and replaced with Number.
+                    debug_assert_eq!(p.attributes().get_value(AId::FontSize)
+                                      .map(|v| v.is_number()), Some(true));
+
+                    p.attributes().get_number(AId::FontSize).unwrap_or(DEFAULT_FONT_SIZE)
+                }
+            }
+            None => DEFAULT_FONT_SIZE,
+        };
+
         let mut attrs = node.attributes_mut();
 
         if let Some(attr) = attrs.get_mut(AId::FontSize) {
             if let AValue::Length(len) = attr.value {
-                let n = convert(len, 0.0, dpi);
+                let n = convert(len, parent_size, dpi);
                 attr.value = AValue::Number(n);
             } else {
                 warn!("'font-size' should have a Length type.");
@@ -172,7 +191,7 @@ fn convert(len: Length, font_size: f64, dpi: f64) -> f64 {
     match len.unit {
         Unit::None | Unit::Px => n,
         Unit::Em => n * font_size,
-        Unit::Ex => n * font_size / 2.0,
+        Unit::Ex => n * font_size / 2.0, // The same coefficient as in resolve_font_size.
         Unit::In => n * dpi,
         Unit::Cm => n * dpi / 2.54,
         Unit::Mm => n * dpi / 25.4,
