@@ -110,7 +110,11 @@ fn _resolve_use(
 ) {
     // Unlink 'use'.
     use_node.remove_attribute(("xlink", AId::Href));
+
     use_node.set_tag_name(EId::G);
+
+    // Remember that this group was 'use' before.
+    use_node.set_attribute(("from-use", 1));
 
     {
         // If the `use` element has a non-zero `x` or `y` attributes

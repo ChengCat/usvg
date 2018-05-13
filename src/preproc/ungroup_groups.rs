@@ -63,7 +63,10 @@ fn _ungroup_groups(parent: &Node, opt: &Options, groups: &mut Vec<Node>) {
             // Do not ungroup groups inside `clipPath`.
             // They will be removed during conversion.
             if node.ancestors().skip(1).any(|n| n.is_tag_name(EId::ClipPath)) {
-                continue;
+                // Groups that was created from 'use' can be ungroupped.
+                if !node.has_attribute("from-use") {
+                    continue;
+                }
             }
 
             // Groups with a `clip-path` attribute can't be ungroupped.
