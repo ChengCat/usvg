@@ -31,5 +31,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `clipPath` and `mask` attributes resolving.
 - `offset` attribute in `stop` element resolving.
 - Incorrect `font-size` attribute resolving.
+- Gradient stops resolving.
 
 [Unreleased]: https://github.com/RazrFalcon/usvg/compare/v0.1.1...HEAD

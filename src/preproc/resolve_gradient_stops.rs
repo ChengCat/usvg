@@ -41,19 +41,16 @@ fn resolve(doc: &mut Document, mut gradient: Node, linked_gradient: &Node) {
         return;
     }
 
-    let av = linked_gradient.attributes().get_value(("xlink", AId::Href)).cloned();
-    match av {
-        Some(av) => {
-            match av {
-                AValue::Link(ref_node) => resolve(doc, gradient, &ref_node),
-                _ => unreachable!(),
-            }
+    if !linked_gradient.has_children() {
+        let av = linked_gradient.attributes().get_value(("xlink", AId::Href)).cloned();
+        if let Some(AValue::Link(ref_node)) = av {
+            resolve(doc, gradient, &ref_node);
+            return;
         }
-        None => {
-            for stop in linked_gradient.children() {
-                let new_stop = doc.copy_node(stop);
-                gradient.append(new_stop);
-            }
-        }
+    }
+
+    for stop in linked_gradient.children() {
+        let new_stop = doc.copy_node(stop);
+        gradient.append(new_stop);
     }
 }
