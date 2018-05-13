@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Transfer the group `id` attribute to the child when group has only one child.
 - `symbol` element support.
 - `Tree::from_str`.
+- Nested `svg` elements support.
 
 ### Changed
 - `tree` module content reexported.

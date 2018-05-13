@@ -238,11 +238,9 @@ pub(super) fn convert_nodes(
                 }
             }
               EId::Use
-            | EId::Switch => {
+            | EId::Switch
+            | EId::Svg => {
                 warn!("'{}' must be already resolved.", id);
-            }
-            EId::Svg => {
-                warn!("Nested 'svg' is unsupported.");
             }
             EId::Path => {
                 let attrs = node.attributes();

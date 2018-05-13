@@ -11,6 +11,7 @@ use {
 };
 
 
+mod clip_element;
 mod conv_units;
 mod fix_gradient_stops;
 mod fix_recursive_pattern;
@@ -18,6 +19,7 @@ mod fix_xlinks;
 mod group_defs;
 mod prepare_clip_path;
 mod prepare_mask;
+mod prepare_nested_svg;
 mod prepare_text_decoration;
 mod prepare_text_nodes;
 mod regroup;
@@ -49,6 +51,7 @@ use self::fix_recursive_pattern::fix_recursive_pattern;
 use self::fix_xlinks::fix_xlinks;
 use self::group_defs::group_defs;
 use self::prepare_clip_path::prepare_clip_path;
+use self::prepare_nested_svg::*;
 use self::prepare_mask::prepare_mask;
 use self::prepare_text_decoration::prepare_text_decoration;
 use self::prepare_text_nodes::prepare_text_nodes;
@@ -123,6 +126,7 @@ pub fn prepare_doc(doc: &mut svgdom::Document, opt: &Options) {
 
     prepare_mask(doc);
     prepare_use(doc);
+    prepare_svg(doc);
 
     resolve_font_size(doc);
     resolve_font_weight(doc);
@@ -142,6 +146,8 @@ pub fn prepare_doc(doc: &mut svgdom::Document, opt: &Options) {
     fix_recursive_pattern(doc);
 
     remove_unused_defs(doc, svg);
+
+    prepare_nested_svg(doc, svg);
 
     // 'use' should be resolved before style attributes,
     // because 'use' can propagate own style.

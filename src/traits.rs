@@ -28,10 +28,12 @@ use short::{
     EId,
 };
 use geom::*;
+use utils;
 
 
 pub trait GetViewBox {
     fn get_viewbox(&self) -> Option<Rect>;
+    fn get_viewbox_transform(&self) -> Option<Transform>;
 }
 
 impl GetViewBox for Node {
@@ -39,6 +41,23 @@ impl GetViewBox for Node {
         self.attributes()
             .get_type::<ViewBox>(AId::ViewBox)
             .map(|vb| Rect::new(Point::new(vb.x, vb.y), Size::new(vb.w, vb.h)))
+    }
+
+    fn get_viewbox_transform(&self) -> Option<Transform> {
+        let size = {
+            let attrs = self.attributes();
+            let w = try_opt!(attrs.get_number(AId::Width), None);
+            let h = try_opt!(attrs.get_number(AId::Height), None);
+            Size::new(w, h)
+        };
+
+        let vb = try_opt!(self.get_viewbox(), None);
+        let aspect = match self.attributes().get_value(AId::PreserveAspectRatio) {
+            Some(&AValue::AspectRatio(aspect)) => aspect,
+            _ => AspectRatio::default(),
+        };
+
+        Some(utils::view_box_to_transform(vb, aspect, size))
     }
 }
 
@@ -202,3 +221,29 @@ impl FindAttribute for Node {
     }
 }
 
+
+pub trait AppendTransform {
+    fn append_transform(&mut self, ts: &Transform);
+}
+
+impl AppendTransform for Node {
+    fn append_transform(&mut self, ts: &Transform) {
+        let mut curr_ts = self.attributes().get_transform(AId::Transform).unwrap_or_default();
+        curr_ts.append(ts);
+        self.set_attribute((AId::Transform, curr_ts));
+    }
+}
+
+
+pub trait CopyAttribute {
+    fn copy_attribute(&self, aid: AId, to: &mut Self);
+}
+
+impl CopyAttribute for Node {
+    fn copy_attribute(&self, aid: AId, to: &mut Self) {
+        match self.attributes().get(aid) {
+            Some(attr) => to.set_attribute(attr.clone()),
+            None => to.remove_attribute(aid),
+        }
+    }
+}

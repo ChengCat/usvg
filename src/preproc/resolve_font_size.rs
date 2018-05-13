@@ -91,7 +91,7 @@ pub fn _resolve_font_size(parent: &Node) {
         // We have to mark this attribute as invisible,
         // otherwise it will break the 'use' resolving.
         if !node.has_attribute(AId::FontSize) {
-            node.set_attribute(("resolved-font-size", "1"));
+            node.set_attribute(("resolved-font-size", 1));
         }
 
         node.set_attribute((AId::FontSize, font_size));
