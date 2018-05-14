@@ -231,13 +231,14 @@ fn conv_elements(
 
                 let href = match img.data {
                     ImageData::Path(ref path) => path.to_str().unwrap().to_owned(),
-                    ImageData::Raw(ref data, kind) => {
+                    ImageData::Raw(ref data) => {
                         let mut d = String::with_capacity(data.len() + 20);
 
                         d.push_str("data:image/");
-                        match kind {
-                            ImageDataKind::PNG => d.push_str("png"),
-                            ImageDataKind::JPEG => d.push_str("jpg"),
+                        match img.format {
+                            ImageFormat::PNG => d.push_str("png"),
+                            ImageFormat::JPEG => d.push_str("jpg"),
+                            ImageFormat::SVG => d.push_str("svg+xml"),
                         }
                         d.push_str(";base64,\n");
                         d.push_str(&base64::encode_config(data, base64_conf));

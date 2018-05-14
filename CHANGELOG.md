@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `symbol` element support.
 - `Tree::from_str`.
 - Nested `svg` elements support.
+- SVG support for `image` element.
+- `ImageFormat::SVG`.
+- `Image::format`.
 
 ### Changed
 - `tree` module content reexported.
@@ -20,6 +23,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `view` element is out of scope now.
 - `FileReadError` replaced with `Error`.
 - `parse_tree_from_data` accepts `&[u8]` and not `&str` now.
+- Rename `ImageDataKind` to `ImageFormat`.
 
 ### Removed
 - `NodeExt::kind`. Use `Node::borrow` instead.

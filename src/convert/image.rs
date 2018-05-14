@@ -45,12 +45,13 @@ pub(super) fn convert(
         }
     };
 
-    if let Some(data) = get_href_data(href, opt.path.as_ref()) {
+    if let Some((data, format)) = get_href_data(href, opt.path.as_ref()) {
         parent.append_kind(tree::NodeKind::Image(tree::Image {
             id: node.id().clone(),
             transform,
             view_box,
             data,
+            format,
         }));
     }
 }
@@ -58,16 +59,19 @@ pub(super) fn convert(
 fn get_href_data(
     href: &str,
     path: Option<&path::PathBuf>,
-) -> Option<tree::ImageData> {
+) -> Option<(tree::ImageData, tree::ImageFormat)> {
     if href.starts_with("data:image/") {
         if let Some(idx) = href.find(',') {
             let start_idx = 11; // data:image/
-            let kind = match &href[start_idx..idx] {
+            let format = match &href[start_idx..idx] {
                 "jpg;base64" | "jpeg;base64" => {
-                    tree::ImageDataKind::JPEG
+                    tree::ImageFormat::JPEG
                 }
                 "png;base64" => {
-                    tree::ImageDataKind::PNG
+                    tree::ImageFormat::PNG
+                }
+                "svg+xml;base64" => {
+                    tree::ImageFormat::SVG
                 }
                 _ => {
                     return None;
@@ -84,7 +88,7 @@ fn get_href_data(
             );
 
             if let Ok(data) = base64::decode_config(base_data, conf) {
-                return Some(tree::ImageData::Raw(data.to_owned(), kind));
+                return Some((tree::ImageData::Raw(data.to_owned()), format));
             }
         }
 
@@ -96,10 +100,10 @@ fn get_href_data(
         };
 
         if path.exists() {
-            if is_valid_image_format(&path) {
-                return Some(tree::ImageData::Path(path.to_owned()));
+            if let Some(format) = get_image_format(&path) {
+                return Some((tree::ImageData::Path(path.to_owned()), format));
             } else {
-                warn!("'{}' is not a PNG or a JPEG image.", href);
+                warn!("'{}' is not a PNG, JPEG or SVG(Z) image.", href);
             }
         } else {
             warn!("Linked file does not exist: '{}'.", href);
@@ -109,25 +113,36 @@ fn get_href_data(
     None
 }
 
+fn file_extension(path: &path::Path) -> Option<&str> {
+    if let Some(ext) = path.extension() {
+        ext.to_str()
+    } else {
+        None
+    }
+}
+
 /// Checks that file has a PNG or a JPEG magic bytes.
-fn is_valid_image_format(path: &path::Path) -> bool {
+/// Or SVG(Z) extension.
+fn get_image_format(path: &path::Path) -> Option<tree::ImageFormat> {
     use std::fs;
     use std::io::Read;
 
-    macro_rules! try_bool {
-        ($e:expr) => {
-            match $e {
-                Ok(v) => v,
-                Err(_) => return false,
-            }
-        };
+    let ext = file_extension(path)?.to_lowercase();
+    if ext == "svg" || ext == "svgz" {
+        return Some(tree::ImageFormat::SVG);
     }
 
-    let mut file = try_bool!(fs::File::open(path));
+    let mut file = fs::File::open(path).ok()?;
 
     let mut d = Vec::new();
     d.resize(8, 0);
-    try_bool!(file.read_exact(&mut d));
+    file.read_exact(&mut d).ok()?;
 
-    d.starts_with(b"\x89PNG\r\n\x1a\n") || d.starts_with(&[0xff, 0xd8, 0xff])
+    if d.starts_with(b"\x89PNG\r\n\x1a\n") {
+        Some(tree::ImageFormat::PNG)
+    } else if d.starts_with(&[0xff, 0xd8, 0xff]) {
+        Some(tree::ImageFormat::JPEG)
+    } else {
+        None
+    }
 }

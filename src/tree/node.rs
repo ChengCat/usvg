@@ -202,12 +202,14 @@ pub struct Image {
     pub view_box: ViewBox,
     /// Image data.
     pub data: ImageData,
+    /// Image data kind.
+    pub format: ImageFormat,
 }
 
 
 /// A raster image container.
 pub enum ImageData {
-    /// Path to the image.
+    /// Path to a PNG, JPEG or SVG(Z) image.
     ///
     /// Preprocessor checks that file exists, but because it can be removed later,
     /// there is no guarantee that this path is valid.
@@ -215,17 +217,18 @@ pub enum ImageData {
     /// An image raw data.
     ///
     /// It's not a decoded image data, but the data that was decoded from base64.
-    /// So you still need a PNG and a JPEG decoding library.
-    Raw(Vec<u8>, ImageDataKind),
+    /// So you still need a PNG, JPEG and SVG(Z) decoding library.
+    Raw(Vec<u8>),
 }
 
 
 /// An image codec.
 #[allow(missing_docs)]
 #[derive(Clone, Copy, PartialEq)]
-pub enum ImageDataKind {
+pub enum ImageFormat {
     PNG,
     JPEG,
+    SVG,
 }
 
 
