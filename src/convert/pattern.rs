@@ -30,7 +30,7 @@ pub fn convert(
     );
 
     let rect = super::convert_rect(attrs);
-    if !(rect.size.width > 0.0 && rect.size.height > 0.0) {
+    if !(rect.width > 0.0 && rect.height > 0.0) {
         warn!("Pattern '{}' has an invalid size. Skipped.", node.id());
         return None;
     }

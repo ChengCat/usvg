@@ -19,7 +19,7 @@ pub fn convert(
     let ref attrs = node.attributes();
 
     let rect = super::convert_rect(attrs);
-    if !(rect.size.width > 0.0 && rect.size.height > 0.0) {
+    if !(rect.width > 0.0 && rect.height > 0.0) {
         warn!("Mask '{}' has an invalid size. Skipped.", node.id());
         return None;
     }

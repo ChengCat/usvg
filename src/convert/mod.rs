@@ -68,7 +68,7 @@ pub fn convert_doc(
         let svg_kind = tree::Svg {
             size: Size::new(100.0, 100.0),
             view_box: tree::ViewBox {
-                rect: rect(0.0, 0.0, 100.0, 100.0),
+                rect: (0.0, 0.0, 100.0, 100.0).into(),
                 aspect: tree::AspectRatio::default(),
             },
         };
@@ -306,7 +306,7 @@ fn get_view_box(svg: &svgdom::Node, size: Size) -> Rect {
         Some(vb) => vb,
         None => {
             warn!("Invalid SVG viewBox. Reset to '0 0 {} {}'.", size.width, size.height);
-            Rect::new(Point::new(0.0, 0.0), size)
+            size.to_rect(0.0, 0.0)
         }
     }
 }
@@ -324,14 +324,10 @@ fn convert_element_units(attrs: &svgdom::Attributes, aid: AId) -> tree::Units {
 
 fn convert_rect(attrs: &svgdom::Attributes) -> Rect {
     let rect = Rect::new(
-        Point::new(
-            attrs.get_number(AId::X).unwrap_or(0.0),
-            attrs.get_number(AId::Y).unwrap_or(0.0),
-        ),
-        Size::new(
-            attrs.get_number(AId::Width).unwrap_or(0.0),
-            attrs.get_number(AId::Height).unwrap_or(0.0),
-        ),
+        attrs.get_number(AId::X).unwrap_or(0.0),
+        attrs.get_number(AId::Y).unwrap_or(0.0),
+        attrs.get_number(AId::Width).unwrap_or(0.0),
+        attrs.get_number(AId::Height).unwrap_or(0.0),
     );
 
 //    debug_assert!(!rect.size.width.is_fuzzy_zero());

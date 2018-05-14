@@ -40,7 +40,7 @@ impl GetViewBox for Node {
     fn get_viewbox(&self) -> Option<Rect> {
         self.attributes()
             .get_type::<ViewBox>(AId::ViewBox)
-            .map(|vb| Rect::new(Point::new(vb.x, vb.y), Size::new(vb.w, vb.h)))
+            .map(|vb| (vb.x, vb.y, vb.w, vb.h).into())
     }
 
     fn get_viewbox_transform(&self) -> Option<Transform> {

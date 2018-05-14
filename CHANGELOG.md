@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `FileReadError` replaced with `Error`.
 - `parse_tree_from_data` accepts `&[u8]` and not `&str` now.
 - Rename `ImageDataKind` to `ImageFormat`.
+- New geometry primitives implementation.
 
 ### Removed
 - `NodeExt::kind`. Use `Node::borrow` instead.

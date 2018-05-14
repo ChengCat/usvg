@@ -51,14 +51,14 @@ pub fn convert_units(svg: &mut Node, opt: &Options) {
     let view_box = resolve_view_box(svg, opt.dpi);
 
     let vb_len = (
-        view_box.size.width * view_box.size.width + view_box.size.height * view_box.size.height
+        view_box.width * view_box.width + view_box.height * view_box.height
     ).sqrt() / 2.0_f64.sqrt();
 
     let convert_len = |len: Length, aid: AId, font_size: f64| {
         if len.unit == Unit::Percent {
             match aid {
-                AId::X | AId::Cx | AId::Width  => convert_percent(len, view_box.size.width),
-                AId::Y | AId::Cy | AId::Height => convert_percent(len, view_box.size.height),
+                AId::X | AId::Cx | AId::Width  => convert_percent(len, view_box.width),
+                AId::Y | AId::Cy | AId::Height => convert_percent(len, view_box.height),
                 _ => convert_percent(len, vb_len),
             }
         } else {
@@ -180,7 +180,7 @@ fn resolve_view_box(svg: &mut Node, dpi: f64) -> Rect {
             let vb = ViewBox::new(0.0, 0.0, width, height);
             svg.set_attribute((AId::ViewBox, vb));
 
-            Rect::new(Point::new(0.0, 0.0), Size::new(width, height))
+            (0.0, 0.0, width, height).into()
         }
     }
 }

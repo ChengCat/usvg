@@ -23,8 +23,8 @@ pub fn view_box_to_transform(
 ) -> Transform {
     let vr = view_box;
 
-    let sx = img_size.width as f64 / vr.size.width;
-    let sy = img_size.height as f64 / vr.size.height;
+    let sx = img_size.width / vr.width;
+    let sy = img_size.height / vr.height;
 
     let (sx, sy) = if aspect.align == Align::None {
         (sx, sy)
@@ -38,10 +38,10 @@ pub fn view_box_to_transform(
         (s, s)
     };
 
-    let x = -vr.origin.x * sx;
-    let y = -vr.origin.y * sy;
-    let w = img_size.width - vr.size.width * sx;
-    let h = img_size.height - vr.size.height * sy;
+    let x = -vr.x * sx;
+    let y = -vr.y * sy;
+    let w = img_size.width - vr.width * sx;
+    let h = img_size.height - vr.height * sy;
 
     let pos = aligned_pos(aspect.align, x, y, w, h);
     Transform::new(sx, 0.0, 0.0, sy, pos.x, pos.y)

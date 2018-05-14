@@ -62,10 +62,10 @@ pub fn clip_element(doc: &mut Document, target_node: &mut Node) {
 
         let mut rect_node = doc.create_element(EId::Rect);
 
-        rect_node.set_attribute((AId::X, clip_rect.origin.x));
-        rect_node.set_attribute((AId::Y, clip_rect.origin.y));
-        rect_node.set_attribute((AId::Width, clip_rect.size.width));
-        rect_node.set_attribute((AId::Height, clip_rect.size.height));
+        rect_node.set_attribute((AId::X, clip_rect.x));
+        rect_node.set_attribute((AId::Y, clip_rect.y));
+        rect_node.set_attribute((AId::Width, clip_rect.width));
+        rect_node.set_attribute((AId::Height, clip_rect.height));
         clip_node.append(rect_node);
 
         g_node.set_attribute((AId::ClipPath, clip_node.clone()));
@@ -91,7 +91,7 @@ fn get_clip_rect(doc: &Document, node: &Node) -> Option<Rect> {
         return None;
     }
 
-    Some(rect(x, y, w, h))
+    Some((x, y, w, h).into())
 }
 
 /// Creates a free id for `clipPath`.

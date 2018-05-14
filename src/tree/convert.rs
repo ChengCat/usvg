@@ -291,10 +291,8 @@ fn conv_viewbox(
     view_box: &ViewBox,
     node: &mut svgdom::Node,
 ) {
-    let vb = svgdom::ViewBox::new(
-        view_box.rect.origin.x, view_box.rect.origin.y,
-        view_box.rect.size.width, view_box.rect.size.height,
-    );
+    let r = view_box.rect;
+    let vb = svgdom::ViewBox::new(r.x, r.y, r.width, r.height);
     node.set_attribute((AId::ViewBox, vb));
 
     node.set_attribute((AId::PreserveAspectRatio, view_box.aspect));
@@ -304,10 +302,10 @@ fn conv_rect(
     r: Rect,
     node: &mut svgdom::Node,
 ) {
-    node.set_attribute((AId::X, r.origin.x));
-    node.set_attribute((AId::Y, r.origin.y));
-    node.set_attribute((AId::Width, r.size.width));
-    node.set_attribute((AId::Height, r.size.height));
+    node.set_attribute((AId::X, r.x));
+    node.set_attribute((AId::Y, r.y));
+    node.set_attribute((AId::Width, r.width));
+    node.set_attribute((AId::Height, r.height));
 }
 
 fn conv_viewbox2(
