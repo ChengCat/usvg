@@ -131,6 +131,7 @@ pub fn fix_gradient_stops(doc: &mut Document) {
     //
     // To:
     // offset="0.0"
+    // offset="0.00000001"
     // offset="0.7"
     for grad in &gradients {
         stops.clear();
@@ -143,8 +144,7 @@ pub fn fix_gradient_stops(doc: &mut Document) {
             let offset2 = stops[1].attributes().get_number(AId::Offset).unwrap_or(0.0);
 
             if offset1.is_fuzzy_zero() && offset2.is_fuzzy_zero() {
-                doc.remove_node(stops[0].clone());
-                stops.remove(0);
+                stops[1].set_attribute((AId::Offset, offset1 + f64::EPSILON));
             } else {
                 break;
             }

@@ -34,7 +34,7 @@ pub(super) fn convert(
 
     let fill = fill::convert(rtree, &attrs);
     let stroke = stroke::convert(rtree, &attrs);
-    let d = convert_path(d, &stroke);
+    let d = convert_path(d);
     let transform = attrs.get_transform(AId::Transform).unwrap_or_default();
 
     if d.len() < 2 {
@@ -50,7 +50,7 @@ pub(super) fn convert(
     }));
 }
 
-fn convert_path(mut path: svgdom::Path, stroke: &Option<tree::Stroke>) -> Vec<tree::PathSegment> {
+fn convert_path(mut path: svgdom::Path) -> Vec<tree::PathSegment> {
     let mut new_path = Vec::with_capacity(path.len());
 
     path.conv_to_absolute();
