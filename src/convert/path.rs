@@ -188,28 +188,27 @@ fn convert_path(mut path: svgdom::Path, stroke: &Option<tree::Stroke>) -> Vec<tr
         }
     }
 
-    if stroke.is_some() {
-        // If the controls point coordinate is too close to the end point
-        // we have to snap it to the end point. Otherwise, it will produce rendering errors.
-        //
-        // See e-path-044.svg
-
-        // Just a magic/heuristic number.
-        //
-        // TODO: find a better way
-        let sw = 0.25;
-
-        for seg in &mut new_path {
-            if let &mut tree::PathSegment::CurveTo
-                { ref mut x1, ref mut y1,ref mut x2, ref mut y2, x, y } = seg
-            {
-                if (x - *x1).abs() < sw { *x1 = x; }
-                if (y - *y1).abs() < sw { *y1 = y; }
-                if (x - *x2).abs() < sw { *x2 = x; }
-                if (y - *y2).abs() < sw { *y2 = y; }
-            }
-        }
-    }
+// TODO: find a better way
+//    if stroke.is_some() {
+//        // If the controls point coordinate is too close to the end point
+//        // we have to snap it to the end point. Otherwise, it will produce rendering errors.
+//        //
+//        // See e-path-044.svg
+//
+//        // Just a magic/heuristic number.
+//        let sw = 0.25;
+//
+//        for seg in &mut new_path {
+//            if let &mut tree::PathSegment::CurveTo
+//                { ref mut x1, ref mut y1,ref mut x2, ref mut y2, x, y } = seg
+//            {
+//                if (x - *x1).abs() < sw { *x1 = x; }
+//                if (y - *y1).abs() < sw { *y1 = y; }
+//                if (x - *x2).abs() < sw { *x2 = x; }
+//                if (y - *y2).abs() < sw { *y2 = y; }
+//            }
+//        }
+//    }
 
     new_path
 }
