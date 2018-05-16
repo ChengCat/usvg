@@ -6,7 +6,7 @@ use super::prelude::*;
 
 
 /// We don't care about `a` elements, but we can't just remove them.
-/// So, if an `a` element is inside a `text` - change tag name to `tspan`.
+/// So, if an `a` element is inside a `text` - change the tag name to `tspan`.
 /// Otherwise, to `g`.
 pub fn ungroup_a(doc: &Document) {
     for (id, mut node) in doc.root().descendants().svg() {
