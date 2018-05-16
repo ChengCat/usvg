@@ -43,10 +43,10 @@ pub fn resolve_paint(
     aid: AId,
 ) -> Option<tree::Paint> {
     match attrs.get_type(aid) {
-        Some(AValue::Color(c)) => {
-            Some(tree::Paint::Color(*c))
+        Some(&AValue::Color(c)) => {
+            Some(tree::Paint::Color(c))
         }
-        Some(AValue::Paint(ref link, fallback)) => {
+        Some(&AValue::Paint(ref link, fallback)) => {
             // a-fill-016.svg
             // a-fill-017.svg
             // a-fill-018.svg
@@ -55,7 +55,7 @@ pub fn resolve_paint(
                 if let Some(node) = rtree.defs_by_id(&link.id()) {
                     Some(tree::Paint::Link(node.id().to_string()))
                 } else if let Some(PaintFallback::Color(c)) = fallback {
-                    Some(tree::Paint::Color(*c))
+                    Some(tree::Paint::Color(c))
                 } else {
                     None
                 }
@@ -65,7 +65,7 @@ pub fn resolve_paint(
                 None
             }
         }
-        Some(AValue::None) => {
+        Some(&AValue::None) => {
             // a-fill-020.svg
             None
         }

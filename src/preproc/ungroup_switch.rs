@@ -43,7 +43,7 @@ pub fn ungroup_switch(doc: &mut Document) {
         let mut valid_child = None;
 
         // Find first valid node.
-        for (_, mut child) in node.children().svg() {
+        for (_, child) in node.children().svg() {
             if is_valid_child(&child) {
                 valid_child = Some(child.clone());
                 break;
