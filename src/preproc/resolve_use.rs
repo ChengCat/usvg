@@ -100,7 +100,7 @@ fn _resolve_use(
     use_node.set_tag_name(EId::G);
 
     // Remember that this group was 'use' before.
-    use_node.set_attribute(("from-use", 1));
+    use_node.set_attribute(("usvg-group", 1));
 
     // We require original transformation to setup 'clipPath'.
     let orig_ts = use_node.attributes().get_transform(AId::Transform).unwrap_or_default();

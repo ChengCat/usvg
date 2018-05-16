@@ -42,7 +42,7 @@ fn _ungroup_groups(parent: &Node, opt: &Options, groups: &mut Vec<Node>) {
             // They will be removed during conversion.
             if node.ancestors().skip(1).any(|n| n.is_tag_name(EId::ClipPath)) {
                 // Groups that was created from 'use' can be ungroupped.
-                if !node.has_attribute("from-use") {
+                if !node.has_attribute("usvg-group") {
                     continue;
                 }
             }

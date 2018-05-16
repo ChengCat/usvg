@@ -37,16 +37,36 @@ static FEATURES: &[&str] = &[
 ];
 
 pub fn ungroup_switch(doc: &mut Document) {
+    let mut rm_nodes = Vec::with_capacity(16);
+
     while let Some(mut node) = doc.root().descendants().find(|n| n.is_tag_name(EId::Switch)) {
+        let mut valid_child = None;
+
+        // Find first valid node.
         for (_, mut child) in node.children().svg() {
             if is_valid_child(&child) {
-                child.detach();
-                node.insert_after(child);
-                doc.remove_node(node);
-
+                valid_child = Some(child.clone());
                 break;
             }
         }
+
+        let valid_child = match valid_child {
+            Some(v) => v,
+            None => continue,
+        };
+
+        // Remove all invalid nodes.
+        for child in node.children().filter(|n| *n != valid_child) {
+            rm_nodes.push(child.clone());
+        }
+        rm_nodes.iter_mut().for_each(|n| doc.remove_node(n.clone()));
+        rm_nodes.clear();
+
+        // 'switch' -> 'g'
+        node.set_tag_name(EId::G);
+
+        // Remember that this group was 'switch' before.
+        node.set_attribute(("usvg-group", 1));
     }
 }
 
