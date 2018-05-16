@@ -8,16 +8,7 @@ use svgdom;
 // self
 use tree;
 use tree::prelude::*;
-use geom::{
-    f64_bound,
-};
-use short::{
-    AId,
-    EId,
-};
-use traits::{
-    GetValue,
-};
+use super::prelude::*;
 
 
 pub fn convert_linear(

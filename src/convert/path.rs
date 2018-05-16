@@ -11,13 +11,7 @@ use lyon_geom;
 // self
 use tree;
 use tree::prelude::*;
-use short::{
-    AId,
-};
-use traits::{
-    GetValue,
-};
-
+use super::prelude::*;
 use super::{
     fill,
     stroke,

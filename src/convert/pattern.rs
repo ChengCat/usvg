@@ -7,13 +7,7 @@ use svgdom;
 
 // self
 use tree;
-use short::{
-    AId,
-};
-use traits::{
-    GetValue,
-    GetViewBox,
-};
+use super::prelude::*;
 
 
 pub fn convert(

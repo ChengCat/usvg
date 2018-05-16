@@ -39,6 +39,23 @@ mod shapes;
 mod stroke;
 mod text;
 
+mod prelude {
+    pub use svgdom::{
+        AttributeType,
+        ElementType,
+        FilterSvg,
+        FilterSvgAttrs,
+        FilterSvgAttrsMut,
+        FuzzyEq,
+        FuzzyZero,
+    };
+    pub use geom::*;
+    pub use short::*;
+    pub use traits::*;
+    pub use Options;
+}
+
+
 /// Converts an input `Document` to the `Tree`.
 ///
 /// # Errors

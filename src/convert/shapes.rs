@@ -3,19 +3,10 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 // external
-use svgdom::{
-    self,
-    FuzzyEq
-};
+use svgdom;
 
 // self
-use short::{
-    AId,
-    EId,
-};
-use traits::{
-    GetValue,
-};
+use super::prelude::*;
 
 
 pub fn convert(node: &svgdom::Node) -> Option<svgdom::Path> {

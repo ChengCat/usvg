@@ -3,21 +3,12 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 // external
-use svgdom::{
-    self,
-    FuzzyEq,
-};
+use svgdom;
 
 // self
 use tree;
 use tree::prelude::*;
-use short::{
-    AId,
-    EId,
-};
-use traits::{
-    GetValue,
-};
+use super::prelude::*;
 use super::{
     fill,
     stroke,

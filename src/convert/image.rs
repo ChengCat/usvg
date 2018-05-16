@@ -11,16 +11,7 @@ use svgdom;
 // self
 use tree;
 use tree::prelude::*;
-use short::{
-    AId,
-    AValue,
-};
-use traits::{
-    GetValue,
-};
-use {
-    Options,
-};
+use super::prelude::*;
 
 
 pub(super) fn convert(

@@ -7,9 +7,7 @@ use svgdom;
 
 // self
 use tree;
-use short::{
-    AId,
-};
+use super::prelude::*;
 
 
 pub fn convert(
