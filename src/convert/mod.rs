@@ -340,17 +340,12 @@ fn convert_element_units(attrs: &svgdom::Attributes, aid: AId) -> tree::Units {
 }
 
 fn convert_rect(attrs: &svgdom::Attributes) -> Rect {
-    let rect = Rect::new(
+    (
         attrs.get_number(AId::X).unwrap_or(0.0),
         attrs.get_number(AId::Y).unwrap_or(0.0),
         attrs.get_number(AId::Width).unwrap_or(0.0),
         attrs.get_number(AId::Height).unwrap_or(0.0),
-    );
-
-//    debug_assert!(!rect.size.width.is_fuzzy_zero());
-//    debug_assert!(!rect.size.height.is_fuzzy_zero());
-
-    rect
+    ).into()
 }
 
 fn convert_aspect(attrs: &svgdom::Attributes) -> tree::AspectRatio {

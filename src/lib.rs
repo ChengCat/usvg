@@ -63,6 +63,8 @@ Full spec can be found [here](https://github.com/RazrFalcon/usvg/blob/master/doc
 
 #![doc(html_root_url = "https://docs.rs/usvg/0.1.1")]
 
+#![cfg_attr(feature = "cargo-clippy", allow(collapsible_if))]
+
 #![forbid(unsafe_code)]
 #![warn(missing_docs)]
 

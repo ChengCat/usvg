@@ -37,7 +37,7 @@ fn file_to_stdout() {
     ];
 
     assert_cli::Assert::command(args)
-        .stdout().is(load_file("tests/images/test1-out.svg"))
+        .stdout().is(load_file("tests/images/test1-out.svg").as_str())
         .stderr().is("")
         .unwrap();
 }
@@ -55,7 +55,7 @@ fn stdin_to_file() {
     ];
 
     assert_cli::Assert::command(args)
-        .stdin(&load_file("tests/images/test1-out.svg"))
+        .stdin(load_file("tests/images/test1-out.svg").as_str())
         .stdout().is("")
         .stderr().is("")
         .unwrap();
@@ -74,8 +74,8 @@ fn stdin_to_stdout() {
     let data = load_file("tests/images/test1-out.svg");
 
     assert_cli::Assert::command(args)
-        .stdin(&data)
-        .stdout().is(data)
+        .stdin(data.as_str())
+        .stdout().is(data.as_str())
         .stderr().is("")
         .unwrap();
 }
