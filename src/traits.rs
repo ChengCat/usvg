@@ -223,24 +223,32 @@ impl FindAttribute for Node {
 
 
 pub trait AppendTransform {
-    fn append_transform(&mut self, ts: &Transform);
+    fn append_transform(&mut self, ts: Transform);
+    fn prepend_transform(&mut self, ts: Transform);
 }
 
 impl AppendTransform for Node {
-    fn append_transform(&mut self, ts: &Transform) {
+    fn append_transform(&mut self, ts: Transform) {
         let mut curr_ts = self.attributes().get_transform(AId::Transform).unwrap_or_default();
-        curr_ts.append(ts);
+        curr_ts.append(&ts);
         self.set_attribute((AId::Transform, curr_ts));
+    }
+
+    fn prepend_transform(&mut self, ts: Transform) {
+        let mut ts = ts.clone();
+        let curr_ts = self.attributes().get_transform(AId::Transform).unwrap_or_default();
+        ts.append(&curr_ts);
+        self.set_attribute((AId::Transform, ts));
     }
 }
 
 
 pub trait CopyAttribute {
-    fn copy_attribute(&self, aid: AId, to: &mut Self);
+    fn copy_attribute_to(&self, aid: AId, to: &mut Self);
 }
 
 impl CopyAttribute for Node {
-    fn copy_attribute(&self, aid: AId, to: &mut Self) {
+    fn copy_attribute_to(&self, aid: AId, to: &mut Self) {
         match self.attributes().get(aid) {
             Some(attr) => to.set_attribute(attr.clone()),
             None => to.remove_attribute(aid),

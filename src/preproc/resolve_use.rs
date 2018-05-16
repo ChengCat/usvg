@@ -116,6 +116,11 @@ fn _resolve_use(
     // Remember that this group was 'use' before.
     use_node.set_attribute(("from-use", 1));
 
+    // We require original transformation to setup 'clipPath'.
+    let orig_ts = use_node.attributes().get_transform(AId::Transform).unwrap_or_default();
+    // Remove original transform. It will be resolved later.
+    use_node.remove_attribute(AId::Transform);
+
     {
         // If the `use` element has a non-zero `x` or `y` attributes
         // then we should add their values to
@@ -123,17 +128,18 @@ fn _resolve_use(
         let x = use_node.attributes().get_number(AId::X).unwrap_or(0.0);
         let y = use_node.attributes().get_number(AId::Y).unwrap_or(0.0);
         if !(x.is_fuzzy_zero() && y.is_fuzzy_zero()) {
-            use_node.append_transform(&Transform::new(1.0, 0.0, 0.0, 1.0, x, y));
+            use_node.append_transform(Transform::new(1.0, 0.0, 0.0, 1.0, x, y));
         }
     }
 
     // TODO: validate linked nodes
 
     if linked_node.is_tag_name(EId::Symbol) {
-        resolve_symbol(doc, use_node, linked_node)
+        resolve_symbol(doc, use_node, linked_node, orig_ts)
     } else {
         let new_node = doc.copy_node_deep(linked_node.clone());
         use_node.append(new_node);
+        use_node.prepend_transform(orig_ts);
     }
 
     for mut node in use_node.descendants().skip(1) {
@@ -149,15 +155,17 @@ fn resolve_symbol(
     doc: &mut Document,
     use_node: &mut Node,
     linked_node: &mut Node,
+    orig_ts: Transform,
 ) {
-    linked_node.copy_attribute(AId::Overflow, use_node);
+    // Required for the 'clip_element' method.
+    linked_node.copy_attribute_to(AId::Overflow, use_node);
 
     if linked_node.has_attribute(AId::ViewBox) {
-        use_node.copy_attribute(AId::Width, linked_node);
-        use_node.copy_attribute(AId::Height, linked_node);
+        use_node.copy_attribute_to(AId::Width, linked_node);
+        use_node.copy_attribute_to(AId::Height, linked_node);
 
         if let Some(ts) = linked_node.get_viewbox_transform() {
-            use_node.append_transform(&ts);
+            use_node.append_transform(ts);
         }
     }
 
@@ -166,5 +174,13 @@ fn resolve_symbol(
         use_node.append(child);
     }
 
-    super::clip_element::clip_element(doc, use_node);
+    let new_g_node = super::clip_element::clip_element(doc, use_node);
+    if let Some(mut g_node) = new_g_node {
+        // If 'clipPath' was created we have to set the original transform
+        // to the group that contains 'clip-path' attribute.
+        g_node.set_attribute((AId::Transform, orig_ts));
+    } else {
+        // Set the original transform back to the 'use' itself.
+        use_node.prepend_transform(orig_ts);
+    }
 }

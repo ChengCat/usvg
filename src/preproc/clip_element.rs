@@ -35,15 +35,15 @@ use traits::{
 // <g clip-path="ulr(#clipPath1)">
 //   <elem/>
 // </g>
-pub fn clip_element(doc: &mut Document, target_node: &mut Node) {
-    let mut defs_node = try_opt!(doc.defs_element(), ());
+pub fn clip_element(doc: &mut Document, target_node: &mut Node) -> Option<Node> {
+    let mut defs_node = try_opt!(doc.defs_element(), None);
 
     // No need to clip elements with overflow:visible.
     {
         let attrs = target_node.attributes();
         let overflow = attrs.get_str(AId::Overflow).unwrap_or("hidden");
         if overflow != "hidden" && overflow != "scroll" {
-            return;
+            return None;
         }
     }
 
@@ -69,6 +69,10 @@ pub fn clip_element(doc: &mut Document, target_node: &mut Node) {
         clip_node.append(rect_node);
 
         g_node.set_attribute((AId::ClipPath, clip_node.clone()));
+
+        Some(g_node)
+    } else {
+        None
     }
 }
 
