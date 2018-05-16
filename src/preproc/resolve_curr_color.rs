@@ -3,7 +3,8 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use svgdom::{
-    Attribute,
+    Color,
+    PaintFallback,
 };
 
 use super::prelude::*;
@@ -23,37 +24,54 @@ pub fn resolve_current_color(doc: &Document) {
         {
             let attrs = node.attributes();
             for (aid, attr) in attrs.iter().svg() {
-                if let AValue::CurrentColor = attr.value {
-                    ids.push(aid);
+                match attr.value {
+                    AValue::CurrentColor => {
+                        ids.push(aid);
+                    }
+                    AValue::Paint(_, fallback) => {
+                        if let Some(PaintFallback::CurrentColor) = fallback {
+                            ids.push(aid);
+                        }
+                    }
+                    _ => {}
                 }
             }
         }
 
         for id in &ids {
-            let av = node.attributes().get_value(AId::Color).cloned();
-            if let Some(av) = av {
-                node.set_attribute((*id, av.clone()));
-            } else {
-                resolve_impl(&mut node, *id, AId::Color);
+            match resolve_color(&node, *id) {
+                Some(v) => {
+                    let av = node.attributes().get_value(*id).cloned().unwrap();
+                    match av {
+                        AValue::CurrentColor => {
+                            node.set_attribute((*id, v));
+                        }
+                        AValue::Paint(link, _) => {
+                            let fallback = Some(PaintFallback::Color(v));
+                            node.set_attribute((*id, (link.clone(), fallback)));
+                        }
+                        _ => {}
+                    }
+                }
+                None => {
+                    warn!("Failed to resolve currentColor for: {}. Removing it.", id);
+                    node.remove_attribute(*id);
+                }
             }
         }
     }
 }
 
-fn resolve_impl(node: &mut Node, curr_attr: AId, parent_attr: AId) {
-    if let Some(n) = node.ancestors().skip(1).find(|n| n.has_attribute(parent_attr)) {
-        let av = n.attributes().get_value(parent_attr).cloned();
-        if let Some(av) = av {
-            node.set_attribute((curr_attr, av.clone()));
-        }
+fn resolve_color(node: &Node, aid: AId) -> Option<Color> {
+    if let Some(n) = node.ancestors().find(|n| n.has_attribute(AId::Color)) {
+        n.attributes().get_color(AId::Color)
     } else {
-        match Attribute::default(curr_attr) {
-            Some(a) => node.set_attribute((curr_attr, a.value)),
-            None => {
-                warn!("Failed to resolve attribute: {}. Removing it.",
-                      node.attributes().get(curr_attr).unwrap());
-                node.remove_attribute(curr_attr);
-            }
+        match aid {
+              AId::Fill
+            | AId::FloodColor
+            | AId::StopColor => Some(Color::new(0, 0, 0)),
+            AId::LightingColor => Some(Color::new(255, 255, 255)),
+            _ => None,
         }
     }
 }

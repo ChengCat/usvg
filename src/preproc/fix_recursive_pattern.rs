@@ -13,14 +13,14 @@ pub fn fix_recursive_pattern(doc: &Document) {
         for mut node in pattern_node.descendants() {
             let mut check_attr = |aid: AId| {
                 let av = node.attributes().get_value(aid).cloned();
-                if let Some(AValue::FuncLink(link)) = av {
+                if let Some(AValue::Paint(link, _)) = av {
                     if link == pattern_node {
                         node.set_attribute((aid, AValue::None));
                     } else {
                         // Check that linked node children doesn't link this pattern.
                         for node2 in link.descendants() {
                             let av2 = node2.attributes().get_value(aid).cloned();
-                            if let Some(AValue::FuncLink(link2)) = av2 {
+                            if let Some(AValue::Paint(link2, _)) = av2 {
                                 if link2 == pattern_node {
                                     node.set_attribute((aid, AValue::None));
                                 }

@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - SVG support for `image` element.
 - `ImageFormat::SVG`.
 - `Image::format`.
+- Paint fallback resolving.
 
 ### Changed
 - `tree` module content reexported.

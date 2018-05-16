@@ -7,7 +7,6 @@ use svgdom;
 
 // self
 use tree;
-use tree::prelude::*;
 use super::prelude::*;
 
 
@@ -30,36 +29,7 @@ pub fn convert(
     // a-stroke-miterlimit-003.svg
     let miterlimit = if miterlimit < 1.0 { 1.0 } else { miterlimit };
 
-    let paint = if let Some(stroke) = attrs.get_type(AId::Stroke) {
-        match *stroke {
-            AValue::Color(c) => {
-                tree::Paint::Color(c)
-            }
-            AValue::FuncLink(ref link) => {
-                let mut p = None;
-                if link.is_gradient() || link.is_tag_name(EId::Pattern) {
-                    if let Some(node) = rtree.defs_by_id(&link.id()) {
-                        p = Some(tree::Paint::Link(node.id().to_string()));
-                    }
-                } else {
-                    warn!("'{}' cannot be used for stroking.",
-                          link.tag_name());
-                    return None;
-                }
-
-                p?
-            }
-            AValue::None => {
-                return None;
-            }
-            _ => {
-                warn!("An invalid stroke value: {}. Skipped.", stroke);
-                return None;
-            }
-        }
-    } else {
-        return None;
-    };
+    let paint = super::fill::resolve_paint(rtree, attrs, AId::Stroke)?;
 
     let linecap = attrs.get_str(AId::StrokeLinecap).unwrap_or("butt");
     let linecap = match linecap {

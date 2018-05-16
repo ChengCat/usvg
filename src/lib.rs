@@ -111,6 +111,18 @@ macro_rules! try_opt_warn {
     };
 }
 
+/// Panics in debug, prints warning in release.
+macro_rules! debug_panic {
+    ($msg:expr) => {
+        debug_assert!(false, $msg);
+        warn!($msg);
+    };
+    ($fmt:expr, $($arg:tt)*) => {
+        debug_assert!(false, $msg, $($arg)*);
+        warn!($msg, $($arg)*);
+    };
+}
+
 
 pub mod utils;
 mod convert;

@@ -4,6 +4,7 @@
 
 use svgdom::{
     Color,
+    PaintFallback,
 };
 
 use super::prelude::*;
@@ -21,9 +22,30 @@ pub fn remove_invalid_gradients(doc: &mut Document) {
             for mut linked in linked_nodes {
                 collect_ids(&linked, &gradient, &mut ids);
 
-                for id in &ids {
+                for aid in &ids {
                     if count == 0 {
-                        linked.set_attribute((*id, AValue::None));
+                        let av = linked.attributes().get_value(*aid).cloned();
+                        let av = if let Some(AValue::Paint(_, fallback)) = av {
+                            match fallback {
+                                Some(PaintFallback::None) => {
+                                    AValue::None
+                                }
+                                Some(PaintFallback::CurrentColor) => {
+                                    debug_panic!("'currentColor' must be already resolved.");
+                                    AValue::None
+                                }
+                                Some(PaintFallback::Color(c)) => {
+                                    AValue::Color(c)
+                                }
+                                None => {
+                                    AValue::None
+                                }
+                            }
+                        } else {
+                            AValue::None
+                        };
+
+                        linked.set_attribute((*aid, av));
                     } else {
                         // We know that gradient has first child.
                         let stop = gradient.first_child().unwrap();
@@ -32,8 +54,8 @@ pub fn remove_invalid_gradients(doc: &mut Document) {
                         let opacity = stop.attributes().get_number(AId::StopOpacity)
                                           .unwrap_or(1.0);
 
-                        prepare_link_opacity(&mut linked, *id, opacity);
-                        linked.set_attribute((*id, color));
+                        prepare_link_opacity(&mut linked, *aid, opacity);
+                        linked.set_attribute((*aid, color));
                     }
                 }
             }
@@ -59,14 +81,8 @@ fn process_negative_r(
     gradient: &Node,
     ids: &mut Vec<AId>,
 ) -> bool {
-    let r = gradient.attributes().get_number(AId::R);
-    let r = match r {
-        Some(r) => r,
-        None => {
-            warn!("'r' attribute in 'radialGradient' should be already resolved.");
-            return false;
-        }
-    };
+    let r = try_opt_warn!(gradient.attributes().get_number(AId::R), false,
+                "'r' attribute in 'radialGradient' should be already resolved.");
 
     if !r.is_fuzzy_zero() {
         return false;
@@ -100,8 +116,7 @@ fn collect_ids(linked: &Node, gradient: &Node, ids: &mut Vec<AId>) {
 
     for (aid, attr) in linked.attributes().iter().svg() {
         match attr.value {
-              AValue::Link(ref link)
-            | AValue::FuncLink(ref link) => {
+            AValue::Paint(ref link, _) => {
                 if link == gradient {
                     ids.push(aid);
                 }

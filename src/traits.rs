@@ -135,6 +135,7 @@ impl FromValue for AValue {
 pub trait GetValue {
     fn get_type<T: FromValue + ?Sized>(&self, id: AId) -> Option<&T>;
 
+    // TODO: add get_number_or
     fn get_number(&self, id: AId) -> Option<f64> {
         self.get_type(id).cloned()
     }
