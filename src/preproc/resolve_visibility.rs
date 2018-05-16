@@ -2,20 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-// external
-use svgdom::{
-    Document,
-    Node,
-};
-
-// self
-use short::{
-    AId,
-    EId,
-};
-use traits::{
-    GetValue,
-};
+use super::prelude::*;
 
 
 // TODO: Note that if the 'visibility' property is set to hidden on a 'tspan', 'tref' or 'altGlyph'

@@ -2,29 +2,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-// external
 use svgdom::{
     Attribute,
-    Document,
-    FilterSvg,
-    FilterSvgAttrs,
-    Node,
     Transform,
 };
 
-// self
-use short::{
-    AId,
-    AValue,
-    EId,
-};
-use traits::{
-    GetValue,
-};
-
-use {
-    Options,
-};
+use super::prelude::*;
 
 
 pub fn ungroup_groups(doc: &mut Document, svg: &Node, opt: &Options) {
@@ -131,6 +114,7 @@ pub fn prepare_attribute(node: &mut Node, aid: AId, attr: &Attribute) -> bool {
     if aid == AId::Transform {
         if node.has_attribute(aid) {
             // We should multiply transform matrices.
+            // TODO: simplify
             let mut t1 = if let AValue::Transform(n) = attr.value {
                 n
             } else {

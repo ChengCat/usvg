@@ -4,24 +4,7 @@
 
 use std::f64;
 
-// external
-use svgdom::{
-    Document,
-    ElementType,
-    FuzzyEq,
-    FuzzyZero,
-};
-
-// self
-use geom::*;
-use short::{
-    AId,
-    AValue,
-    EId,
-};
-use traits::{
-    GetValue,
-};
+use super::prelude::*;
 
 
 pub fn fix_gradient_stops(doc: &mut Document) {

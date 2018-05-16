@@ -2,25 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-// external
-use svgdom::{
-    AttributeType,
-    Document,
-    ElementType,
-    FilterSvg,
-    Node,
-};
-
-// self
-use short::{
-    AId,
-    AValue,
-    EId,
-    Unit,
-};
-use super::{
-    DEFAULT_FONT_FAMILY,
-};
+use super::prelude::*;
 
 
 pub fn resolve_style_attributes(doc: &Document) {

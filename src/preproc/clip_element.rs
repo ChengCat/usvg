@@ -2,23 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-// external
-use svgdom::{
-    Document,
-    Node,
-    FuzzyEq,
-};
-
-// self
-use geom::*;
-use short::{
-    AId,
-    EId,
-};
-use traits::{
-    GetValue,
-    GetDefsNode,
-};
+use super::prelude::*;
 
 // Emulate a new viewport via clipPath.
 //

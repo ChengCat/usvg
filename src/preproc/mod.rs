@@ -83,6 +83,26 @@ use self::ungroup_switch::ungroup_switch;
 pub const DEFAULT_FONT_FAMILY: &str = "Times New Roman";
 pub const DEFAULT_FONT_SIZE: f64 = 12.0;
 
+mod prelude {
+    pub use svgdom::{
+        AttributeType,
+        Document,
+        ElementType,
+        FilterSvg,
+        FilterSvgAttrs,
+        FilterSvgAttrsMut,
+        FuzzyEq,
+        FuzzyZero,
+        Node,
+    };
+    pub use super::DEFAULT_FONT_FAMILY;
+    pub use super::DEFAULT_FONT_SIZE;
+    pub use geom::*;
+    pub use short::*;
+    pub use traits::*;
+    pub use Options;
+}
+
 
 /// Prepares an input `Document`.
 ///

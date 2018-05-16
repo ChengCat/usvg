@@ -2,37 +2,13 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-// external
 use svgdom::{
-    ElementType,
-    FilterSvg,
-    FilterSvgAttrsMut,
-    FuzzyZero,
     Length,
-    Node,
     NumberList,
     ViewBox,
 };
 
-// self
-use short::{
-    AId,
-    AValue,
-    EId,
-    Unit,
-};
-use traits::{
-    GetValue,
-    GetViewBox,
-    FindAttribute,
-};
-use geom::*;
-use {
-    Options,
-};
-use super::{
-    DEFAULT_FONT_SIZE,
-};
+use super::prelude::*;
 
 
 // Convert units according to: https://www.w3.org/TR/SVG/coords.html#Units

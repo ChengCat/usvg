@@ -2,21 +2,13 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-// external
 use svgdom::{
-    Document,
     Length,
-    Node,
     Transform,
 };
 
-// self
-use short::{
-    AId,
-    EId,
-    Unit,
-};
-use traits::*;
+use super::prelude::*;
+
 
 pub fn prepare_svg(doc: &Document) {
     for mut node in doc.root().descendants().filter(|n| n.is_tag_name(EId::Svg)) {
