@@ -13,7 +13,7 @@ pub fn fix_gradient_stops(doc: &mut Document) {
     // Remove any non-`stop` children, so we can skip tag name checks in the code below.
     for grad in &gradients {
         let mut stop_opt = grad.first_child();
-        while let Some(mut stop) = stop_opt {
+        while let Some(stop) = stop_opt {
             stop_opt = stop.next_sibling();
 
             if !stop.is_tag_name(EId::Stop) {

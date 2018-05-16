@@ -25,7 +25,7 @@ fn remove_unused_defs_impl(doc: &mut Document, parent: &mut Node) {
         parent.append(node);
     }
 
-    for mut node in rm_nodes {
+    for node in rm_nodes {
         doc.remove_node(node);
     }
 }

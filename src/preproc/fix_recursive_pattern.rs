@@ -18,7 +18,7 @@ pub fn fix_recursive_pattern(doc: &Document) {
                         node.set_attribute((aid, AValue::None));
                     } else {
                         // Check that linked node children doesn't link this pattern.
-                        for mut node2 in link.descendants() {
+                        for node2 in link.descendants() {
                             let av2 = node2.attributes().get_value(aid).cloned();
                             if let Some(AValue::FuncLink(link2)) = av2 {
                                 if link2 == pattern_node {

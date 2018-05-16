@@ -9,7 +9,7 @@ pub fn resolve_pattern_children(doc: &mut Document) {
     let iter = doc.root().descendants().filter(|n| n.is_tag_name(EId::Pattern))
         .filter(|n| n.has_attribute(("xlink", AId::Href)))
         .filter(|n| !n.has_children());
-    for mut node in iter {
+    for node in iter {
         let link = node.clone();
         resolve(doc, node, &link);
     }

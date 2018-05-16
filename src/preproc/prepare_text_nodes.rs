@@ -34,7 +34,7 @@ pub fn prepare_text_nodes(doc: &mut Document) {
         }
     }
 
-    for mut node in rm_nodes {
+    for node in rm_nodes {
         doc.remove_node(node);
     }
 }

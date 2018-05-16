@@ -58,6 +58,17 @@ Full spec can be found [here](docs/usvg_spec.adoc).
   - `view`
   - `foreignObject`
 
+## Usage
+
+Dependency: [Rust](https://www.rust-lang.org/) >= 1.22
+
+Add this to your `Cargo.toml`:
+
+```toml
+[dependencies]
+usvg = "0.2"
+```
+
 ## FAQ
 
 ### How to ensure that SVG is a valid "Micro" SVG?

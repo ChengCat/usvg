@@ -46,7 +46,7 @@ pub fn remove_invalid_gradients(doc: &mut Document) {
         }
     }
 
-    for mut node in nodes {
+    for node in nodes {
         doc.remove_node(node);
     }
 }

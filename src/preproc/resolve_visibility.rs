@@ -17,7 +17,7 @@ pub fn resolve_visibility(doc: &mut Document, svg: &Node) {
     // otherwise `remove_node` will panic.
     nodes.dedup();
 
-    for mut node in nodes {
+    for node in nodes {
         doc.remove_node(node);
     }
 }

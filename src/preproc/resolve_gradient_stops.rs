@@ -10,7 +10,7 @@ pub fn resolve_gradient_stops(doc: &mut Document) {
                   .filter(|n| n.is_gradient())
                   .filter(|n| n.has_attribute(("xlink", AId::Href)))
                   .filter(|n| !n.has_children());
-    for mut node in iter {
+    for node in iter {
         let link = node.clone();
         resolve(doc, node.clone(), &link);
     }
