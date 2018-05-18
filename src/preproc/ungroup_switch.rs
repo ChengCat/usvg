@@ -5,6 +5,8 @@
 use super::prelude::*;
 
 
+// Full list can be found here: https://www.w3.org/TR/SVG/feature.html
+
 static FEATURES: &[&str] = &[
     // "http://www.w3.org/TR/SVG11/feature#SVG", // not yet
     // "http://www.w3.org/TR/SVG11/feature#SVG-static", // not yet
@@ -29,7 +31,7 @@ static FEATURES: &[&str] = &[
     "http://www.w3.org/TR/SVG11/feature#Gradient",
     "http://www.w3.org/TR/SVG11/feature#Pattern",
     "http://www.w3.org/TR/SVG11/feature#Clip",
-    // "http://www.w3.org/TR/SVG11/feature#Mask", // not yet
+    "http://www.w3.org/TR/SVG11/feature#Mask",
     // "http://www.w3.org/TR/SVG11/feature#Filter", // not yet
     // "http://www.w3.org/TR/SVG11/feature#BasicFilter", // not yet
     "http://www.w3.org/TR/SVG11/feature#Hyperlinking", // kinda
