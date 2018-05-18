@@ -111,8 +111,8 @@ fn _resolve_use(
         // If the `use` element has a non-zero `x` or `y` attributes
         // then we should add their values to
         // the transform (existing or default).
-        let x = use_node.attributes().get_number(AId::X).unwrap_or(0.0);
-        let y = use_node.attributes().get_number(AId::Y).unwrap_or(0.0);
+        let x = use_node.attributes().get_number_or(AId::X, 0.0);
+        let y = use_node.attributes().get_number_or(AId::Y, 0.0);
         if !(x.is_fuzzy_zero() && y.is_fuzzy_zero()) {
             use_node.append_transform(Transform::new(1.0, 0.0, 0.0, 1.0, x, y));
         }

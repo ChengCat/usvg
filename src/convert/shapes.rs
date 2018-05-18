@@ -33,8 +33,8 @@ fn convert_rect(node: &svgdom::Node) -> Option<svgdom::Path> {
     // e-rect-010.svg
     // e-rect-011.svg
     // e-rect-012.svg
-    let width  = attrs.get_number(AId::Width).unwrap_or(0.0);
-    let height = attrs.get_number(AId::Height).unwrap_or(0.0);
+    let width  = attrs.get_number_or(AId::Width, 0.0);
+    let height = attrs.get_number_or(AId::Height, 0.0);
     if !(width > 0.0) {
         warn!("Rect '{}' has an invalid 'width' value. Skipped.", node.id());
         return None;
@@ -47,8 +47,8 @@ fn convert_rect(node: &svgdom::Node) -> Option<svgdom::Path> {
 
     // e-rect-002.svg
     // e-rect-003.svg
-    let x = attrs.get_number(AId::X).unwrap_or(0.0);
-    let y = attrs.get_number(AId::Y).unwrap_or(0.0);
+    let x = attrs.get_number_or(AId::X, 0.0);
+    let y = attrs.get_number_or(AId::Y, 0.0);
 
 
     // Resolve rx, ry.
@@ -123,10 +123,10 @@ fn convert_rect(node: &svgdom::Node) -> Option<svgdom::Path> {
 fn convert_line(node: &svgdom::Node) -> Option<svgdom::Path> {
     let attrs = node.attributes();
 
-    let x1 = attrs.get_number(AId::X1).unwrap_or(0.0);
-    let y1 = attrs.get_number(AId::Y1).unwrap_or(0.0);
-    let x2 = attrs.get_number(AId::X2).unwrap_or(0.0);
-    let y2 = attrs.get_number(AId::Y2).unwrap_or(0.0);
+    let x1 = attrs.get_number_or(AId::X1, 0.0);
+    let y1 = attrs.get_number_or(AId::Y1, 0.0);
+    let x2 = attrs.get_number_or(AId::X2, 0.0);
+    let y2 = attrs.get_number_or(AId::Y2, 0.0);
 
     let path = svgdom::PathBuilder::new()
         .move_to(x1, y1)
@@ -180,9 +180,9 @@ fn points_to_path(node: &svgdom::Node, eid: &str) -> Option<svgdom::Path> {
 fn convert_circle(node: &svgdom::Node) -> Option<svgdom::Path> {
     let attrs = node.attributes();
 
-    let cx = attrs.get_number(AId::Cx).unwrap_or(0.0);
-    let cy = attrs.get_number(AId::Cy).unwrap_or(0.0);
-    let r  = attrs.get_number(AId::R).unwrap_or(0.0);
+    let cx = attrs.get_number_or(AId::Cx, 0.0);
+    let cy = attrs.get_number_or(AId::Cy, 0.0);
+    let r  = attrs.get_number_or(AId::R, 0.0);
 
     if !(r > 0.0) {
         warn!("Circle '{}' has an invalid 'r' value. Skipped.", node.id());
@@ -195,10 +195,10 @@ fn convert_circle(node: &svgdom::Node) -> Option<svgdom::Path> {
 fn convert_ellipse(node: &svgdom::Node) -> Option<svgdom::Path> {
     let attrs = node.attributes();
 
-    let cx = attrs.get_number(AId::Cx).unwrap_or(0.0);
-    let cy = attrs.get_number(AId::Cy).unwrap_or(0.0);
-    let rx = attrs.get_number(AId::Rx).unwrap_or(0.0);
-    let ry = attrs.get_number(AId::Ry).unwrap_or(0.0);
+    let cx = attrs.get_number_or(AId::Cx, 0.0);
+    let cy = attrs.get_number_or(AId::Cy, 0.0);
+    let rx = attrs.get_number_or(AId::Rx, 0.0);
+    let ry = attrs.get_number_or(AId::Ry, 0.0);
 
     if !(rx > 0.0) {
         warn!("Ellipse '{}' has an invalid 'rx' value. Skipped.", node.id());

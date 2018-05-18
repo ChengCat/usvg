@@ -25,7 +25,7 @@ pub fn clip_element(doc: &mut Document, target_node: &mut Node) -> Option<Node> 
     // No need to clip elements with overflow:visible.
     {
         let attrs = target_node.attributes();
-        let overflow = attrs.get_str(AId::Overflow).unwrap_or("hidden");
+        let overflow = attrs.get_str_or(AId::Overflow, "hidden");
         if overflow != "hidden" && overflow != "scroll" {
             return None;
         }

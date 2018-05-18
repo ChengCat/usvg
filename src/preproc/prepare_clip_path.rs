@@ -13,7 +13,7 @@ use super::prelude::*;
 // So to create it we have to draw all clipPath children with a black fill and without a stroke.
 pub fn prepare_clip_path(doc: &mut Document) {
     for mut node in doc.root().descendants().filter(|n| n.is_tag_name(EId::ClipPath)) {
-        let units = node.attributes().get_str(AId::ClipPathUnits).unwrap_or("userSpaceOnUse").to_string();
+        let units = node.attributes().get_str_or(AId::ClipPathUnits, "userSpaceOnUse").to_string();
         node.set_attribute((AId::ClipPathUnits, units));
 
         for (_, mut child) in node.descendants().svg() {
@@ -29,7 +29,7 @@ pub fn prepare_clip_path(doc: &mut Document) {
             // We don't have a separate fill-rule for clipPath, so use an existing property.
             //
             // Note that in the SVG dump it will be converted back to clip-path.
-            let clip_rule = child.attributes().get_str(AId::ClipRule).unwrap_or("nonzero").to_string();
+            let clip_rule = child.attributes().get_str_or(AId::ClipRule, "nonzero").to_string();
             child.set_attribute((AId::FillRule, clip_rule));
         }
     }

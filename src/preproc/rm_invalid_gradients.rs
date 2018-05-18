@@ -51,8 +51,7 @@ pub fn remove_invalid_gradients(doc: &mut Document) {
                         let stop = gradient.first_child().unwrap();
                         let color = stop.attributes().get_color(AId::StopColor)
                                         .unwrap_or(Color::new(0, 0, 0));
-                        let opacity = stop.attributes().get_number(AId::StopOpacity)
-                                          .unwrap_or(1.0);
+                        let opacity = stop.attributes().get_number_or(AId::StopOpacity, 1.0);
 
                         prepare_link_opacity(&mut linked, *aid, opacity);
                         linked.set_attribute((*aid, color));
@@ -100,8 +99,7 @@ fn process_negative_r(
         for id in ids.iter() {
             let color = stop.attributes().get_color(AId::StopColor)
                             .unwrap_or(Color::new(0, 0, 0));
-            let opacity = stop.attributes().get_number(AId::StopOpacity)
-                              .unwrap_or(1.0);
+            let opacity = stop.attributes().get_number_or(AId::StopOpacity, 1.0);
 
             prepare_link_opacity(&mut linked, *id, opacity);
             linked.set_attribute((*id, color));
@@ -146,6 +144,6 @@ fn prepare_link_opacity(linked: &mut Node, aid: AId, opacity: f64) {
 }
 
 fn update_opacity(node: &mut Node, aid: AId, new_opacity: f64) {
-    let old_opacity = node.attributes().get_number(aid).unwrap_or(1.0);
+    let old_opacity = node.attributes().get_number_or(aid, 1.0);
     node.set_attribute((aid, old_opacity * new_opacity));
 }

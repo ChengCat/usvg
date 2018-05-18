@@ -21,10 +21,10 @@ pub fn convert_linear(
     let grad = rtree.append_to_defs(
         tree::NodeKind::LinearGradient(tree::LinearGradient {
             id: node.id().clone(),
-            x1: attrs.get_number(AId::X1).unwrap_or(0.0),
-            y1: attrs.get_number(AId::Y1).unwrap_or(0.0),
-            x2: attrs.get_number(AId::X2).unwrap_or(1.0),
-            y2: attrs.get_number(AId::Y2).unwrap_or(0.0),
+            x1: attrs.get_number_or(AId::X1, 0.0),
+            y1: attrs.get_number_or(AId::Y1, 0.0),
+            x2: attrs.get_number_or(AId::X2, 1.0),
+            y2: attrs.get_number_or(AId::Y2, 0.0),
             d: tree::BaseGradient {
                 units: super::convert_element_units(attrs, AId::GradientUnits),
                 transform,
@@ -46,11 +46,11 @@ pub fn convert_radial(
     let grad = rtree.append_to_defs(
         tree::NodeKind::RadialGradient(tree::RadialGradient {
             id: node.id().clone(),
-            cx: attrs.get_number(AId::Cx).unwrap_or(0.5),
-            cy: attrs.get_number(AId::Cy).unwrap_or(0.5),
-            r:  attrs.get_number(AId::R).unwrap_or(0.5),
-            fx: attrs.get_number(AId::Fx).unwrap_or(0.5),
-            fy: attrs.get_number(AId::Fy).unwrap_or(0.5),
+            cx: attrs.get_number_or(AId::Cx, 0.5),
+            cy: attrs.get_number_or(AId::Cy, 0.5),
+            r:  attrs.get_number_or(AId::R,  0.5),
+            fx: attrs.get_number_or(AId::Fx, 0.5),
+            fy: attrs.get_number_or(AId::Fy, 0.5),
             d: tree::BaseGradient {
                 units: super::convert_element_units(attrs, AId::GradientUnits),
                 transform,
@@ -65,7 +65,7 @@ pub fn convert_radial(
 fn convert_spread_method(
     attrs: &svgdom::Attributes
 ) -> tree::SpreadMethod {
-    let av = attrs.get_str(AId::SpreadMethod).unwrap_or("pad");
+    let av = attrs.get_str_or(AId::SpreadMethod, "pad");
 
     match av {
         "pad" => tree::SpreadMethod::Pad,
@@ -88,9 +88,9 @@ fn convert_stops(
         let attrs = s.attributes();
 
         // Do not use `f64_bound` here because `offset` must be already resolved.
-        let offset = attrs.get_number(AId::Offset).unwrap_or(0.0).into();
+        let offset = attrs.get_number_or(AId::Offset, 0.0).into();
         let color = attrs.get_color(AId::StopColor).unwrap_or(svgdom::Color::new(0, 0, 0));
-        let opacity = f64_bound(0.0, attrs.get_number(AId::StopOpacity).unwrap_or(1.0), 1.0).into();
+        let opacity = f64_bound(0.0, attrs.get_number_or(AId::StopOpacity, 1.0), 1.0).into();
 
         parent.append_kind(tree::NodeKind::Stop(tree::Stop {
             offset,

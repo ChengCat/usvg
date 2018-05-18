@@ -341,10 +341,10 @@ fn convert_element_units(attrs: &svgdom::Attributes, aid: AId) -> tree::Units {
 
 fn convert_rect(attrs: &svgdom::Attributes) -> Rect {
     (
-        attrs.get_number(AId::X).unwrap_or(0.0),
-        attrs.get_number(AId::Y).unwrap_or(0.0),
-        attrs.get_number(AId::Width).unwrap_or(0.0),
-        attrs.get_number(AId::Height).unwrap_or(0.0),
+        attrs.get_number_or(AId::X, 0.0),
+        attrs.get_number_or(AId::Y, 0.0),
+        attrs.get_number_or(AId::Width, 0.0),
+        attrs.get_number_or(AId::Height, 0.0),
     ).into()
 }
 

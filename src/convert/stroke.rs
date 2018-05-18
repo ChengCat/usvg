@@ -14,11 +14,11 @@ pub fn convert(
     rtree: &tree::Tree,
     attrs: &svgdom::Attributes,
 ) -> Option<tree::Stroke> {
-    let dashoffset  = attrs.get_number(AId::StrokeDashoffset).unwrap_or(0.0);
+    let dashoffset  = attrs.get_number_or(AId::StrokeDashoffset, 0.0);
     // a-stroke-miterlimit-001.svg
-    let miterlimit  = attrs.get_number(AId::StrokeMiterlimit).unwrap_or(4.0);
-    let opacity     = attrs.get_number(AId::StrokeOpacity).unwrap_or(1.0).into();
-    let width       = attrs.get_number(AId::StrokeWidth).unwrap_or(1.0);
+    let miterlimit  = attrs.get_number_or(AId::StrokeMiterlimit, 4.0);
+    let opacity     = attrs.get_number_or(AId::StrokeOpacity, 1.0).into();
+    let width       = attrs.get_number_or(AId::StrokeWidth, 1.0);
 
     if !(width > 0.0) {
         return None;
@@ -31,7 +31,7 @@ pub fn convert(
 
     let paint = super::fill::resolve_paint(rtree, attrs, AId::Stroke)?;
 
-    let linecap = attrs.get_str(AId::StrokeLinecap).unwrap_or("butt");
+    let linecap = attrs.get_str_or(AId::StrokeLinecap, "butt");
     let linecap = match linecap {
         "butt" => tree::LineCap::Butt,
         "round" => tree::LineCap::Round,
@@ -39,7 +39,7 @@ pub fn convert(
         _ => tree::LineCap::Butt,
     };
 
-    let linejoin = attrs.get_str(AId::StrokeLinejoin).unwrap_or("miter");
+    let linejoin = attrs.get_str_or(AId::StrokeLinejoin, "miter");
     let linejoin = match linejoin {
         "miter" => tree::LineJoin::Miter,
         "round" => tree::LineJoin::Round,

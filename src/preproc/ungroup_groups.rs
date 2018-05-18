@@ -100,8 +100,8 @@ fn prepare_attribute(g_node: &Node, child_node: &mut Node, aid: AId) -> bool {
         if child_node.has_attribute(aid) {
             // We can't just replace 'opacity' attribute,
             // we should multiply it.
-            let op1 = g_node.attributes().get_number(aid).unwrap_or(1.0);
-            let op2 = child_node.attributes().get_number(aid).unwrap_or(1.0);
+            let op1 = g_node.attributes().get_number_or(aid, 1.0);
+            let op2 = child_node.attributes().get_number_or(aid, 1.0);
             child_node.set_attribute((aid, op1 * op2));
             return true;
         }

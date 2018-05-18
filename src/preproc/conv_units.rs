@@ -118,7 +118,7 @@ fn convert_font_size(svg: &Node, dpi: f64) {
                     debug_assert_eq!(p.attributes().get_value(AId::FontSize)
                                       .map(|v| v.is_number()), Some(true));
 
-                    p.attributes().get_number(AId::FontSize).unwrap_or(DEFAULT_FONT_SIZE)
+                    p.attributes().get_number_or(AId::FontSize, DEFAULT_FONT_SIZE)
                 }
             }
             None => DEFAULT_FONT_SIZE,

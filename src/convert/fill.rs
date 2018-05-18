@@ -20,9 +20,9 @@ pub fn convert(
 ) -> Option<tree::Fill> {
     let paint = resolve_paint(rtree, attrs, AId::Fill)?;
 
-    let fill_opacity = attrs.get_number(AId::FillOpacity).unwrap_or(1.0);
+    let fill_opacity = attrs.get_number_or(AId::FillOpacity, 1.0);
 
-    let fill_rule = attrs.get_str(AId::FillRule).unwrap_or("nonzero");
+    let fill_rule = attrs.get_str_or(AId::FillRule, "nonzero");
     let fill_rule = match fill_rule {
         "evenodd" => tree::FillRule::EvenOdd,
         _ => tree::FillRule::NonZero,

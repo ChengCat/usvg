@@ -131,7 +131,7 @@ fn conv_text_decoration(node: &svgdom::Node) -> TextDecoTypes {
 
     let attrs = node.attributes();
 
-    let text = attrs.get_str(AId::TextDecoration).unwrap_or("");
+    let text = attrs.get_str_or(AId::TextDecoration, "");
 
     TextDecoTypes {
         has_underline: text.contains("underline"),
@@ -198,7 +198,7 @@ fn conv_tspan_decoration2(
 }
 
 fn conv_text_anchor(attrs: &svgdom::Attributes) -> tree::TextAnchor {
-    let av = attrs.get_str(AId::TextAnchor).unwrap_or("start");
+    let av = attrs.get_str_or(AId::TextAnchor, "start");
 
     match av {
         "start" => tree::TextAnchor::Start,
@@ -209,7 +209,7 @@ fn conv_text_anchor(attrs: &svgdom::Attributes) -> tree::TextAnchor {
 }
 
 fn convert_font(attrs: &svgdom::Attributes) -> tree::Font {
-    let style = attrs.get_str(AId::FontStyle).unwrap_or("normal");
+    let style = attrs.get_str_or(AId::FontStyle, "normal");
     let style = match style {
         "normal" => tree::FontStyle::Normal,
         "italic" => tree::FontStyle::Italic,
@@ -217,14 +217,14 @@ fn convert_font(attrs: &svgdom::Attributes) -> tree::Font {
         _ => tree::FontStyle::Normal,
     };
 
-    let variant = attrs.get_str(AId::FontVariant).unwrap_or("normal");
+    let variant = attrs.get_str_or(AId::FontVariant, "normal");
     let variant = match variant {
         "normal" => tree::FontVariant::Normal,
         "small-caps" => tree::FontVariant::SmallCaps,
         _ => tree::FontVariant::Normal,
     };
 
-    let weight = attrs.get_str(AId::FontWeight).unwrap_or("normal");
+    let weight = attrs.get_str_or(AId::FontWeight, "normal");
     let weight = match weight {
         "normal" => tree::FontWeight::W400,
         "bold" => tree::FontWeight::W700,
@@ -244,7 +244,7 @@ fn convert_font(attrs: &svgdom::Attributes) -> tree::Font {
         _ => tree::FontWeight::W400,
     };
 
-    let stretch = attrs.get_str(AId::FontStretch).unwrap_or("normal");
+    let stretch = attrs.get_str_or(AId::FontStretch, "normal");
     let stretch = match stretch {
         "normal" => tree::FontStretch::Normal,
         "wider" => tree::FontStretch::Wider,
@@ -261,11 +261,10 @@ fn convert_font(attrs: &svgdom::Attributes) -> tree::Font {
     };
 
     // a-font-size-001.svg
-    let size = attrs.get_number(AId::FontSize).unwrap_or(::DEFAULT_FONT_SIZE);
+    let size = attrs.get_number_or(AId::FontSize, ::DEFAULT_FONT_SIZE);
     debug_assert!(size > 0.0);
 
-    let family = attrs.get_str(AId::FontFamily)
-                      .unwrap_or(&::DEFAULT_FONT_FAMILY).to_owned();
+    let family = attrs.get_str_or(AId::FontFamily, ::DEFAULT_FONT_FAMILY).to_owned();
 
     tree::Font {
         family,

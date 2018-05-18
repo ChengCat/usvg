@@ -135,9 +135,12 @@ impl FromValue for AValue {
 pub trait GetValue {
     fn get_type<T: FromValue + ?Sized>(&self, id: AId) -> Option<&T>;
 
-    // TODO: add get_number_or
     fn get_number(&self, id: AId) -> Option<f64> {
         self.get_type(id).cloned()
+    }
+
+    fn get_number_or(&self, id: AId, def: f64) -> f64 {
+        self.get_number(id).unwrap_or(def)
     }
 
     fn get_length(&self, id: AId) -> Option<Length> {
@@ -166,6 +169,10 @@ pub trait GetValue {
 
     fn get_str(&self, id: AId) -> Option<&str> {
         self.get_type(id)
+    }
+
+    fn get_str_or<'a>(&'a self, id: AId, def: &'a str) -> &'a str {
+        self.get_str(id).unwrap_or(def)
     }
 }
 

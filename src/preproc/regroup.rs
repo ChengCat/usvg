@@ -23,7 +23,7 @@ pub fn regroup_elements(doc: &mut Document, parent: &Node) {
             continue;
         }
 
-        let opacity = node.attributes().get_number(AId::Opacity).unwrap_or(1.0);
+        let opacity = node.attributes().get_number_or(AId::Opacity, 1.0);
         if      opacity.fuzzy_eq(&1.0)
             && !node.has_attribute(AId::ClipPath)
             && !node.has_attribute(AId::Mask)

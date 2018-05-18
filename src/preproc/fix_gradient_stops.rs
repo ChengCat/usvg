@@ -54,9 +54,9 @@ pub fn fix_gradient_stops(doc: &mut Document) {
 
         let mut i = 0;
         while i < stops.len() - 2 {
-            let offset1 = stops[i + 0].attributes().get_number(AId::Offset).unwrap_or(0.0);
-            let offset2 = stops[i + 1].attributes().get_number(AId::Offset).unwrap_or(0.0);
-            let offset3 = stops[i + 2].attributes().get_number(AId::Offset).unwrap_or(0.0);
+            let offset1 = stops[i + 0].attributes().get_number_or(AId::Offset, 0.0);
+            let offset2 = stops[i + 1].attributes().get_number_or(AId::Offset, 0.0);
+            let offset3 = stops[i + 2].attributes().get_number_or(AId::Offset, 0.0);
 
             if offset1.fuzzy_eq(&offset2) && offset2.fuzzy_eq(&offset3) {
                 // Remove offset in the middle.
@@ -82,7 +82,7 @@ pub fn fix_gradient_stops(doc: &mut Document) {
     for grad in &gradients {
         let mut prev_offset = 0.0;
         for mut stop in grad.children() {
-            let mut offset = stop.attributes().get_number(AId::Offset).unwrap_or(0.0);
+            let mut offset = stop.attributes().get_number_or(AId::Offset, 0.0);
 
             if offset.is_fuzzy_zero() {
                 prev_offset = 0.0;
@@ -123,8 +123,8 @@ pub fn fix_gradient_stops(doc: &mut Document) {
         }
 
         while stops.len() >= 2 {
-            let offset1 = stops[0].attributes().get_number(AId::Offset).unwrap_or(0.0);
-            let offset2 = stops[1].attributes().get_number(AId::Offset).unwrap_or(0.0);
+            let offset1 = stops[0].attributes().get_number_or(AId::Offset, 0.0);
+            let offset2 = stops[1].attributes().get_number_or(AId::Offset, 0.0);
 
             if offset1.is_fuzzy_zero() && offset2.is_fuzzy_zero() {
                 stops[1].set_attribute((AId::Offset, offset1 + f64::EPSILON));
