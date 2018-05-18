@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `ImageFormat::SVG`.
 - `Image::format`.
 - Paint fallback resolving.
+- Bbox validation for shapes that use painting servers.
 
 ### Changed
 - `tree` module content reexported.

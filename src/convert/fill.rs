@@ -17,8 +17,9 @@ use super::prelude::*;
 pub fn convert(
     rtree: &tree::Tree,
     attrs: &svgdom::Attributes,
+    has_bbox: bool,
 ) -> Option<tree::Fill> {
-    let paint = resolve_paint(rtree, attrs, AId::Fill)?;
+    let paint = resolve_paint(rtree, attrs, AId::Fill, has_bbox)?;
 
     let fill_opacity = attrs.get_number_or(AId::FillOpacity, 1.0);
 
@@ -41,6 +42,7 @@ pub fn resolve_paint(
     rtree: &tree::Tree,
     attrs: &svgdom::Attributes,
     aid: AId,
+    has_bbox: bool,
 ) -> Option<tree::Paint> {
     match attrs.get_type(aid) {
         Some(&AValue::Color(c)) => {
@@ -53,7 +55,27 @@ pub fn resolve_paint(
 
             if link.is_paint_server() {
                 if let Some(node) = rtree.defs_by_id(&link.id()) {
-                    Some(tree::Paint::Link(node.id().to_string()))
+                    let server_units = match *node.borrow() {
+                        tree::NodeKind::LinearGradient(ref lg) => lg.d.units,
+                        tree::NodeKind::RadialGradient(ref rg) => rg.d.units,
+                        tree::NodeKind::Pattern(ref patt) => patt.units,
+                        // safe, because we already checked for is_paint_server()
+                        _ => unreachable!(),
+                    };
+
+                    // We can use a paint server node with ObjectBoundingBox units
+                    // for painting only when the shape itself has a bbox.
+                    //
+                    // See SVG spec 7.11 for details.
+                    if !has_bbox && server_units == tree::Units::ObjectBoundingBox {
+                        if let Some(PaintFallback::Color(c)) = fallback {
+                            Some(tree::Paint::Color(c))
+                        } else {
+                            None
+                        }
+                    } else {
+                        Some(tree::Paint::Link(node.id().to_string()))
+                    }
                 } else if let Some(PaintFallback::Color(c)) = fallback {
                     Some(tree::Paint::Color(c))
                 } else {

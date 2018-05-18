@@ -14,7 +14,7 @@ use tree::prelude::*;
 use super::prelude::*;
 
 
-pub(super) fn convert(
+pub fn convert(
     node: &svgdom::Node,
     opt: &Options,
     mut parent: tree::Node,

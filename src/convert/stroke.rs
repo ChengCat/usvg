@@ -13,6 +13,7 @@ use super::prelude::*;
 pub fn convert(
     rtree: &tree::Tree,
     attrs: &svgdom::Attributes,
+    has_bbox: bool,
 ) -> Option<tree::Stroke> {
     let dashoffset  = attrs.get_number_or(AId::StrokeDashoffset, 0.0);
     // a-stroke-miterlimit-001.svg
@@ -29,7 +30,7 @@ pub fn convert(
     // a-stroke-miterlimit-003.svg
     let miterlimit = if miterlimit < 1.0 { 1.0 } else { miterlimit };
 
-    let paint = super::fill::resolve_paint(rtree, attrs, AId::Stroke)?;
+    let paint = super::fill::resolve_paint(rtree, attrs, AId::Stroke, has_bbox)?;
 
     let linecap = attrs.get_str_or(AId::StrokeLinecap, "butt");
     let linecap = match linecap {

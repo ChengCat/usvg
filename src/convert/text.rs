@@ -15,7 +15,7 @@ use super::{
 };
 
 
-pub(super) fn convert(
+pub fn convert(
     text_elem: &svgdom::Node,
     mut parent: tree::Node,
     rtree: &mut tree::Tree,
@@ -86,8 +86,8 @@ fn convert_chunks(
             prev_y = ty;
         }
 
-        let fill = fill::convert(rtree, attrs);
-        let stroke = stroke::convert(rtree, attrs);
+        let fill = fill::convert(rtree, attrs, true);
+        let stroke = stroke::convert(rtree, attrs, true);
         let decoration = conv_tspan_decoration2(rtree, text_elem, &tspan);
         chunk_node.append_kind(tree::NodeKind::TSpan(Box::new(tree::TSpan {
             fill,
@@ -181,8 +181,8 @@ fn conv_tspan_decoration2(
         };
 
         let ref attrs = n.attributes();
-        let fill = fill::convert(rtree, attrs);
-        let stroke = stroke::convert(rtree, attrs);
+        let fill = fill::convert(rtree, attrs, true);
+        let stroke = stroke::convert(rtree, attrs, true);
 
         Some(tree::TextDecorationStyle {
             fill,

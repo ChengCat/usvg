@@ -18,20 +18,30 @@ use super::{
 };
 
 
-pub(super) fn convert(
+pub fn convert(
     node: &svgdom::Node,
     d: svgdom::Path,
     mut parent: tree::Node,
     rtree: &mut tree::Tree,
 ) {
-    let attrs = node.attributes();
-
-    let fill = fill::convert(rtree, &attrs);
-    let stroke = stroke::convert(rtree, &attrs);
     let d = convert_path(d);
+    if d.len() < 2 {
+        return;
+    }
+
+    let has_bbox = has_bbox(&d);
+    let attrs = node.attributes();
+    let fill = fill::convert(rtree, &attrs, has_bbox);
+    let stroke = stroke::convert(rtree, &attrs, has_bbox);
     let transform = attrs.get_transform(AId::Transform).unwrap_or_default();
 
-    if d.len() < 2 {
+    // Shapes without a bbox cannot be filled,
+    // and if there is no stroke than there is nothing to render.
+    if !has_bbox && stroke.is_none() {
+        return;
+    }
+
+    if fill.is_none() && stroke.is_none() {
         return;
     }
 
@@ -228,4 +238,66 @@ fn quad_to_curve(
         x2: cubic.ctrl2.x as f64, y2: cubic.ctrl2.y as f64,
         x:  cubic.to.x as f64,    y:  cubic.to.y as f64,
     }
+}
+
+fn has_bbox(segments: &[tree::PathSegment]) -> bool {
+    debug_assert!(!segments.is_empty());
+
+    let (mut prev_x, mut prev_y, mut minx, mut miny, mut maxx, mut maxy) = {
+        if let tree::PathSegment::MoveTo { x, y } = segments[0] {
+            (x as f32, y as f32, x as f32, y as f32, x as f32, y as f32)
+        } else {
+            unreachable!();
+        }
+    };
+
+    for seg in segments {
+        match *seg {
+            tree::PathSegment::MoveTo { x, y }
+            | tree::PathSegment::LineTo { x, y } => {
+                let x = x as f32;
+                let y = y as f32;
+                prev_x = x;
+                prev_y = y;
+
+                     if x > maxx { maxx = x; }
+                else if x < minx { minx = x; }
+
+                     if y > maxy { maxy = y; }
+                else if y < miny { miny = y; }
+            }
+            tree::PathSegment::CurveTo { x1, y1, x2, y2, x, y } => {
+                let x = x as f32;
+                let y = y as f32;
+
+                let curve = lyon_geom::CubicBezierSegment {
+                    from: lyon_geom::math::Point::new(prev_x, prev_y),
+                    ctrl1: lyon_geom::math::Point::new(x1 as f32, y1 as f32),
+                    ctrl2: lyon_geom::math::Point::new(x2 as f32, y2 as f32),
+                    to: lyon_geom::math::Point::new(x, y),
+                };
+
+                prev_x = x;
+                prev_y = y;
+
+                let r = curve.bounding_rect();
+
+                let right = r.max_x();
+                let bottom = r.max_y();
+                if r.min_x() < minx { minx = r.min_x(); }
+                if right > maxx { maxx = right; }
+                if r.min_y() < miny { miny = r.min_y(); }
+                if bottom > maxy { maxy = bottom; }
+            }
+            tree::PathSegment::ClosePath => {}
+        }
+
+        let width = (maxx - minx) as f64;
+        let height = (maxy - miny) as f64;
+        if !(width.is_fuzzy_zero() || height.is_fuzzy_zero()) {
+            return true;
+        }
+    }
+
+    false
 }
