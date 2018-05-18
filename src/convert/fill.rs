@@ -51,7 +51,7 @@ pub fn resolve_paint(
             // a-fill-017.svg
             // a-fill-018.svg
 
-            if link.is_gradient() || link.is_tag_name(EId::Pattern) {
+            if link.is_paint_server() {
                 if let Some(node) = rtree.defs_by_id(&link.id()) {
                     Some(tree::Paint::Link(node.id().to_string()))
                 } else if let Some(PaintFallback::Color(c)) = fallback {

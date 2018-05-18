@@ -46,7 +46,7 @@ pub fn convert_units(svg: &mut Node, opt: &Options) {
     for (_, mut node) in svg.descendants().svg() {
         is_bbox_gradient = false;
 
-        if node.is_gradient() || node.is_tag_name(EId::Pattern) {
+        if node.is_paint_server() {
             // 'objectBoundingBox' is a default value
             is_bbox_gradient = true;
 
