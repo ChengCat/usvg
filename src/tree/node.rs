@@ -138,13 +138,17 @@ pub struct Text {
 /// [text chunk](https://www.w3.org/TR/SVG11/text.html#TextChunk).
 ///
 /// Doesn't represented in the SVG directly. Usually, it's a first `tspan` or text node
-/// and any `tspan` that defines either `x` or `y` coordinate and/or have `text-anchor`.
-#[derive(Clone, Copy)]
+/// and any `tspan` that defines either `x` or `y` coordinates.
+#[derive(Clone)]
 pub struct TextChunk {
-    /// An absolute position on the X-axis.
-    pub x: f64,
-    /// An absolute position on the Y-axis.
-    pub y: f64,
+    /// A list of absolute positions along the X-axis.
+    pub x: Option<NumberList>,
+    /// A list of absolute positions along the Y-axis.
+    pub y: Option<NumberList>,
+    /// A list of relative positions along the X-axis.
+    pub dx: Option<NumberList>,
+    /// A list of relative positions along the Y-axis.
+    pub dy: Option<NumberList>,
     /// A text anchor/align.
     pub anchor: TextAnchor,
 }

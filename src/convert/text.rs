@@ -37,12 +37,12 @@ fn convert_chunks(
     rtree: &mut tree::Tree,
 ) {
     let ref root_attrs = text_elem.attributes();
-    let mut prev_x = resolve_pos(root_attrs, AId::X).unwrap_or(0.0);
-    let mut prev_y = resolve_pos(root_attrs, AId::Y).unwrap_or(0.0);
 
     let mut chunk_node = parent.append_kind(tree::NodeKind::TextChunk(tree::TextChunk {
-        x: prev_x,
-        y: prev_y,
+        x: root_attrs.get_number_list(AId::X).cloned(),
+        y: root_attrs.get_number_list(AId::Y).cloned(),
+        dx: root_attrs.get_number_list(AId::Dx).cloned(),
+        dy: root_attrs.get_number_list(AId::Dy).cloned(),
         anchor: conv_text_anchor(root_attrs),
     }));
 
@@ -55,35 +55,32 @@ fn convert_chunks(
             continue;
         };
 
-
         let ref attrs = tspan.attributes();
-        let x = resolve_pos(attrs, AId::X);
-        let y = resolve_pos(attrs, AId::Y);
+        let x = attrs.get_number_list(AId::X).cloned();
+        let y = attrs.get_number_list(AId::Y).cloned();
+        let dx = attrs.get_number_list(AId::Dx).cloned();
+        let dy = attrs.get_number_list(AId::Dy).cloned();
 
-        if x.is_some() || y.is_some() {
-            let tx = x.unwrap_or(prev_x);
-            let ty = y.unwrap_or(prev_y);
-
-            if tx.fuzzy_ne(&prev_x) || ty.fuzzy_ne(&prev_y) {
-                if chunk_node.children().count() > 0 {
-                    // Create new if current text chunk has children.
-                    chunk_node = parent.append_kind(tree::NodeKind::TextChunk(tree::TextChunk {
-                        x: tx,
-                        y: ty,
-                        anchor: conv_text_anchor(attrs),
-                    }));
-                } else {
-                    // Update existing chunk.
-                    if let tree::NodeKind::TextChunk(ref mut d) = *chunk_node.borrow_mut() {
-                        d.x = tx;
-                        d.y = ty;
-                        d.anchor = conv_text_anchor(attrs);
-                    }
+        if x.is_some() || y.is_some() || dx.is_some() || dy.is_some() {
+            if chunk_node.children().count() > 0 {
+                // Create new if current text chunk has children.
+                chunk_node = parent.append_kind(tree::NodeKind::TextChunk(tree::TextChunk {
+                    x,
+                    y,
+                    dx,
+                    dy,
+                    anchor: conv_text_anchor(attrs),
+                }));
+            } else {
+                // Update existing chunk.
+                if let tree::NodeKind::TextChunk(ref mut d) = *chunk_node.borrow_mut() {
+                    if x.is_some() { d.x = x; }
+                    if y.is_some() { d.y = y; }
+                    if dx.is_some() { d.dx = dx; }
+                    if dy.is_some() { d.dy = dy; }
+                    d.anchor = conv_text_anchor(attrs);
                 }
             }
-
-            prev_x = tx;
-            prev_y = ty;
         }
 
         let fill = fill::convert(rtree, attrs, true);
@@ -99,23 +96,6 @@ fn convert_chunks(
     }
 
     debug_assert!(chunk_node.children().count() > 0);
-}
-
-fn resolve_pos(
-    attrs: &svgdom::Attributes,
-    aid: AId,
-) -> Option<f64> {
-    if let Some(list) = attrs.get_number_list(aid) {
-        if !list.is_empty() {
-            if list.len() > 1 {
-                warn!("List of 'x', 'y' coordinates are not supported in a 'text' element.");
-            }
-
-            return Some(list[0]);
-        }
-    }
-
-    None
 }
 
 struct TextDecoTypes {

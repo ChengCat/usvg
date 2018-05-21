@@ -187,8 +187,21 @@ fn conv_elements(
                         let mut chunk_tspan_elem = new_doc.create_element(EId::Tspan);
                         text_elem.append(chunk_tspan_elem.clone());
 
-                        chunk_tspan_elem.set_attribute((AId::X, chunk.x));
-                        chunk_tspan_elem.set_attribute((AId::Y, chunk.y));
+                        if let Some(ref x) = chunk.x {
+                            chunk_tspan_elem.set_attribute((AId::X, x.clone()));
+                        }
+
+                        if let Some(ref y) = chunk.y {
+                            chunk_tspan_elem.set_attribute((AId::Y, y.clone()));
+                        }
+
+                        if let Some(ref dx) = chunk.dx {
+                            chunk_tspan_elem.set_attribute((AId::Dx, dx.clone()));
+                        }
+
+                        if let Some(ref dy) = chunk.dy {
+                            chunk_tspan_elem.set_attribute((AId::Dy, dy.clone()));
+                        }
 
                         if chunk.anchor != TextAnchor::Start {
                             chunk_tspan_elem.set_attribute((AId::TextAnchor,

@@ -12,11 +12,7 @@ use super::prelude::*;
 pub fn prepare_text_nodes(doc: &mut Document) {
     let mut rm_nodes = Vec::new();
 
-    for (id, mut node) in doc.root().descendants().svg() {
-        if id != EId::Text {
-            continue;
-        }
-
+    for mut node in doc.root().descendants().filter(|n| n.is_tag_name(EId::Text)) {
         let mut new_text_elem = doc.create_element(EId::Text);
         new_text_elem.set_id(node.id().clone());
         prepare_text_elem(doc, &node, &mut new_text_elem);
@@ -68,7 +64,7 @@ fn prepare_text_elem(doc: &mut Document, elem: &Node, new_elem: &mut Node) {
 
         for (aid, attr) in attrs.iter().svg() {
             match aid {
-                AId::X | AId::Y => {
+                AId::X | AId::Y | AId::Dx | AId::Dy => {
                     if text_parent.is_tag_name(EId::Tspan) {
                         if text_parent.first_child() == Some(node.clone()) {
                             new_tspan.set_attribute(attr.clone());

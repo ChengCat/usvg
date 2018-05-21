@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `Image::format`.
 - Paint fallback resolving.
 - Bbox validation for shapes that use painting servers.
+- `TextChunk::dx` and `TextChunk::dy`.
 
 ### Changed
 - `tree` module content reexported.
@@ -27,6 +28,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `parse_tree_from_data` accepts `&[u8]` and not `&str` now.
 - Rename `ImageDataKind` to `ImageFormat`.
 - New geometry primitives implementation.
+- `TextChunk::x` and `TextChunk::y` are `Option<NumberList>` and not `f64` now.
 
 ### Removed
 - `NodeExt::kind`. Use `Node::borrow` instead.

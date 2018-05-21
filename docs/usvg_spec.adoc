@@ -149,7 +149,7 @@ So all `text` elements will have a three-level structure:
 
 The `text` itself can have only `id` and `transform` attributes.
 
-_Text chunk_ can have `x`, `y` and `text-anchor` attributes.
+_Text chunk_ can have `x`, `y`, `dx`, `dy` and `text-anchor` attributes.
 
 And the _text container_ can have <<fill_attrs, filling>>,
 <<stroke_attrs,stroking>>, <<font_attrs,font>> and `text-decoration` attributes.
