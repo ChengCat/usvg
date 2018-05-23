@@ -114,7 +114,7 @@ fn _resolve_use(
         let x = use_node.attributes().get_number_or(AId::X, 0.0);
         let y = use_node.attributes().get_number_or(AId::Y, 0.0);
         if !(x.is_fuzzy_zero() && y.is_fuzzy_zero()) {
-            use_node.append_transform(Transform::new(1.0, 0.0, 0.0, 1.0, x, y));
+            use_node.append_transform(Transform::new_translate(x, y));
         }
     }
 
@@ -127,6 +127,12 @@ fn _resolve_use(
         use_node.append(new_node);
         use_node.prepend_transform(orig_ts);
     }
+
+    // Remove unneeded attributes.
+    use_node.remove_attribute(AId::X);
+    use_node.remove_attribute(AId::Y);
+    use_node.remove_attribute(AId::Width);
+    use_node.remove_attribute(AId::Height);
 
     for mut node in use_node.descendants().skip(1) {
         if node.has_attribute("resolved-font-size") {

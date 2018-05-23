@@ -23,7 +23,7 @@ pub fn prepare_nested_svg(doc: &mut Document, svg: &Node) {
     for mut node in svg.descendants().skip(1).filter(|n| n.is_tag_name(EId::Svg)) {
         let x = node.attributes().get_number_or(AId::X, 0.0);
         let y = node.attributes().get_number_or(AId::Y, 0.0);
-        node.append_transform(Transform::new(1.0, 0.0, 0.0, 1.0, x, y));
+        node.append_transform(Transform::new_translate(x, y));
 
         if let Some(ts) = node.get_viewbox_transform() {
             node.append_transform(ts);
