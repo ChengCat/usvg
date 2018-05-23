@@ -61,7 +61,7 @@ Full spec can be found [here](https://github.com/RazrFalcon/usvg/blob/master/doc
 [SVG]: https://en.wikipedia.org/wiki/Scalable_Vector_Graphics
 */
 
-#![doc(html_root_url = "https://docs.rs/usvg/0.1.1")]
+#![doc(html_root_url = "https://docs.rs/usvg/0.2.0")]
 
 #![cfg_attr(feature = "cargo-clippy", allow(collapsible_if))]
 

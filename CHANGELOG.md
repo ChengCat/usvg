@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [0.2.0] - 2018-05-23
 ### Added
 - Remove elements with `opacity="0"`.
 - Transfer the group `id` attribute to the child when group has only one child.
@@ -45,4 +47,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Gradient stops resolving.
 - `switch` element resolving.
 
-[Unreleased]: https://github.com/RazrFalcon/usvg/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/RazrFalcon/usvg/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/RazrFalcon/svgtypes/compare/0.1.1...0.2.0
