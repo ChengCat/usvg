@@ -73,6 +73,7 @@ pub extern crate svgdom;
 pub extern crate lyon_geom;
 extern crate base64;
 extern crate libflate;
+extern crate unicode_segmentation;
 #[macro_use] extern crate log;
 #[macro_use] extern crate failure;
 

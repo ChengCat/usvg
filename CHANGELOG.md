@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Paint fallback resolving.
 - Bbox validation for shapes that use painting servers.
 - `TextChunk::dx` and `TextChunk::dy`.
+- `Text::rotate`.
+- `rotate` attribute processing.
 
 ### Changed
 - `tree` module content reexported.

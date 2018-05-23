@@ -8,7 +8,7 @@ use super::prelude::*;
 // Full list can be found here: https://www.w3.org/TR/SVG/feature.html
 
 static FEATURES: &[&str] = &[
-    // "http://www.w3.org/TR/SVG11/feature#SVG", // not yet
+    "http://www.w3.org/TR/SVG11/feature#SVGDOM-static",
     // "http://www.w3.org/TR/SVG11/feature#SVG-static", // not yet
     "http://www.w3.org/TR/SVG11/feature#CoreAttribute", // no xml:base and xml:lang
     "http://www.w3.org/TR/SVG11/feature#Structure",

@@ -21,11 +21,10 @@ pub fn convert(
     rtree: &mut tree::Tree,
 ) {
     let attrs = text_elem.attributes();
-    let ts = attrs.get_transform(AId::Transform).unwrap_or_default();
-
     let text_node = parent.append_kind(tree::NodeKind::Text(tree::Text {
         id: text_elem.id().clone(),
-        transform: ts,
+        transform: attrs.get_transform(AId::Transform).unwrap_or_default(),
+        rotate: attrs.get_number_list(AId::Rotate).cloned(),
     }));
 
     convert_chunks(text_elem, text_node, rtree);

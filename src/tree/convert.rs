@@ -180,6 +180,11 @@ fn conv_elements(
                 conv_transform(AId::Transform, &text.transform, &mut text_elem);
                 text_elem.set_id(text.id.clone());
 
+
+                if let Some(ref rotate) = text.rotate {
+                    text_elem.set_attribute((AId::Rotate, rotate.clone()));
+                }
+
                 // conv_text_decoration(&text.decoration, &mut text_elem);
 
                 for chunk_node in n.children() {

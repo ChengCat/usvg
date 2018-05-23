@@ -129,6 +129,8 @@ pub struct Text {
     pub id: String,
     /// Element transform.
     pub transform: Transform,
+    /// Rotate
+    pub rotate: Option<NumberList>,
 }
 
 
