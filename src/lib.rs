@@ -75,7 +75,6 @@ extern crate base64;
 extern crate libflate;
 extern crate unicode_segmentation;
 #[macro_use] extern crate log;
-#[macro_use] extern crate failure;
 
 
 /// Task, return value.
@@ -127,6 +126,7 @@ macro_rules! debug_panic {
 
 pub mod utils;
 mod convert;
+mod error;
 mod geom;
 mod options;
 mod preproc;
@@ -144,32 +144,12 @@ mod short {
 }
 
 
-pub use options::*;
+pub use error::*;
 pub use geom::*;
+pub use options::*;
 pub use tree::*;
 
 use preproc::{
     DEFAULT_FONT_FAMILY,
     DEFAULT_FONT_SIZE,
 };
-
-
-/// List of all errors.
-#[derive(Fail, Debug)]
-pub enum Error {
-    /// Only `svg` and `svgz` suffixes are supported.
-    #[fail(display = "Invalid file suffix")]
-    InvalidFileSuffix,
-
-    /// Failed to open the provided file.
-    #[fail(display = "Failed to open the provided file")]
-    FileOpenFailed,
-
-    /// Only UTF-8 content are supported.
-    #[fail(display = "Provided data has not an UTF-8 encoding")]
-    NotAnUtf8Str,
-
-    /// Compressed SVG must use the GZip algorithm.
-    #[fail(display = "Provided data has a malformed GZip content")]
-    MalformedGZip,
-}
