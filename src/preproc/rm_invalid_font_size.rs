@@ -25,14 +25,6 @@ pub fn remove_invalid_font_size(doc: &mut Document) {
                 rm_nodes.push(text_chunk);
                 continue;
             }
-
-            for text_span in text_chunk.children() {
-                let size = text_span.attributes()
-                                    .get_number_or(AId::FontSize, super::DEFAULT_FONT_SIZE);
-                if size <= 0.0 {
-                    rm_nodes.push(text_span);
-                }
-            }
         }
     }
     rm_nodes.iter_mut().for_each(|n| doc.remove_node(n.clone()));
@@ -52,7 +44,6 @@ pub fn remove_invalid_font_size(doc: &mut Document) {
 
 
     // Remove empty text nodes.
-    rm_nodes.clear();
     for text_node in doc.root().descendants().filter(|n| n.is_tag_name(EId::Text)) {
         if !text_node.has_children() {
             rm_nodes.push(text_node);
