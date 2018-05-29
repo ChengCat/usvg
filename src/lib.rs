@@ -118,8 +118,8 @@ macro_rules! debug_panic {
         warn!($msg);
     };
     ($fmt:expr, $($arg:tt)*) => {
-        debug_assert!(false, $msg, $($arg)*);
-        warn!($msg, $($arg)*);
+        debug_assert!(false, $fmt, $($arg)*);
+        warn!($fmt, $($arg)*);
     };
 }
 
