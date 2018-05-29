@@ -54,15 +54,9 @@ pub fn deflate<R: ::std::io::Read>(inner: R, len: usize) -> Result<String, Error
 /// Parses `svgdom::Document` object from the string data.
 pub fn parse_dom(text: &str) -> svgdom::Document {
     let opt = svgdom::ParseOptions {
-        parse_comments: false,
-        parse_declarations: false,
-        parse_unknown_elements: false,
-        parse_unknown_attributes: false,
-        parse_px_unit: false,
         skip_invalid_attributes: true,
         skip_invalid_css: true,
-        skip_elements_crosslink: true,
-        .. svgdom::ParseOptions::default()
+        skip_unresolved_classes: true,
     };
 
     svgdom::Document::from_str_with_opt(text, &opt).unwrap_or_else(|e| {

@@ -39,6 +39,7 @@ mod rm_invalid_font_size;
 mod rm_invalid_gradients;
 mod rm_invalid_ts;
 mod rm_invisible_elems;
+mod rm_non_svg_data;
 mod rm_unused_defs;
 mod ungroup_a;
 mod ungroup_groups;
@@ -72,6 +73,7 @@ use self::rm_invalid_font_size::remove_invalid_font_size;
 use self::rm_invalid_gradients::remove_invalid_gradients;
 use self::rm_invalid_ts::remove_invalid_transform;
 use self::rm_invisible_elems::remove_invisible_elements;
+use self::rm_non_svg_data::remove_non_svg_data;
 use self::rm_unused_defs::remove_unused_defs;
 use self::ungroup_a::ungroup_a;
 use self::ungroup_groups::ungroup_groups;
@@ -138,6 +140,8 @@ pub fn prepare_doc(doc: &mut svgdom::Document, opt: &Options) {
     }
 
     // TODO: remove duplicated defs
+
+    remove_non_svg_data(doc);
 
     resolve_inherit(doc);
     resolve_current_color(doc);
