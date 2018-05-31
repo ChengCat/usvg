@@ -17,11 +17,11 @@ use super::{
 
 pub fn convert(
     node: &svgdom::Node,
-    rtree: &mut tree::Tree,
+    tree: &mut tree::Tree,
 ) -> tree::Node {
     let attrs = node.attributes();
 
-    rtree.append_to_defs(
+    tree.append_to_defs(
         tree::NodeKind::ClipPath(tree::ClipPath {
             id: node.id().clone(),
             units: super::convert_element_units(&attrs, AId::ClipPathUnits),
@@ -33,7 +33,7 @@ pub fn convert(
 pub fn convert_children(
     node: &svgdom::Node,
     parent: &tree::Node,
-    rtree: &mut tree::Tree,
+    tree: &mut tree::Tree,
 ) {
     for (id, node) in node.children().svg() {
         match id {
@@ -43,17 +43,17 @@ pub fn convert_children(
             | EId::Circle
             | EId::Ellipse => {
                 if let Some(d) = shapes::convert(&node) {
-                    path::convert(&node, d, parent.clone(), rtree);
+                    path::convert(&node, d, parent.clone(), tree);
                 }
             }
             EId::Path => {
                 let attrs = node.attributes();
                 if let Some(d) = attrs.get_path(AId::D) {
-                    path::convert(&node, d.clone(), parent.clone(), rtree);
+                    path::convert(&node, d.clone(), parent.clone(), tree);
                 }
             }
             EId::Text => {
-                text::convert(&node, parent.clone(), rtree);
+                text::convert(&node, parent.clone(), tree);
             }
             EId::Line => {
                 // `line` doesn't impact rendering because stroke is always disabled

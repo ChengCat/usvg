@@ -12,7 +12,7 @@ use super::prelude::*;
 
 pub fn convert(
     node: &svgdom::Node,
-    rtree: &mut tree::Tree,
+    tree: &mut tree::Tree,
 ) -> Option<tree::Node> {
     let ref attrs = node.attributes();
 
@@ -22,7 +22,7 @@ pub fn convert(
         return None;
     }
 
-    Some(rtree.append_to_defs(tree::NodeKind::Mask(tree::Mask {
+    Some(tree.append_to_defs(tree::NodeKind::Mask(tree::Mask {
         id: node.id().clone(),
         units: super::convert_element_units(attrs, AId::MaskUnits),
         content_units: super::convert_element_units(attrs, AId::MaskContentUnits),

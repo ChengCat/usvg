@@ -18,7 +18,7 @@ use super::{
 pub fn convert(
     text_elem: &svgdom::Node,
     mut parent: tree::Node,
-    rtree: &mut tree::Tree,
+    tree: &mut tree::Tree,
 ) {
     let attrs = text_elem.attributes();
     let text_node = parent.append_kind(tree::NodeKind::Text(tree::Text {
@@ -27,13 +27,13 @@ pub fn convert(
         rotate: attrs.get_number_list(AId::Rotate).cloned(),
     }));
 
-    convert_chunks(text_elem, text_node, rtree);
+    convert_chunks(text_elem, text_node, tree);
 }
 
 fn convert_chunks(
     text_elem: &svgdom::Node,
     mut parent: tree::Node,
-    rtree: &mut tree::Tree,
+    tree: &mut tree::Tree,
 ) {
     let ref root_attrs = text_elem.attributes();
 
@@ -82,9 +82,9 @@ fn convert_chunks(
             }
         }
 
-        let fill = fill::convert(rtree, attrs, true);
-        let stroke = stroke::convert(rtree, attrs, true);
-        let decoration = conv_tspan_decoration2(rtree, text_elem, &tspan);
+        let fill = fill::convert(tree, attrs, true);
+        let stroke = stroke::convert(tree, attrs, true);
+        let decoration = conv_tspan_decoration2(tree, text_elem, &tspan);
         chunk_node.append_kind(tree::NodeKind::TSpan(Box::new(tree::TSpan {
             fill,
             stroke,
@@ -143,7 +143,7 @@ fn conv_tspan_decoration(tspan: &svgdom::Node) -> TextDecoTypes {
 }
 
 fn conv_tspan_decoration2(
-    rtree: &tree::Tree,
+    tree: &tree::Tree,
     node: &svgdom::Node,
     tspan: &svgdom::Node
 ) -> tree::TextDecoration {
@@ -160,8 +160,8 @@ fn conv_tspan_decoration2(
         };
 
         let ref attrs = n.attributes();
-        let fill = fill::convert(rtree, attrs, true);
-        let stroke = stroke::convert(rtree, attrs, true);
+        let fill = fill::convert(tree, attrs, true);
+        let stroke = stroke::convert(tree, attrs, true);
 
         Some(tree::TextDecorationStyle {
             fill,

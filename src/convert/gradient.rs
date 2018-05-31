@@ -13,12 +13,12 @@ use super::prelude::*;
 
 pub fn convert_linear(
     node: &svgdom::Node,
-    rtree: &mut tree::Tree,
+    tree: &mut tree::Tree,
 ) {
     let ref attrs = node.attributes();
     let transform = attrs.get_transform(AId::GradientTransform).unwrap_or_default();
 
-    let grad = rtree.append_to_defs(
+    let grad = tree.append_to_defs(
         tree::NodeKind::LinearGradient(tree::LinearGradient {
             id: node.id().clone(),
             x1: attrs.get_number_or(AId::X1, 0.0),
@@ -38,12 +38,12 @@ pub fn convert_linear(
 
 pub fn convert_radial(
     node: &svgdom::Node,
-    rtree: &mut tree::Tree,
+    tree: &mut tree::Tree,
 ) {
     let ref attrs = node.attributes();
     let transform = attrs.get_transform(AId::GradientTransform).unwrap_or_default();
 
-    let grad = rtree.append_to_defs(
+    let grad = tree.append_to_defs(
         tree::NodeKind::RadialGradient(tree::RadialGradient {
             id: node.id().clone(),
             cx: attrs.get_number_or(AId::Cx, 0.5),

@@ -15,11 +15,11 @@ use super::prelude::*;
 
 
 pub fn convert(
-    rtree: &tree::Tree,
+    tree: &tree::Tree,
     attrs: &svgdom::Attributes,
     has_bbox: bool,
 ) -> Option<tree::Fill> {
-    let paint = resolve_paint(rtree, attrs, AId::Fill, has_bbox)?;
+    let paint = resolve_paint(tree, attrs, AId::Fill, has_bbox)?;
 
     let fill_opacity = attrs.get_number_or(AId::FillOpacity, 1.0);
 
@@ -39,7 +39,7 @@ pub fn convert(
 }
 
 pub fn resolve_paint(
-    rtree: &tree::Tree,
+    tree: &tree::Tree,
     attrs: &svgdom::Attributes,
     aid: AId,
     has_bbox: bool,
@@ -54,7 +54,7 @@ pub fn resolve_paint(
             // a-fill-018.svg
 
             if link.is_paint_server() {
-                if let Some(node) = rtree.defs_by_id(&link.id()) {
+                if let Some(node) = tree.defs_by_id(&link.id()) {
                     let server_units = match *node.borrow() {
                         tree::NodeKind::LinearGradient(ref lg) => lg.d.units,
                         tree::NodeKind::RadialGradient(ref rg) => rg.d.units,

@@ -108,18 +108,18 @@ pub fn convert_doc(
         view_box,
     };
 
-    let mut rtree = tree::Tree::create(svg_kind);
+    let mut tree = tree::Tree::create(svg_kind);
 
-    convert_ref_nodes(svg_doc, opt, &mut rtree);
-    convert_nodes(&svg, rtree.root(), opt, &mut rtree);
+    convert_ref_nodes(svg_doc, opt, &mut tree);
+    convert_nodes(&svg, tree.root(), opt, &mut tree);
 
-    rtree
+    tree
 }
 
 fn convert_ref_nodes(
     svg_doc: &svgdom::Document,
     opt: &Options,
-    rtree: &mut tree::Tree,
+    tree: &mut tree::Tree,
 ) {
     let defs_elem = try_opt!(svg_doc.defs_element(), ());
 
@@ -134,22 +134,22 @@ fn convert_ref_nodes(
 
         match id {
             EId::LinearGradient => {
-                gradient::convert_linear(&node, rtree);
+                gradient::convert_linear(&node, tree);
             }
             EId::RadialGradient => {
-                gradient::convert_radial(&node, rtree);
+                gradient::convert_radial(&node, tree);
             }
             EId::ClipPath => {
-                let new_node = clippath::convert(&node, rtree);
+                let new_node = clippath::convert(&node, tree);
                 later_nodes.push((node, new_node));
             }
             EId::Mask => {
-                if let Some(new_node) = mask::convert(&node, rtree) {
+                if let Some(new_node) = mask::convert(&node, tree) {
                     later_nodes.push((node, new_node));
                 }
             }
             EId::Pattern => {
-                if let Some(new_node) = pattern::convert(&node, rtree) {
+                if let Some(new_node) = pattern::convert(&node, tree) {
                     later_nodes.push((node, new_node));
                 }
             }
@@ -164,21 +164,21 @@ fn convert_ref_nodes(
 
     for (node, mut new_node) in later_nodes {
         if node.is_tag_name(EId::ClipPath) {
-            clippath::convert_children(&node, &new_node, rtree);
+            clippath::convert_children(&node, &new_node, tree);
 
             if !new_node.has_children() {
                 warn!("ClipPath '{}' has no children. Skipped.", node.id());
                 new_node.detach();
             }
         } else if node.is_tag_name(EId::Mask) {
-            convert_nodes(&node, new_node.clone(), opt, rtree);
+            convert_nodes(&node, new_node.clone(), opt, tree);
 
             if !new_node.has_children() {
                 warn!("Mask '{}' has no children. Skipped.", node.id());
                 new_node.detach();
             }
         } else if node.is_tag_name(EId::Pattern) {
-            convert_nodes(&node, new_node.clone(), opt, rtree);
+            convert_nodes(&node, new_node.clone(), opt, tree);
 
             if !new_node.has_children() {
                 warn!("Pattern '{}' has no children. Skipped.", node.id());
@@ -192,7 +192,7 @@ pub(super) fn convert_nodes(
     parent: &svgdom::Node,
     mut parent_node: tree::Node,
     opt: &Options,
-    rtree: &mut tree::Tree,
+    tree: &mut tree::Tree,
 ) {
     for (id, node) in parent.children().svg() {
         if node.is_referenced() {
@@ -216,14 +216,14 @@ pub(super) fn convert_nodes(
                 let attrs = node.attributes();
 
                 // After preprocessing, `clip-path` can be set only on groups.
-                let clip_path = match resolve_iri(&node, EId::ClipPath, AId::ClipPath, rtree) {
+                let clip_path = match resolve_iri(&node, EId::ClipPath, AId::ClipPath, tree) {
                     IriResolveResult::Id(id) => Some(id),
                     IriResolveResult::Skip => continue,
                     IriResolveResult::None => None,
                 };
 
                 // After preprocessing, `mask` can be set only on groups.
-                let mask = match resolve_iri(&node, EId::Mask, AId::Mask, rtree) {
+                let mask = match resolve_iri(&node, EId::Mask, AId::Mask, tree) {
                     IriResolveResult::Id(id) => Some(id),
                     IriResolveResult::Skip => continue,
                     IriResolveResult::None => None,
@@ -240,7 +240,7 @@ pub(super) fn convert_nodes(
                     mask,
                 }));
 
-                convert_nodes(&node, g_node, opt, rtree);
+                convert_nodes(&node, g_node, opt, tree);
 
                 // TODO: check that opacity != 1.0
             }
@@ -251,7 +251,7 @@ pub(super) fn convert_nodes(
             | EId::Circle
             | EId::Ellipse => {
                 if let Some(d) = shapes::convert(&node) {
-                    path::convert(&node, d, parent_node.clone(), rtree);
+                    path::convert(&node, d, parent_node.clone(), tree);
                 }
             }
               EId::Use
@@ -262,11 +262,11 @@ pub(super) fn convert_nodes(
             EId::Path => {
                 let attrs = node.attributes();
                 if let Some(d) = attrs.get_path(AId::D) {
-                    path::convert(&node, d.clone(), parent_node.clone(), rtree);
+                    path::convert(&node, d.clone(), parent_node.clone(), tree);
                 }
             }
             EId::Text => {
-                text::convert(&node, parent_node.clone(), rtree);
+                text::convert(&node, parent_node.clone(), tree);
             }
             EId::Image => {
                 image::convert(&node, opt, parent_node.clone());
@@ -284,11 +284,11 @@ enum IriResolveResult {
     None,
 }
 
-fn resolve_iri(node: &svgdom::Node, eid: EId, aid: AId, rtree: &tree::Tree) -> IriResolveResult {
+fn resolve_iri(node: &svgdom::Node, eid: EId, aid: AId, tree: &tree::Tree) -> IriResolveResult {
     let attrs = node.attributes();
     if let Some(&AValue::FuncLink(ref link)) = attrs.get_type(aid) {
         if link.is_tag_name(eid) {
-            if let Some(node) = rtree.defs_by_id(&link.id()) {
+            if let Some(node) = tree.defs_by_id(&link.id()) {
                 return IriResolveResult::Id(node.id().to_string());
             } else {
                 // If an IRI is invalid than all elements that uses it should be removed/skipped.

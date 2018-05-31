@@ -22,7 +22,7 @@ pub fn convert(
     node: &svgdom::Node,
     d: svgdom::Path,
     mut parent: tree::Node,
-    rtree: &mut tree::Tree,
+    tree: &mut tree::Tree,
 ) {
     let d = convert_path(d);
     if d.len() < 2 {
@@ -31,8 +31,8 @@ pub fn convert(
 
     let has_bbox = has_bbox(&d);
     let attrs = node.attributes();
-    let fill = fill::convert(rtree, &attrs, has_bbox);
-    let stroke = stroke::convert(rtree, &attrs, has_bbox);
+    let fill = fill::convert(tree, &attrs, has_bbox);
+    let stroke = stroke::convert(tree, &attrs, has_bbox);
     let transform = attrs.get_transform(AId::Transform).unwrap_or_default();
 
     // Shapes without a bbox cannot be filled,
