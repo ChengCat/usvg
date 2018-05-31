@@ -20,38 +20,41 @@ pub fn convert(
     mut parent: tree::Node,
     tree: &mut tree::Tree,
 ) {
+    let chunks = try_opt!(convert_chunks(text_elem, tree), ());
     let attrs = text_elem.attributes();
-    let text_node = parent.append_kind(tree::NodeKind::Text(tree::Text {
+    parent.append_kind(tree::NodeKind::Text(tree::Text {
         id: text_elem.id().clone(),
         transform: attrs.get_transform(AId::Transform).unwrap_or_default(),
         rotate: attrs.get_number_list(AId::Rotate).cloned(),
+        chunks,
     }));
-
-    convert_chunks(text_elem, text_node, tree);
 }
 
 fn convert_chunks(
     text_elem: &svgdom::Node,
-    mut parent: tree::Node,
-    tree: &mut tree::Tree,
-) {
-    let ref root_attrs = text_elem.attributes();
+    tree: &tree::Tree,
+) -> Option<Vec<tree::TextChunk>> {
+    let mut chunks = Vec::new();
 
-    let mut chunk_node = parent.append_kind(tree::NodeKind::TextChunk(tree::TextChunk {
-        x: root_attrs.get_number_list(AId::X).cloned(),
-        y: root_attrs.get_number_list(AId::Y).cloned(),
-        dx: root_attrs.get_number_list(AId::Dx).cloned(),
-        dy: root_attrs.get_number_list(AId::Dy).cloned(),
-        anchor: conv_text_anchor(root_attrs),
-    }));
+    {
+        let ref root_attrs = text_elem.attributes();
+        let chunk_node = tree::TextChunk {
+            x: root_attrs.get_number_list(AId::X).cloned(),
+            y: root_attrs.get_number_list(AId::Y).cloned(),
+            dx: root_attrs.get_number_list(AId::Dx).cloned(),
+            dy: root_attrs.get_number_list(AId::Dy).cloned(),
+            anchor: conv_text_anchor(root_attrs),
+            spans: Vec::new(),
+        };
+        chunks.push(chunk_node);
+    }
 
     for tspan in text_elem.children() {
         debug_assert!(tspan.is_tag_name(EId::Tspan));
 
-        let text = if let Some(node) = tspan.first_child() {
-            node.text().clone()
-        } else {
-            continue;
+        let text = match tspan.first_child() {
+            Some(node) => node.text().clone(),
+            _ => continue,
         };
 
         let ref attrs = tspan.attributes();
@@ -61,40 +64,39 @@ fn convert_chunks(
         let dy = attrs.get_number_list(AId::Dy).cloned();
 
         if x.is_some() || y.is_some() || dx.is_some() || dy.is_some() {
-            if chunk_node.children().count() > 0 {
-                // Create new if current text chunk has children.
-                chunk_node = parent.append_kind(tree::NodeKind::TextChunk(tree::TextChunk {
-                    x,
-                    y,
-                    dx,
-                    dy,
-                    anchor: conv_text_anchor(attrs),
-                }));
-            } else {
-                // Update existing chunk.
-                if let tree::NodeKind::TextChunk(ref mut d) = *chunk_node.borrow_mut() {
-                    if x.is_some() { d.x = x; }
-                    if y.is_some() { d.y = y; }
-                    if dx.is_some() { d.dx = dx; }
-                    if dy.is_some() { d.dy = dy; }
-                    d.anchor = conv_text_anchor(attrs);
-                }
-            }
+            let chunk_node = tree::TextChunk {
+                x,
+                y,
+                dx,
+                dy,
+                anchor: conv_text_anchor(attrs),
+                spans: Vec::new(),
+            };
+            chunks.push(chunk_node);
         }
 
         let fill = fill::convert(tree, attrs, true);
         let stroke = stroke::convert(tree, attrs, true);
         let decoration = conv_tspan_decoration2(tree, text_elem, &tspan);
-        chunk_node.append_kind(tree::NodeKind::TSpan(Box::new(tree::TSpan {
+        let span = tree::TSpan {
             fill,
             stroke,
             font: convert_font(attrs),
             decoration,
             text,
-        })));
+        };
+
+        let last_idx = chunks.len() - 1;
+        chunks[last_idx].spans.push(span);
     }
 
-    debug_assert!(chunk_node.children().count() > 0);
+    debug_assert!(!chunks.is_empty());
+
+    if !chunks.is_empty() {
+        Some(chunks)
+    } else {
+        None
+    }
 }
 
 struct TextDecoTypes {

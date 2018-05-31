@@ -187,55 +187,51 @@ fn conv_elements(
 
                 // conv_text_decoration(&text.decoration, &mut text_elem);
 
-                for chunk_node in n.children() {
-                    if let NodeKind::TextChunk(ref chunk) = *chunk_node.borrow() {
-                        let mut chunk_tspan_elem = new_doc.create_element(EId::Tspan);
-                        text_elem.append(chunk_tspan_elem.clone());
+                for chunk in &text.chunks {
+                    let mut chunk_tspan_elem = new_doc.create_element(EId::Tspan);
+                    text_elem.append(chunk_tspan_elem.clone());
 
-                        if let Some(ref x) = chunk.x {
-                            chunk_tspan_elem.set_attribute((AId::X, x.clone()));
-                        }
+                    if let Some(ref x) = chunk.x {
+                        chunk_tspan_elem.set_attribute((AId::X, x.clone()));
+                    }
 
-                        if let Some(ref y) = chunk.y {
-                            chunk_tspan_elem.set_attribute((AId::Y, y.clone()));
-                        }
+                    if let Some(ref y) = chunk.y {
+                        chunk_tspan_elem.set_attribute((AId::Y, y.clone()));
+                    }
 
-                        if let Some(ref dx) = chunk.dx {
-                            chunk_tspan_elem.set_attribute((AId::Dx, dx.clone()));
-                        }
+                    if let Some(ref dx) = chunk.dx {
+                        chunk_tspan_elem.set_attribute((AId::Dx, dx.clone()));
+                    }
 
-                        if let Some(ref dy) = chunk.dy {
-                            chunk_tspan_elem.set_attribute((AId::Dy, dy.clone()));
-                        }
+                    if let Some(ref dy) = chunk.dy {
+                        chunk_tspan_elem.set_attribute((AId::Dy, dy.clone()));
+                    }
 
-                        if chunk.anchor != TextAnchor::Start {
-                            chunk_tspan_elem.set_attribute((AId::TextAnchor,
-                                match chunk.anchor {
-                                    TextAnchor::Start => "start",
-                                    TextAnchor::Middle => "middle",
-                                    TextAnchor::End => "end",
-                                }
-                            ));
-                        }
-
-                        for tspan_node in chunk_node.children() {
-                            if let NodeKind::TSpan(ref tspan) = *tspan_node.borrow() {
-                                let mut tspan_elem = new_doc.create_element(EId::Tspan);
-                                chunk_tspan_elem.append(tspan_elem.clone());
-
-                                let text_node = new_doc.create_node(
-                                    svgdom::NodeType::Text,
-                                    tspan.text.clone(),
-                                );
-                                tspan_elem.append(text_node.clone());
-
-                                conv_fill(tree, &tspan.fill, defs, parent, &mut tspan_elem);
-                                conv_stroke(tree, &tspan.stroke, defs, &mut tspan_elem);
-                                conv_font(&tspan.font, &mut tspan_elem);
-
-                                // TODO: text-decoration
+                    if chunk.anchor != TextAnchor::Start {
+                        chunk_tspan_elem.set_attribute((AId::TextAnchor,
+                            match chunk.anchor {
+                                TextAnchor::Start => "start",
+                                TextAnchor::Middle => "middle",
+                                TextAnchor::End => "end",
                             }
-                        }
+                        ));
+                    }
+
+                    for tspan in &chunk.spans {
+                        let mut tspan_elem = new_doc.create_element(EId::Tspan);
+                        chunk_tspan_elem.append(tspan_elem.clone());
+
+                        let text_node = new_doc.create_node(
+                            svgdom::NodeType::Text,
+                            tspan.text.clone(),
+                        );
+                        tspan_elem.append(text_node.clone());
+
+                        conv_fill(tree, &tspan.fill, defs, parent, &mut tspan_elem);
+                        conv_stroke(tree, &tspan.stroke, defs, &mut tspan_elem);
+                        conv_font(&tspan.font, &mut tspan_elem);
+
+                        // TODO: text-decoration
                     }
                 }
             }

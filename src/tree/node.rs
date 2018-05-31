@@ -22,8 +22,6 @@ pub enum NodeKind {
     Pattern(Pattern),
     Path(Path),
     Text(Text),
-    TextChunk(TextChunk),
-    TSpan(Box<TSpan>), // We are using Box because TSpan is too big.
     Image(Image),
     Group(Group),
 }
@@ -44,8 +42,6 @@ impl NodeKind {
             NodeKind::Pattern(ref e) => e.id.as_str(),
             NodeKind::Path(ref e) => e.id.as_str(),
             NodeKind::Text(ref e) => e.id.as_str(),
-            NodeKind::TextChunk(_) => "",
-            NodeKind::TSpan(_) => "",
             NodeKind::Image(ref e) => e.id.as_str(),
             NodeKind::Group(ref e) => e.id.as_str(),
         }
@@ -66,8 +62,6 @@ impl NodeKind {
             NodeKind::Pattern(ref e) => e.transform,
             NodeKind::Path(ref e) => e.transform,
             NodeKind::Text(ref e) => e.transform,
-            NodeKind::TextChunk(_) => Transform::default(),
-            NodeKind::TSpan(_) => Transform::default(),
             NodeKind::Image(ref e) => e.transform,
             NodeKind::Group(ref e) => e.transform,
         }
@@ -129,6 +123,8 @@ pub struct Text {
     pub transform: Transform,
     /// Rotate
     pub rotate: Option<NumberList>,
+    /// A list of text chunks.
+    pub chunks: Vec<TextChunk>,
 }
 
 
@@ -151,9 +147,12 @@ pub struct TextChunk {
     pub dy: Option<NumberList>,
     /// A text anchor/align.
     pub anchor: TextAnchor,
+    /// A list of text spans.
+    pub spans: Vec<TSpan>,
 }
 
 
+// TODO: to TextSpan
 /// A text span.
 ///
 /// `tspan` element in the SVG.
