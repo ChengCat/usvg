@@ -5,8 +5,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Implement `Deref` for `LinearGradient` and `RadialGradient`.
+
 ### Changed
 - Gradient stops are stored directly in the `BaseGradient` and not as `NodeKind::Stop` now.
+- Rename `LinearGradient::d` into `LinearGradient::base`.
+- Rename `RadialGradient::d` into `RadialGradient::base`.
 
 ### Removed
 - `failure` dependency.

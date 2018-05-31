@@ -63,7 +63,7 @@ fn conv_defs(
                 grad_elem.set_attribute((AId::X2, lg.x2));
                 grad_elem.set_attribute((AId::Y2, lg.y2));
 
-                conv_base_grad(&lg.d, new_doc, &mut grad_elem);
+                conv_base_grad(&lg.base, new_doc, &mut grad_elem);
             }
             NodeKind::RadialGradient(ref rg) => {
                 let mut grad_elem = new_doc.create_element(EId::RadialGradient);
@@ -77,7 +77,7 @@ fn conv_defs(
                 grad_elem.set_attribute((AId::Fx, rg.fx));
                 grad_elem.set_attribute((AId::Fy, rg.fy));
 
-                conv_base_grad(&rg.d, new_doc, &mut grad_elem);
+                conv_base_grad(&rg.base, new_doc, &mut grad_elem);
             }
             NodeKind::ClipPath(ref clip) => {
                 let mut clip_elem = new_doc.create_element(EId::ClipPath);

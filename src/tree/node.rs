@@ -3,6 +3,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use std::path::PathBuf;
+use std::ops::Deref;
 
 // self
 use geom::*;
@@ -58,8 +59,8 @@ impl NodeKind {
         match *self {
             NodeKind::Svg(_) => Transform::default(),
             NodeKind::Defs => Transform::default(),
-            NodeKind::LinearGradient(ref e) => e.d.transform,
-            NodeKind::RadialGradient(ref e) => e.d.transform,
+            NodeKind::LinearGradient(ref e) => e.transform,
+            NodeKind::RadialGradient(ref e) => e.transform,
             NodeKind::ClipPath(ref e) => e.transform,
             NodeKind::Mask(_) => Transform::default(),
             NodeKind::Pattern(ref e) => e.transform,
@@ -296,7 +297,15 @@ pub struct LinearGradient {
     pub x2: f64,
     pub y2: f64,
     /// Base gradient data.
-    pub d: BaseGradient,
+    pub base: BaseGradient,
+}
+
+impl Deref for LinearGradient {
+    type Target = BaseGradient;
+
+    fn deref(&self) -> &Self::Target {
+        &self.base
+    }
 }
 
 
@@ -316,7 +325,15 @@ pub struct RadialGradient {
     pub fx: f64,
     pub fy: f64,
     /// Base gradient data.
-    pub d: BaseGradient,
+    pub base: BaseGradient,
+}
+
+impl Deref for RadialGradient {
+    type Target = BaseGradient;
+
+    fn deref(&self) -> &Self::Target {
+        &self.base
+    }
 }
 
 

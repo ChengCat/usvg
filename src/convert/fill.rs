@@ -56,8 +56,8 @@ pub fn resolve_paint(
             if link.is_paint_server() {
                 if let Some(node) = tree.defs_by_id(&link.id()) {
                     let server_units = match *node.borrow() {
-                        tree::NodeKind::LinearGradient(ref lg) => lg.d.units,
-                        tree::NodeKind::RadialGradient(ref rg) => rg.d.units,
+                        tree::NodeKind::LinearGradient(ref lg) => lg.units,
+                        tree::NodeKind::RadialGradient(ref rg) => rg.units,
                         tree::NodeKind::Pattern(ref patt) => patt.units,
                         // safe, because we already checked for is_paint_server()
                         _ => unreachable!(),

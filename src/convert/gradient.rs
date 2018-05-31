@@ -25,7 +25,7 @@ pub fn convert_linear(
             y1: attrs.get_number_or(AId::Y1, 0.0),
             x2: attrs.get_number_or(AId::X2, 1.0),
             y2: attrs.get_number_or(AId::Y2, 0.0),
-            d: tree::BaseGradient {
+            base: tree::BaseGradient {
                 units: super::convert_element_units(attrs, AId::GradientUnits),
                 transform,
                 spread_method: convert_spread_method(&attrs),
@@ -51,7 +51,7 @@ pub fn convert_radial(
             r:  attrs.get_number_or(AId::R,  0.5),
             fx: attrs.get_number_or(AId::Fx, 0.5),
             fy: attrs.get_number_or(AId::Fy, 0.5),
-            d: tree::BaseGradient {
+            base: tree::BaseGradient {
                 units: super::convert_element_units(attrs, AId::GradientUnits),
                 transform,
                 spread_method: convert_spread_method(&attrs),
