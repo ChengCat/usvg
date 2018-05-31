@@ -29,7 +29,7 @@ pub fn prepare_text_decoration(doc: &mut Document) {
         }
 
         if has_attr(&node, "line-through") {
-            td.push_str("linethrough;");
+            td.push_str("line-through;");
         }
 
         if !td.is_empty() {

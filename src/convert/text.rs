@@ -115,7 +115,7 @@ fn conv_text_decoration(node: &svgdom::Node) -> TextDecoTypes {
     TextDecoTypes {
         has_underline: text.contains("underline"),
         has_overline: text.contains("overline"),
-        has_line_through: text.contains("linethrough"),
+        has_line_through: text.contains("line-through"),
     }
 }
 
