@@ -7,7 +7,6 @@ use svgdom;
 
 // self
 use tree;
-use tree::prelude::*;
 use super::prelude::*;
 
 
@@ -17,8 +16,9 @@ pub fn convert_linear(
 ) {
     let ref attrs = node.attributes();
     let transform = attrs.get_transform(AId::GradientTransform).unwrap_or_default();
+    let stops = try_opt!(convert_stops(node), ());
 
-    let grad = tree.append_to_defs(
+    tree.append_to_defs(
         tree::NodeKind::LinearGradient(tree::LinearGradient {
             id: node.id().clone(),
             x1: attrs.get_number_or(AId::X1, 0.0),
@@ -29,11 +29,10 @@ pub fn convert_linear(
                 units: super::convert_element_units(attrs, AId::GradientUnits),
                 transform,
                 spread_method: convert_spread_method(&attrs),
+                stops,
             }
         })
     );
-
-    convert_stops(node, grad);
 }
 
 pub fn convert_radial(
@@ -42,8 +41,9 @@ pub fn convert_radial(
 ) {
     let ref attrs = node.attributes();
     let transform = attrs.get_transform(AId::GradientTransform).unwrap_or_default();
+    let stops = try_opt!(convert_stops(node), ());
 
-    let grad = tree.append_to_defs(
+    tree.append_to_defs(
         tree::NodeKind::RadialGradient(tree::RadialGradient {
             id: node.id().clone(),
             cx: attrs.get_number_or(AId::Cx, 0.5),
@@ -55,16 +55,13 @@ pub fn convert_radial(
                 units: super::convert_element_units(attrs, AId::GradientUnits),
                 transform,
                 spread_method: convert_spread_method(&attrs),
+                stops,
             }
         })
     );
-
-    convert_stops(node, grad);
 }
 
-fn convert_spread_method(
-    attrs: &svgdom::Attributes
-) -> tree::SpreadMethod {
+fn convert_spread_method(attrs: &svgdom::Attributes) -> tree::SpreadMethod {
     let av = attrs.get_str_or(AId::SpreadMethod, "pad");
 
     match av {
@@ -75,10 +72,9 @@ fn convert_spread_method(
     }
 }
 
-fn convert_stops(
-    node: &svgdom::Node,
-    mut parent: tree::Node,
-) {
+fn convert_stops(node: &svgdom::Node) -> Option<Vec<tree::Stop>> {
+    let mut stops = Vec::new();
+
     for s in node.children() {
         if !s.is_tag_name(EId::Stop) {
             debug!("Invalid gradient child: '{:?}'.", s.tag_id().unwrap());
@@ -92,13 +88,18 @@ fn convert_stops(
         let color = attrs.get_color(AId::StopColor).unwrap_or(svgdom::Color::new(0, 0, 0));
         let opacity = f64_bound(0.0, attrs.get_number_or(AId::StopOpacity, 1.0), 1.0).into();
 
-        parent.append_kind(tree::NodeKind::Stop(tree::Stop {
+        stops.push(tree::Stop {
             offset,
             color,
             opacity,
-        }));
+        });
     }
 
-    debug_assert!(parent.children().count() >= 2,
-                  "gradient must have at least 2 children");
+    debug_assert!(stops.len() >= 2, "gradient must have at least 2 children");
+
+    if stops.len() >= 2 {
+        Some(stops)
+    } else {
+        None
+    }
 }

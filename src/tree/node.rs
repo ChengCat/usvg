@@ -16,7 +16,6 @@ pub enum NodeKind {
     Defs,
     LinearGradient(LinearGradient),
     RadialGradient(RadialGradient),
-    Stop(Stop),
     ClipPath(ClipPath),
     Mask(Mask),
     Pattern(Pattern),
@@ -39,7 +38,6 @@ impl NodeKind {
             NodeKind::Defs => "",
             NodeKind::LinearGradient(ref e) => e.id.as_str(),
             NodeKind::RadialGradient(ref e) => e.id.as_str(),
-            NodeKind::Stop(_) => "",
             NodeKind::ClipPath(ref e) => e.id.as_str(),
             NodeKind::Mask(ref e) => e.id.as_str(),
             NodeKind::Pattern(ref e) => e.id.as_str(),
@@ -62,7 +60,6 @@ impl NodeKind {
             NodeKind::Defs => Transform::default(),
             NodeKind::LinearGradient(ref e) => e.d.transform,
             NodeKind::RadialGradient(ref e) => e.d.transform,
-            NodeKind::Stop(_) => Transform::default(),
             NodeKind::ClipPath(ref e) => e.transform,
             NodeKind::Mask(_) => Transform::default(),
             NodeKind::Pattern(ref e) => e.transform,
@@ -156,7 +153,6 @@ pub struct TextChunk {
 }
 
 
-// TODO: dx, dy
 /// A text span.
 ///
 /// `tspan` element in the SVG.
@@ -266,7 +262,7 @@ pub struct Group {
 
 
 /// A generic gradient.
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct BaseGradient {
     /// Coordinate system units.
     ///
@@ -280,6 +276,8 @@ pub struct BaseGradient {
     ///
     /// `spreadMethod` in the SVG.
     pub spread_method: SpreadMethod,
+    /// A list of `stop` elements.
+    pub stops: Vec<Stop>,
 }
 
 

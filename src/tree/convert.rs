@@ -63,7 +63,7 @@ fn conv_defs(
                 grad_elem.set_attribute((AId::X2, lg.x2));
                 grad_elem.set_attribute((AId::Y2, lg.y2));
 
-                conv_base_grad(&n, &lg.d, new_doc, &mut grad_elem);
+                conv_base_grad(&lg.d, new_doc, &mut grad_elem);
             }
             NodeKind::RadialGradient(ref rg) => {
                 let mut grad_elem = new_doc.create_element(EId::RadialGradient);
@@ -77,7 +77,7 @@ fn conv_defs(
                 grad_elem.set_attribute((AId::Fx, rg.fx));
                 grad_elem.set_attribute((AId::Fy, rg.fy));
 
-                conv_base_grad(&n, &rg.d, new_doc, &mut grad_elem);
+                conv_base_grad(&rg.d, new_doc, &mut grad_elem);
             }
             NodeKind::ClipPath(ref clip) => {
                 let mut clip_elem = new_doc.create_element(EId::ClipPath);
@@ -423,7 +423,6 @@ fn conv_stroke(
 }
 
 fn conv_base_grad(
-    g_node: &Node,
     g: &BaseGradient,
     doc: &mut svgdom::Document,
     node: &mut svgdom::Node,
@@ -440,15 +439,13 @@ fn conv_base_grad(
 
     conv_transform(AId::GradientTransform, &g.transform, node);
 
-    for n in g_node.children() {
-        if let NodeKind::Stop(s) = *n.borrow() {
-            let mut stop = doc.create_element(EId::Stop);
-            node.append(stop.clone());
+    for s in &g.stops {
+        let mut stop = doc.create_element(EId::Stop);
+        node.append(stop.clone());
 
-            stop.set_attribute((AId::Offset, s.offset.value()));
-            stop.set_attribute((AId::StopColor, s.color));
-            stop.set_attribute((AId::StopOpacity, s.opacity.value()));
-        }
+        stop.set_attribute((AId::Offset, s.offset.value()));
+        stop.set_attribute((AId::StopColor, s.color));
+        stop.set_attribute((AId::StopOpacity, s.opacity.value()));
     }
 }
 
