@@ -78,7 +78,7 @@ fn convert_chunks(
         let fill = fill::convert(tree, attrs, true);
         let stroke = stroke::convert(tree, attrs, true);
         let decoration = conv_tspan_decoration2(tree, text_elem, &tspan);
-        let span = tree::TSpan {
+        let span = tree::TextSpan {
             fill,
             stroke,
             font: convert_font(attrs),

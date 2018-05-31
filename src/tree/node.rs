@@ -148,16 +148,15 @@ pub struct TextChunk {
     /// A text anchor/align.
     pub anchor: TextAnchor,
     /// A list of text spans.
-    pub spans: Vec<TSpan>,
+    pub spans: Vec<TextSpan>,
 }
 
 
-// TODO: to TextSpan
 /// A text span.
 ///
 /// `tspan` element in the SVG.
 #[derive(Clone)]
-pub struct TSpan {
+pub struct TextSpan {
     /// Fill style.
     pub fill: Option<Fill>,
     /// Stroke style.

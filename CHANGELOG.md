@@ -11,8 +11,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Gradient stops are stored directly in the `BaseGradient` and not as `NodeKind::Stop` now.
 - `TextChunk` are stored directly in the `Text` and not as `NodeKind::TextChunk` now.
-- Rename `LinearGradient::d` into `LinearGradient::base`.
-- Rename `RadialGradient::d` into `RadialGradient::base`.
+- Rename `LinearGradient::d` to `LinearGradient::base`.
+- Rename `RadialGradient::d` to `RadialGradient::base`.
+- Rename `TSpan` to `TextSpan`.
 
 ### Removed
 - `failure` dependency.
