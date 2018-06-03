@@ -1,83 +1,62 @@
-#[macro_use] extern crate clap;
-#[macro_use] extern crate failure;
 extern crate usvg;
 extern crate fern;
 extern crate log;
+extern crate getopts;
 
 use std::fmt;
 use std::fs::File;
 use std::io::{ self, Read, Write };
 use std::path::Path;
+use std::process;
+use std::str::FromStr;
 
-use clap::{ App, Arg, ArgMatches };
+use getopts::Matches;
 
 use usvg::svgdom;
 
 use svgdom::WriteBuffer;
 
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, PartialEq, Debug)]
 enum InputFrom<'a> {
     Stdin,
     File(&'a str),
 }
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, PartialEq, Debug)]
 enum OutputTo<'a> {
     Stdout,
     File(&'a str),
 }
 
-#[derive(Fail, Debug)]
-#[allow(missing_docs)]
-pub enum Error {
-    #[fail(display = "Failed to write to the provided file")]
-    FileWriteFailed,
-
-    #[fail(display = "Failed to write to the stdout")]
-    StdOutWriteFailed,
-
-    #[fail(display = "{}", _0)]
-    USvgError(usvg::Error),
-}
-
-impl From<usvg::Error> for Error {
-    fn from(value: usvg::Error) -> Self {
-        Error::USvgError(value)
-    }
-}
 
 fn main() {
-    let args = App::new("usvg")
-        .version(env!("CARGO_PKG_VERSION"))
-        .about("usvg (micro SVG) is an SVG simplification tool")
-        .usage("usvg [FLAGS] [OPTIONS] <in-svg> <out-svg> # from file to file\n    \
-                usvg [FLAGS] [OPTIONS] -c <in-svg>        # from file to stdout\n    \
-                usvg [FLAGS] [OPTIONS] <out-svg> -        # from stdin to file\n    \
-                usvg [FLAGS] [OPTIONS] -c -               # from stdin to stdout")
-        .arg(Arg::with_name("in-svg")
-            .help("Input file")
-            .required(true)
-            .index(1)
-            .validator(is_svg))
-        .arg(Arg::with_name("out-svg")
-            .help("Output file")
-            .required_unless("stdout")
-            .index(2)
-            .validator(is_svg))
-        .arg(Arg::with_name("stdout")
-            .short("c")
-            .help("Prints the output SVG to the stdout"))
-        .arg(Arg::with_name("dpi")
-            .long("dpi")
-            .help("Sets the resolution [72..4000]")
-            .value_name("DPI")
-            .default_value("96")
-            .validator(is_dpi))
-        .arg(Arg::with_name("keep-named-groups")
-            .long("keep-named-groups")
-            .help("Keeps groups with non-empty ID"))
-        .get_matches();
+    let args: Vec<String> = ::std::env::args().collect();
+
+    let mut opts = getopts::Options::new();
+    opts.optflag("h", "help", "");
+    opts.optflag("V", "version", "");
+    opts.optflag("c", "", "");
+    opts.optflag("", "keep-named-groups", "");
+    opts.optopt("", "dpi", "", "");
+
+    let args = match opts.parse(&args[1..]) {
+        Ok(v) => v,
+        Err(e) => {
+            eprintln!("{}.", e);
+            process::exit(0);
+        }
+    };
+
+    if args.opt_present("help") {
+        print_help();
+        process::exit(0);
+    }
+
+    if args.opt_present("version") {
+        println!("{}", env!("CARGO_PKG_VERSION"));
+        process::exit(0);
+    }
 
     fern::Dispatch::new()
         .format(log_format)
@@ -91,34 +70,37 @@ fn main() {
     }
 }
 
-fn is_svg(val: String) -> Result<(), String> {
-    let val = val.to_lowercase();
-    if val.ends_with(".svg") || val.ends_with(".svgz") || val == "-" {
-        Ok(())
-    } else {
-        Err(String::from("The file format must be SVG(Z)."))
-    }
+pub fn print_help() {
+    print!("\
+usvg (micro SVG) is an SVG simplification tool.
+
+USAGE:
+    usvg [OPTIONS] <in-svg> <out-svg> # from file to file
+    usvg [OPTIONS] -c <in-svg>        # from file to stdout
+    usvg [OPTIONS] <out-svg> -        # from stdin to file
+    usvg [OPTIONS] -c -               # from stdin to stdout
+
+OPTIONS:
+    -h, --help                  Prints help information
+        --keep-named-groups     Keeps groups with non-empty ID
+    -c                          Prints the output SVG to the stdout
+    -V, --version               Prints version information
+        --dpi=<DPI>             Sets the resolution
+                                [default: 96] [possible values: 10..4000]
+
+ARGS:
+    <in-svg>                    Input file
+    <out-svg>                   Output file
+");
 }
 
-fn is_dpi(val: String) -> Result<(), String> {
-    let n = match val.parse::<u32>() {
-        Ok(v) => v,
-        Err(e) => return Err(format!("{}", e)),
-    };
-
-    if n >= 72 && n <= 4000 {
-        Ok(())
-    } else {
-        Err(String::from("Invalid DPI value."))
-    }
-}
-
-fn process(args: &ArgMatches) -> Result<(), Error> {
+fn process(args: &Matches) -> Result<(), String> {
     let (in_svg, out_svg) = {
-        let in_svg = args.value_of("in-svg").unwrap();
-        let out_svg = args.value_of("out-svg");
+        let in_svg = &args.free[0];
+        let out_svg = args.free.get(1);
+        let out_svg = out_svg.map(String::as_ref);
 
-        let svg_from = if in_svg == "-" && args.is_present("stdout") {
+        let svg_from = if in_svg == "-" && args.opt_present("c") {
             InputFrom::Stdin
         } else if let Some("-") = out_svg {
             InputFrom::Stdin
@@ -126,7 +108,7 @@ fn process(args: &ArgMatches) -> Result<(), Error> {
             InputFrom::File(in_svg)
         };
 
-        let svg_to = if args.is_present("stdout") {
+        let svg_to = if args.opt_present("c") {
             OutputTo::Stdout
         } else if let Some("-") = out_svg {
             OutputTo::File(in_svg)
@@ -137,18 +119,25 @@ fn process(args: &ArgMatches) -> Result<(), Error> {
         (svg_from, svg_to)
     };
 
+    let dpi = get_type(&args, "dpi", "DPI")?.unwrap_or(96);
+    if dpi < 10 || dpi > 4000 {
+        return Err(format!("DPI out of bounds"));
+    }
+
     let re_opt = usvg::Options {
         path: match in_svg {
             InputFrom::Stdin => None,
-            InputFrom::File(f) => Some(f.into()),
+            InputFrom::File(ref f) => Some(f.into()),
         },
-        dpi: value_t!(args.value_of("dpi"), u32).unwrap() as f64,
-        keep_named_groups: args.is_present("keep-named-groups"),
+        dpi: dpi as f64,
+        keep_named_groups: args.opt_present("keep-named-groups"),
     };
 
     let input_str = match in_svg {
         InputFrom::Stdin => load_stdin(),
-        InputFrom::File(path) => usvg::load_svg_file(Path::new(path)),
+        InputFrom::File(ref path) => {
+            usvg::load_svg_file(Path::new(path)).map_err(|e| e.to_string())
+        }
     }?;
 
     let tree = usvg::Tree::from_str(&input_str, &re_opt);
@@ -167,15 +156,30 @@ fn process(args: &ArgMatches) -> Result<(), Error> {
 
     match out_svg {
         OutputTo::Stdout => {
-            io::stdout().write_all(&output_data).map_err(|_| Error::StdOutWriteFailed)?;
+            io::stdout().write_all(&output_data)
+                .map_err(|_| format!("failed to write to the stdout"))?;
         }
         OutputTo::File(path) => {
-            let mut f = File::create(path).map_err(|_| Error::FileWriteFailed)?;
-            f.write_all(&output_data).map_err(|_| Error::FileWriteFailed)?;
+            let mut f = File::create(path)
+                .map_err(|_| format!("failed to create the output file"))?;
+            f.write_all(&output_data)
+                .map_err(|_| format!("failed to write to the output file"))?;
         }
     }
 
     Ok(())
+}
+
+fn get_type<T: FromStr>(args: &getopts::Matches, name: &str, type_name: &str)
+    -> Result<Option<T>, String>
+{
+    match args.opt_str(name) {
+        Some(v) => {
+            let t = v.parse().map_err(|_| format!("invalid {}: '{}'", type_name, v))?;
+            Ok(Some(t))
+        }
+        None => Ok(None),
+    }
 }
 
 fn log_format(
@@ -200,12 +204,13 @@ fn log_format(
     ))
 }
 
-fn load_stdin() -> Result<String, usvg::Error> {
+fn load_stdin() -> Result<String, String> {
     let mut s = String::new();
     let stdin = io::stdin();
     let mut handle = stdin.lock();
 
-    handle.read_to_string(&mut s).map_err(|_| usvg::Error::NotAnUtf8Str)?;
+    handle.read_to_string(&mut s)
+          .map_err(|_| format!("provided data has not an UTF-8 encoding"))?;
 
     Ok(s)
 }
