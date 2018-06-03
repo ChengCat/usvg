@@ -77,7 +77,7 @@ fn convert_stops(node: &svgdom::Node) -> Option<Vec<tree::Stop>> {
 
     for s in node.children() {
         if !s.is_tag_name(EId::Stop) {
-            debug!("Invalid gradient child: '{:?}'.", s.tag_id().unwrap());
+            warn!("Invalid gradient child: '{:?}'.", s.tag_id().unwrap());
             continue;
         }
 

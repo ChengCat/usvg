@@ -183,7 +183,6 @@ impl GetValue for Attributes {
                 FromValue::get(av)
             }
             None => {
-                trace!("Type mismatch.");
                 None
             }
         }
