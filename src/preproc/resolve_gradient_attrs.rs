@@ -277,18 +277,21 @@ fn resolve_patt_attr(
 // intersection of the line from ('cx', 'cy') to ('fx', 'fy') with the circle
 // defined by 'cx', 'cy' and 'r'.
 fn prepare_focal(node: &mut Node) {
-    let mut attrs = node.attributes_mut();
+    let (new_fx, new_fy) = {
+        let attrs = node.attributes();
 
-    // Unwrap is safe, because we just resolved all this attributes.
-    let cx = attrs.get_number(AId::Cx).unwrap();
-    let cy = attrs.get_number(AId::Cy).unwrap();
-    let r  = attrs.get_number(AId::R).unwrap();
-    let fx = attrs.get_number(AId::Fx).unwrap();
-    let fy = attrs.get_number(AId::Fy).unwrap();
+        // Unwrap is safe, because we just resolved all this attributes.
+        let cx = attrs.get_number(AId::Cx).unwrap();
+        let cy = attrs.get_number(AId::Cy).unwrap();
+        let r  = attrs.get_number(AId::R).unwrap();
+        let fx = attrs.get_number(AId::Fx).unwrap();
+        let fy = attrs.get_number(AId::Fy).unwrap();
 
-    let (new_fx, new_fy) = _prepare_focal(cx, cy, r, fx, fy);
-    attrs.insert_from(AId::Fx, new_fx);
-    attrs.insert_from(AId::Fy, new_fy);
+        _prepare_focal(cx, cy, r, fx, fy)
+    };
+
+    node.set_attribute((AId::Fx, new_fx));
+    node.set_attribute((AId::Fy, new_fy));
 }
 
 fn _prepare_focal(cx: f64, cy: f64, r: f64, fx: f64, fy: f64) -> (f64, f64) {
