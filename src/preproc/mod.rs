@@ -26,7 +26,6 @@ mod regroup;
 mod resolve_curr_color;
 mod resolve_font_size;
 mod resolve_font_weight;
-mod resolve_gradient_attrs;
 mod resolve_gradient_stops;
 mod resolve_inherit;
 mod resolve_pattern_children;
@@ -35,6 +34,7 @@ mod resolve_svg_size;
 mod resolve_tref;
 mod resolve_use;
 mod resolve_visibility;
+mod resolve_xlink;
 mod rm_invalid_font_size;
 mod rm_invalid_gradients;
 mod rm_invalid_ts;
@@ -51,8 +51,8 @@ use self::fix_gradient_stops::fix_gradient_stops;
 use self::fix_recursive_pattern::fix_recursive_pattern;
 use self::fix_xlinks::fix_xlinks;
 use self::group_defs::group_defs;
-use self::prepare_clip_path::prepare_clip_path;
-use self::prepare_mask::prepare_mask;
+use self::prepare_clip_path::*;
+use self::prepare_mask::resolve_mask_attributes;
 use self::prepare_nested_svg::*;
 use self::prepare_text_decoration::prepare_text_decoration;
 use self::prepare_text_nodes::prepare_text_nodes;
@@ -60,7 +60,6 @@ use self::regroup::regroup_elements;
 use self::resolve_curr_color::resolve_current_color;
 use self::resolve_font_size::resolve_font_size;
 use self::resolve_font_weight::resolve_font_weight;
-use self::resolve_gradient_attrs::*;
 use self::resolve_gradient_stops::resolve_gradient_stops;
 use self::resolve_inherit::resolve_inherit;
 use self::resolve_pattern_children::resolve_pattern_children;
@@ -69,6 +68,7 @@ use self::resolve_svg_size::resolve_svg_size;
 use self::resolve_tref::resolve_tref;
 use self::resolve_use::*;
 use self::resolve_visibility::resolve_visibility;
+use self::resolve_xlink::*;
 use self::rm_invalid_font_size::remove_invalid_font_size;
 use self::rm_invalid_gradients::remove_invalid_gradients;
 use self::rm_invalid_ts::remove_invalid_transform;
@@ -148,7 +148,7 @@ pub fn prepare_doc(doc: &mut svgdom::Document, opt: &Options) {
 
     group_defs(doc, svg);
 
-    prepare_mask(doc);
+    resolve_mask_attributes(doc);
     prepare_use(doc);
     prepare_svg(doc);
 
@@ -168,6 +168,8 @@ pub fn prepare_doc(doc: &mut svgdom::Document, opt: &Options) {
     resolve_pattern_attributes(doc);
     resolve_pattern_children(doc);
     fix_recursive_pattern(doc);
+
+    resolve_clip_path_attributes(doc);
 
     remove_unused_defs(doc, svg);
 
@@ -190,7 +192,7 @@ pub fn prepare_doc(doc: &mut svgdom::Document, opt: &Options) {
     remove_invalid_transform(doc);
     remove_invisible_elements(doc);
 
-    prepare_clip_path(doc);
+    prepare_clip_path_children(doc);
 
     ungroup_groups(doc, svg, opt);
     regroup_elements(doc, svg);

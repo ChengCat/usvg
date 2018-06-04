@@ -264,7 +264,7 @@ pub struct Fill {
 impl Default for Fill {
     fn default() -> Self {
         Fill {
-            paint: Paint::Color(Color::new(0, 0, 0)),
+            paint: Paint::Color(Color::black()),
             opacity: 1.0.into(),
             rule: FillRule::NonZero,
         }
@@ -289,7 +289,7 @@ pub struct Stroke {
 impl Default for Stroke {
     fn default() -> Self {
         Stroke {
-            paint: Paint::Color(Color::new(0, 0, 0)),
+            paint: Paint::Color(Color::black()),
             dasharray: None,
             dashoffset: 0.0,
             miterlimit: 4.0,

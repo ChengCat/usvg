@@ -69,8 +69,8 @@ fn resolve_color(node: &Node, aid: AId) -> Option<Color> {
         match aid {
               AId::Fill
             | AId::FloodColor
-            | AId::StopColor => Some(Color::new(0, 0, 0)),
-            AId::LightingColor => Some(Color::new(255, 255, 255)),
+            | AId::StopColor => Some(Color::black()),
+            AId::LightingColor => Some(Color::white()),
             _ => None,
         }
     }

@@ -9,101 +9,131 @@ use svgdom::{
 use super::prelude::*;
 
 
-// TODO: rename mod
-
-/// Resolve attributes of `linearGradient` elements.
+/// Resolves `linearGradient` attributes.
 ///
-/// According to the SVG spec, `linearGradient` attributes can be
-/// inherited via `xlink:href` attribute.
-/// So we have to search linked gradients first and if they do not have such attributes
-/// we have to fallback to the default one.
-///
-/// This method will process all `linearGradient` elements in the `Document`.
-///
-/// Resolvable attributes: `x1`, `y1`, `x2`, `y2`, `gradientUnits`,
+/// Resolve attributes: `x1`, `y1`, `x2`, `y2`, `gradientUnits`,
 /// `gradientTransform`, `spreadMethod`.
 ///
-/// Details: <https://www.w3.org/TR/SVG/pservers.html#LinearGradients>
+/// See `gen_order` for details.
 pub fn resolve_linear_gradient_attributes(doc: &Document) {
     for node in &mut gen_order(doc, EId::LinearGradient) {
-        check_attr(node, AId::GradientUnits,
-            Some(AValue::from("objectBoundingBox")));
-        check_attr(node, AId::SpreadMethod, Some(AValue::from("pad")));
-        check_attr(node, AId::X1, Some(AValue::from(0.0)));
-        check_attr(node, AId::Y1, Some(AValue::from(0.0)));
-        check_attr(node, AId::X2, Some(AValue::from(1.0)));
-        check_attr(node, AId::Y2, Some(AValue::from(0.0)));
-        check_attr(node, AId::GradientTransform, None);
+        resolve_attr(node, AId::GradientUnits,
+                     Some(AValue::from("objectBoundingBox")));
+        resolve_attr(node, AId::SpreadMethod, Some(AValue::from("pad")));
+        resolve_attr(node, AId::X1, Some(AValue::from(0.0)));
+        resolve_attr(node, AId::Y1, Some(AValue::from(0.0)));
+        resolve_attr(node, AId::X2, Some(AValue::from(1.0)));
+        resolve_attr(node, AId::Y2, Some(AValue::from(0.0)));
+        resolve_attr(node, AId::GradientTransform, None);
     }
 }
 
-/// Resolve attributes of `radialGradient` elements.
+/// Resolves `radialGradient` attributes.
 ///
-/// According to the SVG spec, `radialGradient` attributes can be
-/// inherited via `xlink:href` attribute.
-/// So we have to search linked gradients first and if they do not have such attributes
-/// we have to fallback to the default one.
-///
-/// This method will process all `radialGradient` elements in the `Document`.
-///
-/// Resolvable attributes: `cx`, `cy`, `fx`, `fy`, `r`, `gradientUnits`,
+/// Resolve attributes: `cx`, `cy`, `fx`, `fy`, `r`, `gradientUnits`,
 /// `gradientTransform`, `spreadMethod`.
 ///
-/// Details: <https://www.w3.org/TR/SVG/pservers.html#RadialGradients>
+/// See `gen_order` for details.
 pub fn resolve_radial_gradient_attributes(doc: &Document) {
-    // We trying to find 'fx', 'fy' in referenced nodes first,
-    // and if they not found - we get it from current 'cx', 'cy'.
-    // But if we resolve referenced node first, it will have own
-    // 'fx', 'fy' which we will inherit, instead of nodes own.
-    // Which will lead to rendering error.
-    // So we need to resolve nodes in referencing order.
-    // From not referenced to referenced.
-
     for node in &mut gen_order(doc, EId::RadialGradient) {
-        check_attr(node, AId::GradientUnits,
-            Some(AValue::from("objectBoundingBox")));
-        check_attr(node, AId::SpreadMethod, Some(AValue::from("pad")));
-        check_attr(node, AId::Cx, Some(AValue::from(0.5)));
-        check_attr(node, AId::Cy, Some(AValue::from(0.5)));
-        check_attr(node, AId::R,  Some(AValue::from(0.5)));
+        resolve_attr(node, AId::GradientUnits, Some(AValue::from("objectBoundingBox")));
+        resolve_attr(node, AId::SpreadMethod, Some(AValue::from("pad")));
+        resolve_attr(node, AId::Cx, Some(AValue::from(0.5)));
+        resolve_attr(node, AId::Cy, Some(AValue::from(0.5)));
+        resolve_attr(node, AId::R, Some(AValue::from(0.5)));
+        resolve_attr(node, AId::GradientTransform, None);
 
         // Replace negative `r` with zero
         // otherwise `fx` and `fy` may became NaN.
         //
         // Note: negative `r` is an error and UB, so we can resolve it
         // in whatever way we want.
-        // By replacing it with zero we will get the same behavior as on Chrome.
+        // By replacing it with zero we will get the same behavior as Chrome.
         let r = node.attributes().get_number(AId::R).unwrap();
         if r < 0.0 {
             node.set_attribute((AId::R, 0.0));
         }
 
-        let cx = node.attributes().get_value(AId::Cx).cloned();
-        let cy = node.attributes().get_value(AId::Cy).cloned();
-        check_attr(node, AId::Fx, cx);
-        check_attr(node, AId::Fy, cy);
-        prepare_focal(node);
 
-        check_attr(node, AId::GradientTransform, None);
+        // If `fx` is not found then set it to `cx`.
+        let cx = node.attributes().get_value(AId::Cx).cloned();
+        resolve_attr(node, AId::Fx, cx);
+
+        // If `fy` is not found then set it to `cy`.
+        let cy = node.attributes().get_value(AId::Cy).cloned();
+        resolve_attr(node, AId::Fy, cy);
+
+        prepare_focal(node);
     }
 }
 
-/// Resolve attributes of `pattern` elements.
+/// Resolves `pattern` attributes.
+///
+/// Resolve attributes: `x`, `y`, `width`, `height`, `preserveAspectRatio`,
+/// `viewBox`, `patternUnits`, `patternContentUnits` and `patternTransform`.
+///
+/// See `gen_order` for details.
 pub fn resolve_pattern_attributes(doc: &Document) {
     for node in &mut gen_order(doc, EId::Pattern) {
-        check_attr(node, AId::PatternUnits, Some(AValue::from("objectBoundingBox")));
-        check_attr(node, AId::PatternContentUnits, Some(AValue::from("userSpaceOnUse")));
-        check_attr(node, AId::PatternTransform, None);
-        check_attr(node, AId::X, Some(AValue::from(0.0)));
-        check_attr(node, AId::Y, Some(AValue::from(0.0)));
-        check_attr(node, AId::Width, Some(AValue::from(0.0)));
-        check_attr(node, AId::Height, Some(AValue::from(0.0)));
-        check_attr(node, AId::PreserveAspectRatio, Some(AValue::from(AspectRatio::default())));
-        check_attr(node, AId::ViewBox, None);
+        resolve_attr(node, AId::PatternUnits, Some(AValue::from("objectBoundingBox")));
+        resolve_attr(node, AId::PatternContentUnits, Some(AValue::from("userSpaceOnUse")));
+        resolve_attr(node, AId::PatternTransform, None);
+        resolve_attr(node, AId::X, Some(AValue::from(0.0)));
+        resolve_attr(node, AId::Y, Some(AValue::from(0.0)));
+        resolve_attr(node, AId::Width, Some(AValue::from(0.0)));
+        resolve_attr(node, AId::Height, Some(AValue::from(0.0)));
+        resolve_attr(node, AId::PreserveAspectRatio, Some(AValue::from(AspectRatio::default())));
+        resolve_attr(node, AId::ViewBox, None);
     }
 }
 
 /// Generates a list of elements from less used to most used.
+///
+/// If an element has an `xlink:href` attribute then it can inherit specific
+/// attributes from the linked element.
+/// But if it also has an `xlink:href` attribute than we have to follow it too.
+/// And on and on. Until the element with a required attribute.
+///
+/// Let's say we have an SVG like this:
+/// ```text
+/// <linearGradient id="lg1" x1="5" y2="20"/>
+/// <linearGradient id="lg2" xlink:href="#lg1" x2="10"/>
+/// <linearGradient id="lg3" xlink:href="#lg2" y1="15"/>
+/// ```
+///
+/// It should be resolved to:
+/// ```text
+/// <linearGradient id="lg1" x1="5" y2="20"/>
+/// <linearGradient id="lg2" x1="5" x2="10" y2="20"/>
+/// <linearGradient id="lg3" x1="5" x2="10" y1="15" y2="20"/>
+/// ```
+///
+/// But in the `radialGradient` case, the `fx` and `fy` attributes
+/// should fallback to `cx` and `cy` attributes and only after
+/// the `fx` and `fy` attributes are resolved.
+///
+/// So an SVG like this:
+/// ```text
+/// <radialGradient id="rg2" xlink:href="#rg1" cx="10"/>
+/// <radialGradient id="rg3" xlink:href="#rg2" fy="15"/>
+/// <radialGradient id="rg1" fx="5"/>
+/// ```
+///
+/// Should be resolved in order: `rg1` -> `rg2` -> `rg3`.
+/// And will produce:
+/// ```text
+/// <radialGradient id="rg2" fx="5" cx="10"/>
+/// <radialGradient id="rg3" cx="10" fx="5" fy="15"/>
+/// <radialGradient id="rg1" fx="5"/>
+/// ```
+///
+/// And not in `rg2` -> `rg3` -> `rg1` order.
+/// Because it will produce:
+/// ```text
+/// <radialGradient id="rg2" fx="10" fy="10" cx="10"/>
+/// <radialGradient id="rg3" fx="10" fy="15" cx="10"/> <!-- fx is 10, not 5 -->
+/// <radialGradient id="rg1" fx="5"/>
+/// ```
 fn gen_order(doc: &Document, eid: EId) -> Vec<Node> {
     let nodes = doc.root().descendants().filter(|n| n.is_tag_name(eid))
                    .collect::<Vec<Node>>();
@@ -129,20 +159,20 @@ fn gen_order(doc: &Document, eid: EId) -> Vec<Node> {
     order
 }
 
-fn check_attr(node: &mut Node, id: AId, def_value: Option<AValue>) {
-    if !node.has_attribute(id) {
-        let eid = node.tag_id().unwrap();
+fn resolve_attr(node: &mut Node, id: AId, def_value: Option<AValue>) {
+    if node.has_attribute(id) {
+        return;
+    }
 
-        let v = match eid {
-            EId::LinearGradient => resolve_lg_attr(node, id, def_value),
-            EId::RadialGradient => resolve_rg_attr(node, id, def_value),
-            EId::Pattern => resolve_patt_attr(node, id, def_value),
-            _ => None,
-        };
+    let v = match node.tag_id().unwrap() {
+        EId::LinearGradient => resolve_lg_attr(node, id, def_value),
+        EId::RadialGradient => resolve_rg_attr(node, id, def_value),
+        EId::Pattern => resolve_patt_attr(node, id, def_value),
+        _ => None,
+    };
 
-        if let Some(v) = v {
-            node.set_attribute((id, v));
-        }
+    if let Some(v) = v {
+        node.set_attribute((id, v));
     }
 }
 
@@ -271,11 +301,14 @@ fn resolve_patt_attr(
     }
 }
 
-// According to the SVG spec:
-// If the point defined by 'fx' and 'fy' lies outside the circle defined by
-// 'cx', 'cy' and 'r', then the user agent shall set the focal point to the
-// intersection of the line from ('cx', 'cy') to ('fx', 'fy') with the circle
-// defined by 'cx', 'cy' and 'r'.
+/// Prepares the radial gradient focal radius.
+///
+/// According to the SVG spec:
+///
+/// If the point defined by `fx` and `fy` lies outside the circle defined by
+/// `cx`, `cy` and `r`, then the user agent shall set the focal point to the
+/// intersection of the line from (`cx`, `cy`) to (`fx`, `fy`) with the circle
+/// defined by `cx`, `cy` and `r`.
 fn prepare_focal(node: &mut Node) {
     let (new_fx, new_fy) = {
         let attrs = node.attributes();
@@ -287,21 +320,17 @@ fn prepare_focal(node: &mut Node) {
         let fx = attrs.get_number(AId::Fx).unwrap();
         let fy = attrs.get_number(AId::Fy).unwrap();
 
-        _prepare_focal(cx, cy, r, fx, fy)
+        let max_r = r - r * 0.001;
+
+        let mut line = Line::new(cx, cy, fx, fy);
+
+        if line.length() > max_r {
+            line.set_length(max_r);
+        }
+
+        (line.x2, line.y2)
     };
 
     node.set_attribute((AId::Fx, new_fx));
     node.set_attribute((AId::Fy, new_fy));
-}
-
-fn _prepare_focal(cx: f64, cy: f64, r: f64, fx: f64, fy: f64) -> (f64, f64) {
-    let max_r = r - r * 0.001;
-
-    let mut line = Line::new(cx, cy, fx, fy);
-
-    if line.length() > max_r {
-        line.set_length(max_r);
-    }
-
-    (line.x2, line.y2)
 }

@@ -85,7 +85,7 @@ fn convert_stops(node: &svgdom::Node) -> Option<Vec<tree::Stop>> {
 
         // Do not use `f64_bound` here because `offset` must be already resolved.
         let offset = attrs.get_number_or(AId::Offset, 0.0).into();
-        let color = attrs.get_color(AId::StopColor).unwrap_or(svgdom::Color::new(0, 0, 0));
+        let color = attrs.get_color(AId::StopColor).unwrap_or(svgdom::Color::black());
         let opacity = f64_bound(0.0, attrs.get_number_or(AId::StopOpacity, 1.0), 1.0).into();
 
         stops.push(tree::Stop {

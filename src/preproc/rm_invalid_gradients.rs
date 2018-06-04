@@ -50,7 +50,7 @@ pub fn remove_invalid_gradients(doc: &mut Document) {
                         // We know that gradient has first child.
                         let stop = gradient.first_child().unwrap();
                         let color = stop.attributes().get_color(AId::StopColor)
-                                        .unwrap_or(Color::new(0, 0, 0));
+                                        .unwrap_or(Color::black());
                         let opacity = stop.attributes().get_number_or(AId::StopOpacity, 1.0);
 
                         prepare_link_opacity(&mut linked, *aid, opacity);
@@ -98,7 +98,7 @@ fn process_negative_r(
 
         for id in ids.iter() {
             let color = stop.attributes().get_color(AId::StopColor)
-                            .unwrap_or(Color::new(0, 0, 0));
+                            .unwrap_or(Color::black());
             let opacity = stop.attributes().get_number_or(AId::StopOpacity, 1.0);
 
             prepare_link_opacity(&mut linked, *id, opacity);

@@ -191,7 +191,6 @@ impl GetValue for Attributes {
 
 
 // TODO: remove
-
 pub trait FindAttribute {
     fn find_attribute<T: FromValue + Display + Clone>(&self, id: AId) -> Option<T>;
     fn find_attribute_with_node<T: FromValue + Display + Clone>(&self, id: AId) -> Option<(Node, T)>;

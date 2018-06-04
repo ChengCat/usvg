@@ -5,6 +5,7 @@
 use super::prelude::*;
 
 
+/// Moves all referenceable elements to the `defs` element.
 pub fn group_defs(doc: &mut Document, svg: &mut Node) {
     // Create 'defs' node if it didn't exist already.
     let mut defs = match svg.descendants().filter(|n| n.is_tag_name(EId::Defs)).nth(0) {
