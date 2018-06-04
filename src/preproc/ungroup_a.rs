@@ -9,6 +9,12 @@ use super::prelude::*;
 /// So, if an `a` element is inside a `text` - change the tag name to `tspan`.
 /// Otherwise, to `g`.
 pub fn ungroup_a(doc: &Document) {
+    // e-a-001.svg
+    // e-a-002.svg
+    // e-a-003.svg
+    // e-a-004.svg
+    // e-a-005.svg
+
     for (id, mut node) in doc.root().descendants().svg() {
         if id != EId::A {
             continue;

@@ -6,6 +6,13 @@ use super::prelude::*;
 
 
 pub fn resolve_font_weight(doc: &Document) {
+    // a-font-weight-003.svg
+    // a-font-weight-004.svg
+    // a-font-weight-005.svg
+    // a-font-weight-006.svg
+    // a-font-weight-007.svg
+    // a-font-weight-008.svg
+
     for (_, mut node) in doc.root().descendants().svg() {
         let parent = match node.parent() {
             Some(p) => p,

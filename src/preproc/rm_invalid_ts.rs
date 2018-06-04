@@ -9,6 +9,8 @@ use super::prelude::*;
 ///
 /// Also, `cairo` will crash if we pass such transform.
 pub fn remove_invalid_transform(doc: &mut Document) {
+    // a-transform-015.svg
+
     let root = doc.root();
     doc.drain(root, |n| is_invalid_transform(n));
 }

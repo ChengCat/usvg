@@ -23,6 +23,7 @@ pub fn convert_units(svg: &mut Node, opt: &Options) {
     // a-stroke-dashoffset-003.svg
     // a-stroke-dashoffset-004.svg
     // a-stroke-dashoffset-005.svg
+    // a-stroke-width-005.svg
 
     // We should convert `font-size` before all other attributes,
     // because it's value used for `em`/`ex` conversion.

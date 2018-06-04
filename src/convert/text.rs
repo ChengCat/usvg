@@ -34,6 +34,9 @@ fn convert_chunks(
     text_elem: &svgdom::Node,
     tree: &tree::Tree,
 ) -> Option<Vec<tree::TextChunk>> {
+    // a-text-anchor-007.svg
+    // a-text-anchor-008.svg
+
     let mut chunks = Vec::new();
 
     {
@@ -149,6 +152,11 @@ fn conv_tspan_decoration2(
     node: &svgdom::Node,
     tspan: &svgdom::Node
 ) -> tree::TextDecoration {
+    // a-text-decoration-005.svg
+    // a-text-decoration-006.svg
+    // a-text-decoration-007.svg
+    // a-text-decoration-008.svg
+
     let text_dec = conv_text_decoration(node);
     let tspan_dec = conv_tspan_decoration(tspan);
 
@@ -181,6 +189,7 @@ fn conv_tspan_decoration2(
 fn conv_text_anchor(attrs: &svgdom::Attributes) -> tree::TextAnchor {
     let av = attrs.get_str_or(AId::TextAnchor, "start");
 
+    // a-text-anchor-004.svg
     match av {
         "start" => tree::TextAnchor::Start,
         "middle" => tree::TextAnchor::Middle,
@@ -205,6 +214,10 @@ fn convert_font(attrs: &svgdom::Attributes) -> tree::Font {
         _ => tree::FontVariant::Normal,
     };
 
+    // a-font-weight-001.svg
+    // a-font-weight-002.svg
+    // a-font-weight-011.svg
+    // a-font-weight-012.svg
     let weight = attrs.get_str_or(AId::FontWeight, "normal");
     let weight = match weight {
         "normal" => tree::FontWeight::W400,

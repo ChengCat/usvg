@@ -37,6 +37,8 @@ pub fn prepare_clip_path_children(doc: &mut Document) {
             // We don't have a separate 'fill-rule' for clipPath, so use an existing property.
             //
             // Note that Tree::to_svgdom will convert it to 'clip-rule'.
+            //
+            // a-clip-rule-001.svg
             let clip_rule = child.attributes().get_str_or(AId::ClipRule, "nonzero").to_string();
             child.set_attribute((AId::FillRule, clip_rule));
         }

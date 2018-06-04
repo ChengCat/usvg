@@ -21,6 +21,8 @@ pub fn convert(
     let opacity     = attrs.get_number_or(AId::StrokeOpacity, 1.0).into();
     let width       = attrs.get_number_or(AId::StrokeWidth, 1.0);
 
+    // a-stroke-width-003.svg
+    // a-stroke-width-004.svg
     if !(width > 0.0) {
         return None;
     }
@@ -79,6 +81,7 @@ fn conv_dasharray(av: Option<&AValue>) -> Option<svgdom::NumberList> {
         // as if a value of none were specified.`
         //
         // a-stroke-dasharray-008.svg
+        // a-stroke-dasharray-009.svg - we ignore negative sum
         {
             // no Iter::sum(), because of f64
 

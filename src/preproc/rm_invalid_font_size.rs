@@ -5,16 +5,16 @@
 use super::prelude::*;
 
 
-// Remove any text/tspan nodes with `font-size` <= 0.
-//
-// Must be ran only after text prepossessing.
-//
-// a-font-size-009.svg
-// a-font-size-010.svg
-// a-font-size-011.svg
-// a-font-size-012.svg
-// a-font-size-013.svg
+/// Removes any text/tspan nodes with `font-size` <= 0.
+///
+/// Must be ran only after text prepossessing.
 pub fn remove_invalid_font_size(doc: &mut Document) {
+    // a-font-size-009.svg
+    // a-font-size-010.svg
+    // a-font-size-011.svg
+    // a-font-size-012.svg
+    // a-font-size-013.svg
+
     let mut rm_nodes = Vec::new();
 
     for text_node in doc.root().descendants().filter(|n| n.is_tag_name(EId::Text)) {

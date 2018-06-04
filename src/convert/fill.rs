@@ -67,6 +67,13 @@ pub fn resolve_paint(
                     // for painting only when the shape itself has a bbox.
                     //
                     // See SVG spec 7.11 for details.
+                    //
+                    // a-stroke-010.svg
+                    // a-stroke-011.svg
+                    // a-stroke-012.svg
+                    // a-stroke-013.svg
+                    // a-stroke-014.svg
+                    // a-stroke-015.svg
                     if !has_bbox && server_units == tree::Units::ObjectBoundingBox {
                         if let Some(PaintFallback::Color(c)) = fallback {
                             Some(tree::Paint::Color(c))
@@ -77,8 +84,11 @@ pub fn resolve_paint(
                         Some(tree::Paint::Link(node.id().to_string()))
                     }
                 } else if let Some(PaintFallback::Color(c)) = fallback {
+                    // a-fill-034.svg
+                    // a-fill-035.svg
                     Some(tree::Paint::Color(c))
                 } else {
+                    // a-fill-036.svg
                     None
                 }
             } else {

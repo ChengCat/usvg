@@ -18,6 +18,8 @@ use super::prelude::*;
 // without groups than collect all the options to the string.
 // It's not by the SVG spec, but easier than keeping all the groups.
 pub fn prepare_text_decoration(doc: &mut Document) {
+    // a-text-decoration-004.svg
+
     for mut node in doc.root().descendants().filter(|n| n.is_tag_name(EId::Text)) {
         let mut td = String::new();
         if has_attr(&node, "underline") {

@@ -9,6 +9,9 @@ use super::prelude::*;
 //       element, then the text is invisible but still takes up space in text layout calculations.
 
 pub fn resolve_visibility(doc: &mut Document, svg: &Node) {
+    // a-visibility-001.svg
+    // a-visibility-002.svg
+
     let mut nodes = Vec::with_capacity(16);
 
     _resolve(svg, &mut nodes);

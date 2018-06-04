@@ -9,22 +9,24 @@ use svgdom::{
 use super::prelude::*;
 
 
-/// Resolve 'inherit' attributes.
+/// Resolves the `inherit` attribute value.
 ///
 /// The function will fallback to a default value when possible.
 pub fn resolve_inherit(doc: &Document) {
     // a-fill-021.svg
+    // a-fill-029.svg
+    // a-font-stretch-002.svg
+    // a-font-style-003.svg
+    // a-font-variant-002.svg
+    // a-font-weight-010.svg
 
     let mut ids = Vec::new();
     for (_, mut node) in doc.root().descendants().svg() {
         ids.clear();
 
-        {
-            let attrs = node.attributes();
-            for (aid, attr) in attrs.iter().svg() {
-                if let AValue::Inherit = attr.value {
-                    ids.push(aid);
-                }
+        for (aid, attr) in node.attributes().iter().svg() {
+            if let AValue::Inherit = attr.value {
+                ids.push(aid);
             }
         }
 

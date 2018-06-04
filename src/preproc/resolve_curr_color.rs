@@ -10,12 +10,14 @@ use svgdom::{
 use super::prelude::*;
 
 
-/// Resolve 'currentColor' attribute.
+/// Resolves the `currentColor` attribute.
 ///
 /// The function will fallback to a default value when possible.
-//
-// a-fill-022.svg
 pub fn resolve_current_color(doc: &Document) {
+    // a-color-001.svg
+    // a-fill-022.svg
+    // a-fill-030.svg
+
     let mut ids = Vec::new();
 
     for (_, mut node) in doc.root().descendants().svg() {

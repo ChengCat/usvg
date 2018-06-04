@@ -17,6 +17,8 @@ pub fn remove_invisible_elements(doc: &mut Document) {
 }
 
 fn rm_display_none(doc: &mut Document) {
+    // a-display-001.svg
+
     // From the SVG spec:
     //
     // The `display` property does not apply to the `clipPath` element;

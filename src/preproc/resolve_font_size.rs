@@ -17,9 +17,9 @@ pub fn resolve_font_size(doc: &Document) {
 // a-font-size-006.svg
 pub fn _resolve_font_size(parent: &Node) {
     for (_, mut node) in parent.children().svg() {
-        // We have to resolve 'font-size' for all elements
+        // We have to resolve `font-size` for all elements
         // and not only for 'text content' based,
-        // because it will be used during 'em'/'ex' units conversion.
+        // because it will be used during `em`/`ex` units conversion.
         //
         // https://www.w3.org/TR/2008/REC-CSS2-20080411/fonts.html#propdef-font-size
 
@@ -32,8 +32,8 @@ pub fn _resolve_font_size(parent: &Node) {
                 let mut len = node.find_attribute(AId::FontSize)
                                   .unwrap_or(Length::new_number(DEFAULT_FONT_SIZE));
 
-                // If 'font-size' is not set and the parent one is 'em' or 'ex'
-                // then the current 'font-size' is '1em' or '2ex' respectively.
+                // If `font-size` is not set and the parent one is `em` or `ex`
+                // then the current `'`font-size`'` is `1em` or `2ex` respectively.
                 // This way do not introduce an additional scaling.
                 //
                 // Example:
@@ -45,6 +45,13 @@ pub fn _resolve_font_size(parent: &Node) {
                 // And the expected results are '12', '36' and '36'.
                 // But if we simply copy the '3em' to the 'None' place we will
                 // get '12', '36' and '108'.
+                //
+                // a-font-size-014.svg
+                // a-font-size-015.svg
+                // a-font-size-016.svg
+                // a-font-size-017.svg
+                // a-font-size-018.svg
+                // a-font-size-019.svg
                 if len.unit == Unit::Em {
                     len.num = 1.0;
                 } else if len.unit == Unit::Ex {
@@ -74,7 +81,7 @@ pub fn _resolve_font_size(parent: &Node) {
         };
 
         // We have to mark this attribute as invisible,
-        // otherwise it will break the 'use' resolving.
+        // otherwise it will break the `use` resolving.
         if !node.has_attribute(AId::FontSize) {
             node.set_attribute(("resolved-font-size", 1));
         }
@@ -87,12 +94,13 @@ pub fn _resolve_font_size(parent: &Node) {
     }
 }
 
-// If 'font-size' has percent units that it's value
-// is relative to the parent node 'font-size'.
+// If `font-size` has percent units that it's value
+// is relative to the parent node `font-size`.
 //
 // a-font-size-003.svg
 // a-font-size-004.svg
 // a-font-size-007.svg
+// a-font-size-020.svg
 fn process_percent_font_size(parent: &Node, len: Length) -> Length {
     if parent.is_root() {
         Length::new_number(DEFAULT_FONT_SIZE)

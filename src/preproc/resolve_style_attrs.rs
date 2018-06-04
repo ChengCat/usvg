@@ -34,6 +34,7 @@ fn resolve_inherit(parent: &Node) {
             resolve(&mut node, AId::StrokeLinejoin);
             resolve(&mut node, AId::StrokeMiterlimit);
             resolve(&mut node, AId::StrokeOpacity);
+            // a-stroke-width-001.svg
             resolve(&mut node, AId::StrokeWidth);
         }
 

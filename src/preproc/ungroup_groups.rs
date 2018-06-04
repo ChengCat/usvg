@@ -97,6 +97,7 @@ fn ungroup_group(g: &mut Node) {
 
 fn prepare_attribute(g_node: &Node, child_node: &mut Node, aid: AId) -> bool {
     if aid == AId::Opacity {
+        // a-stroke-opacity-005.svg
         if child_node.has_attribute(aid) {
             // We can't just replace 'opacity' attribute,
             // we should multiply it.
@@ -108,6 +109,7 @@ fn prepare_attribute(g_node: &Node, child_node: &mut Node, aid: AId) -> bool {
     }
 
     if aid == AId::Transform {
+        // a-transform-011.svg
         if child_node.has_attribute(aid) {
             // We should multiply transform matrices.
             let ts = g_node.attributes().get_transform(aid).unwrap_or_default();
