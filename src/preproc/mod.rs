@@ -79,6 +79,7 @@ use self::ungroup_switch::ungroup_switch;
 
 
 // TODO: to options
+// TODO: maybe use a system font
 // Default font is user-agent dependent so we can use whatever we like.
 pub const DEFAULT_FONT_FAMILY: &str = "Times New Roman";
 pub const DEFAULT_FONT_SIZE: f64 = 12.0;
@@ -120,7 +121,7 @@ pub fn prepare_doc(doc: &mut svgdom::Document, opt: &Options) {
         svg
     } else {
         // Technically unreachable, because svgdom will return a parser error
-        // if input SVG doesn't have an 'svg' node.
+        // if input SVG doesn't have an `svg` node.
         warn!("Invalid SVG structure. The Document will be cleared.");
         *doc = svgdom::Document::new();
         return;
@@ -147,8 +148,8 @@ pub fn prepare_doc(doc: &mut svgdom::Document, opt: &Options) {
     group_defs(doc, svg);
 
     resolve_mask_attributes(doc);
-    prepare_use(doc);
-    prepare_svg(doc);
+    resolve_use_attributes(doc);
+    resolve_svg_attributes(doc);
 
     resolve_font_size(doc);
     resolve_font_weight(doc);
@@ -173,8 +174,8 @@ pub fn prepare_doc(doc: &mut svgdom::Document, opt: &Options) {
 
     prepare_nested_svg(doc, svg);
 
-    // 'use' should be resolved before style attributes,
-    // because 'use' can propagate own style.
+    // `use` should be resolved before style attributes,
+    // because `use` can propagate own style.
     resolve_use(doc);
 
     ungroup_a(doc);

@@ -10,7 +10,8 @@ use svgdom::{
 use super::prelude::*;
 
 
-pub fn prepare_svg(doc: &Document) {
+/// Resolves default `svg` attributes.
+pub fn resolve_svg_attributes(doc: &Document) {
     for mut node in doc.root().descendants().filter(|n| n.is_tag_name(EId::Svg)) {
         node.set_attribute_if_none((AId::X, 0.0));
         node.set_attribute_if_none((AId::Y, 0.0));

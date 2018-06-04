@@ -11,17 +11,21 @@ use svgdom::{
 use super::prelude::*;
 
 
-// Convert units according to: https://www.w3.org/TR/SVG/coords.html#Units
-//
-// a-stroke-dasharray-004.svg
-// a-stroke-dasharray-005.svg
-// a-stroke-dasharray-006.svg
-// a-stroke-dashoffset-003.svg
-// a-stroke-dashoffset-004.svg
-// a-stroke-dashoffset-005.svg
+/// Converts `Length` to `Number`.
+///
+/// Also converts `LengthList` to `NumberList`.
+///
+/// Details: https://www.w3.org/TR/SVG/coords.html#Units
 pub fn convert_units(svg: &mut Node, opt: &Options) {
-    // We should convert 'font-size' before all other attributes,
-    // because it's value used for 'em'/'ex' conversion.
+    // a-stroke-dasharray-004.svg
+    // a-stroke-dasharray-005.svg
+    // a-stroke-dasharray-006.svg
+    // a-stroke-dashoffset-003.svg
+    // a-stroke-dashoffset-004.svg
+    // a-stroke-dashoffset-005.svg
+
+    // We should convert `font-size` before all other attributes,
+    // because it's value used for `em`/`ex` conversion.
     convert_font_size(svg, opt.dpi);
 
     let view_box = resolve_view_box(svg, opt.dpi);
@@ -47,36 +51,29 @@ pub fn convert_units(svg: &mut Node, opt: &Options) {
         is_bbox_gradient = false;
 
         if node.is_paint_server() {
-            // 'objectBoundingBox' is a default value
+            // `objectBoundingBox` is a default value.
             is_bbox_gradient = true;
 
-            let av = node.attributes().get_value(AId::GradientUnits).cloned();
-            if let Some(AValue::String(text)) = av {
-                if text == "userSpaceOnUse" {
-                    is_bbox_gradient = false;
-                }
+            if node.attributes().get_str(AId::GradientUnits) == Some("userSpaceOnUse") {
+                is_bbox_gradient = false;
             }
         }
 
-        let font_size = match node.find_attribute(AId::FontSize) {
-            Some(v) => v,
-            None => {
-                warn!("'font-size' must be resolved before units conversion.");
-                DEFAULT_FONT_SIZE
-            }
-        };
+        let font_size = node.find_attribute(AId::FontSize)
+                            .expect("'font-size' must be resolved before units conversion.");
 
         let mut attrs = node.attributes_mut();
 
         // Convert Length to Number.
         for (aid, ref mut attr) in attrs.iter_mut().svg() {
             if let AValue::Length(len) = attr.value {
-                let n = if is_bbox_gradient && len.unit == Unit::Percent && !len.num.is_fuzzy_zero() {
-                    // In gradients with gradientUnits="objectBoundingBox"
-                    // 100% is equal to 1.0.
+                let n = if len.num.is_fuzzy_zero() {
+                    0.0
+                } else if is_bbox_gradient && len.unit == Unit::Percent {
+                    // In paint servers with `objectBoundingBox` 100% is equal to 1.0.
                     len.num / 100.0
                 } else if aid == AId::Offset && len.unit == Unit::Percent {
-                    // 'offset' % value does not depend on viewBox.
+                    // The `offset` % value does not depend on viewBox.
                     len.num / 100.0
                 } else {
                     // In other elements % units are depend on viewBox.
@@ -146,7 +143,7 @@ fn resolve_view_box(svg: &mut Node, dpi: f64) -> Rect {
 
             let font_size = svg.attributes().get_number(AId::FontSize).unwrap();
 
-            // Must be resolved by resolve_svg_size.
+            // Must be already resolved by resolve_svg_size.
             let width = svg.attributes().get_length(AId::Width).unwrap();
             let height = svg.attributes().get_length(AId::Height).unwrap();
 

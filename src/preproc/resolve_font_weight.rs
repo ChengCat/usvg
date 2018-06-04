@@ -5,12 +5,6 @@
 use super::prelude::*;
 
 
-fn bound<T: ::std::cmp::Ord>(min: T, val: T, max: T) -> T {
-    use std::cmp;
-
-    cmp::max(min, cmp::min(max, val))
-}
-
 pub fn resolve_font_weight(doc: &Document) {
     for (_, mut node) in doc.root().descendants().svg() {
         let parent = match node.parent() {
@@ -45,6 +39,12 @@ pub fn resolve_font_weight(doc: &Document) {
             }
         }
     }
+}
+
+fn bound<T: ::std::cmp::Ord>(min: T, val: T, max: T) -> T {
+    use std::cmp;
+
+    cmp::max(min, cmp::min(max, val))
 }
 
 fn find_font_weight(node: &Node, default: i32) -> i32 {

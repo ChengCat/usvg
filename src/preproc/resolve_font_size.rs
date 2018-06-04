@@ -69,7 +69,7 @@ pub fn _resolve_font_size(parent: &Node) {
             }
             _ => {
                 warn!("Invalid 'font-size' value: {}.", font_size);
-                Length::new(DEFAULT_FONT_SIZE, Unit::None)
+                Length::new_number(DEFAULT_FONT_SIZE)
             }
         };
 
@@ -95,13 +95,13 @@ pub fn _resolve_font_size(parent: &Node) {
 // a-font-size-007.svg
 fn process_percent_font_size(parent: &Node, len: Length) -> Length {
     if parent.is_root() {
-        Length::new(DEFAULT_FONT_SIZE, Unit::None)
+        Length::new_number(DEFAULT_FONT_SIZE)
     } else {
         let parent_len = parent.find_attribute(AId::FontSize)
                                .unwrap_or(Length::new_number(DEFAULT_FONT_SIZE));
 
         let n = len.num * parent_len.num * 0.01;
-        Length::new(n, Unit::None)
+        Length::new_number(n)
     }
 }
 
@@ -130,5 +130,5 @@ fn process_named_font_size(parent: &Node, name: &str, font_size: &AValue) -> Len
     // 'On a computer screen a scaling factor of 1.2
     // is suggested between adjacent indexes'
     let n = parent_len.num * 1.2f64.powi(factor);
-    Length::new(n, Unit::None)
+    Length::new_number(n)
 }

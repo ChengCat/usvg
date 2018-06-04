@@ -9,7 +9,7 @@ use svgdom::{
 use super::prelude::*;
 
 
-/// Resolves default `clipPath` attributes.
+/// Resolves default `mask` attributes.
 pub fn resolve_mask_attributes(doc: &mut Document) {
     for mut node in doc.root().descendants().filter(|n| n.is_tag_name(EId::Mask)) {
         let units = node.attributes().get_str(AId::MaskUnits)
