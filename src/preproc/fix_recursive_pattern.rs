@@ -5,6 +5,8 @@
 use super::prelude::*;
 
 
+// TODO: mask?
+
 pub fn fix_recursive_pattern(doc: &Document) {
     // If a pattern child has a link to the pattern itself
     // then we have to replace it with `none`.
