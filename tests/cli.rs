@@ -16,6 +16,8 @@ fn file_to_file() {
 
     let args = &[
         APP_PATH,
+        "--indent=2",
+        "--attrs-indent=3",
         "tests/images/test1-in.svg",
         file_out,
     ];
@@ -33,6 +35,8 @@ fn file_to_stdout() {
     let args = &[
         APP_PATH,
         "-c",
+        "--indent=2",
+        "--attrs-indent=3",
         "tests/images/test1-in.svg",
     ];
 
@@ -50,6 +54,8 @@ fn stdin_to_file() {
 
     let args = &[
         APP_PATH,
+        "--indent=2",
+        "--attrs-indent=3",
         file_out,
         "-",
     ];
@@ -68,6 +74,8 @@ fn stdin_to_stdout() {
     let args = &[
         APP_PATH,
         "-c",
+        "--indent=2",
+        "--attrs-indent=3",
         "-",
     ];
 
