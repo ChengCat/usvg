@@ -121,6 +121,15 @@ fn convert_rect(node: &svgdom::Node) -> Option<svgdom::Path> {
 }
 
 fn convert_line(node: &svgdom::Node) -> Option<svgdom::Path> {
+    // e-line-001.svg
+    // e-line-002.svg
+    // e-line-003.svg
+    // e-line-004.svg
+    // e-line-005.svg
+    // e-line-006.svg
+    // e-line-007.svg
+    // e-line-008.svg
+
     let attrs = node.attributes();
 
     let x1 = attrs.get_number_or(AId::X1, 0.0);
@@ -178,6 +187,13 @@ fn points_to_path(node: &svgdom::Node, eid: &str) -> Option<svgdom::Path> {
 }
 
 fn convert_circle(node: &svgdom::Node) -> Option<svgdom::Path> {
+    // e-circle-001.svg
+    // e-circle-002.svg
+    // e-circle-003.svg
+    // e-circle-004.svg
+    // e-circle-005.svg
+    // e-circle-006.svg
+
     let attrs = node.attributes();
 
     let cx = attrs.get_number_or(AId::Cx, 0.0);
@@ -193,6 +209,17 @@ fn convert_circle(node: &svgdom::Node) -> Option<svgdom::Path> {
 }
 
 fn convert_ellipse(node: &svgdom::Node) -> Option<svgdom::Path> {
+    // e-ellipse-001.svg
+    // e-ellipse-002.svg
+    // e-ellipse-003.svg
+    // e-ellipse-004.svg
+    // e-ellipse-005.svg
+    // e-ellipse-006.svg
+    // e-ellipse-007.svg
+    // e-ellipse-008.svg
+    // e-ellipse-009.svg
+    // e-ellipse-010.svg
+
     let attrs = node.attributes();
 
     let cx = attrs.get_number_or(AId::Cx, 0.0);

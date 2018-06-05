@@ -39,6 +39,7 @@ fn resolve_inherit(parent: &Node) {
         }
 
         if node.is_graphic() && node.parent().unwrap().is_tag_name(EId::ClipPath) {
+            // e-clipPath-018.svg
             resolve(&mut node, AId::ClipRule);
         }
 

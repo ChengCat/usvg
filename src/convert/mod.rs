@@ -121,6 +121,8 @@ fn convert_ref_nodes(
     opt: &Options,
     tree: &mut tree::Tree,
 ) {
+    // e-defs-001.svg
+
     let defs_elem = try_opt!(svg_doc.defs_element(), ());
 
     let mut later_nodes = Vec::new();
@@ -157,6 +159,8 @@ fn convert_ref_nodes(
                 // Already resolved. Skip it.
             }
             _ => {
+                // TODO: shapes should be ignored
+                // e-defs-005.svg
                 warn!("Unsupported element '{}'.", id);
             }
         }
@@ -166,6 +170,12 @@ fn convert_ref_nodes(
         if node.is_tag_name(EId::ClipPath) {
             clippath::convert_children(&node, &new_node, tree);
 
+            // e-clipPath-022.svg
+            // e-clipPath-016.svg
+            // e-clipPath-023.svg
+            // e-clipPath-026.svg
+            // e-clipPath-024.svg
+            // e-clipPath-025.svg
             if !new_node.has_children() {
                 warn!("ClipPath '{}' has no children. Skipped.", node.id());
                 new_node.detach();
@@ -216,6 +226,9 @@ pub(super) fn convert_nodes(
                 let attrs = node.attributes();
 
                 // After preprocessing, `clip-path` can be set only on groups.
+                //
+                // e-clipPath-027.svg
+                // e-clipPath-028.svg
                 let clip_path = match resolve_iri(&node, EId::ClipPath, AId::ClipPath, tree) {
                     IriResolveResult::Id(id) => Some(id),
                     IriResolveResult::Skip => continue,

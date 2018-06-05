@@ -6,6 +6,8 @@ use super::prelude::*;
 
 
 pub fn ungroup_groups(doc: &mut Document, svg: &Node, opt: &Options) {
+    // e-g-001.svg
+
     let mut groups = Vec::with_capacity(16);
 
     loop {

@@ -23,6 +23,10 @@ pub fn resolve_clip_path_attributes(doc: &mut Document) {
 /// So to create it we have to draw all the `clipPath` children
 /// with a black fill and without a stroke.
 pub fn prepare_clip_path_children(doc: &mut Document) {
+    // e-clipPath-002.svg
+    // e-clipPath-003.svg
+    // e-clipPath-004.svg
+
     for mut node in doc.root().descendants().filter(|n| n.is_tag_name(EId::ClipPath)) {
         for (_, mut child) in node.descendants().svg() {
             // Set fill to black.

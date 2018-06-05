@@ -7,6 +7,10 @@ use super::prelude::*;
 
 /// Moves all referenceable elements to the `defs` element.
 pub fn group_defs(doc: &mut Document, svg: &mut Node) {
+    // e-defs-002.svg
+    // e-defs-003.svg
+    // e-defs-004.svg
+
     // Create 'defs' node if it didn't exist already.
     let mut defs = match svg.descendants().filter(|n| n.is_tag_name(EId::Defs)).nth(0) {
         Some(n) => n,
@@ -77,6 +81,9 @@ pub fn group_defs(doc: &mut Document, svg: &mut Node) {
 // Graphical elements inside referenced elements inherits parent attributes,
 // so if we want to move this elements to the 'defs' - we should resolve attributes too.
 fn resolve_attrs(node: &Node) {
+    // e-defs-006.svg
+    // e-defs-007.svg
+
     match node.tag_id().unwrap() {
           EId::ClipPath
         | EId::Marker
