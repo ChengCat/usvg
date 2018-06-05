@@ -39,6 +39,8 @@ fn main() {
     opts.optflag("c", "", "");
     opts.optflag("", "keep-named-groups", "");
     opts.optopt("", "dpi", "", "");
+    opts.optopt("", "indent", "", "");
+    opts.optopt("", "attrs-indent", "", "");
 
     let args = match opts.parse(&args[1..]) {
         Ok(v) => v,
@@ -82,11 +84,15 @@ USAGE:
 
 OPTIONS:
     -h, --help                  Prints help information
-        --keep-named-groups     Keeps groups with non-empty ID
-    -c                          Prints the output SVG to the stdout
     -V, --version               Prints version information
+    -c                          Prints the output SVG to the stdout
+        --keep-named-groups     Keeps groups with non-empty ID
         --dpi=<DPI>             Sets the resolution
                                 [default: 96] [possible values: 10..4000]
+        --indent=<INDENT>       Sets the XML nodes indent
+                                [values: none, 0, 1, 2, 3, 4, tabs] [default: 4]
+        --attrs-indent=<INDENT> Sets the XML attributes indent
+                                [values: none, 0, 1, 2, 3, 4, tabs] [default: none]
 
 ARGS:
     <in-svg>                    Input file
@@ -143,8 +149,8 @@ fn process(args: &Matches) -> Result<(), String> {
     let tree = usvg::Tree::from_str(&input_str, &re_opt);
 
     let dom_opt = svgdom::WriteOptions {
-        indent: svgdom::Indent::Spaces(2),
-        attributes_indent: svgdom::Indent::Spaces(3),
+        indent: get_indent(args, "indent", svgdom::Indent::Spaces(4))?,
+        attributes_indent: get_indent(args, "attrs-indent", svgdom::Indent::None)?,
         attributes_order: svgdom::AttributesOrder::Specification,
         .. svgdom::WriteOptions::default()
     };
@@ -179,6 +185,26 @@ fn get_type<T: FromStr>(args: &getopts::Matches, name: &str, type_name: &str)
             Ok(Some(t))
         }
         None => Ok(None),
+    }
+}
+
+fn get_indent(args: &getopts::Matches, name: &str, def: svgdom::Indent)
+    -> Result<svgdom::Indent, String>
+{
+    match args.opt_str(name) {
+        Some(v) => {
+            match v.as_str() {
+                "none" => Ok(svgdom::Indent::None),
+                "0" => Ok(svgdom::Indent::Spaces(0)),
+                "1" => Ok(svgdom::Indent::Spaces(1)),
+                "2" => Ok(svgdom::Indent::Spaces(2)),
+                "3" => Ok(svgdom::Indent::Spaces(3)),
+                "4" => Ok(svgdom::Indent::Spaces(4)),
+                "tabs" => Ok(svgdom::Indent::Tabs),
+                _ => Err(format!("invalid indent value")),
+            }
+        }
+        None => Ok(def),
     }
 }
 

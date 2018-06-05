@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 - Implement `Deref` for `LinearGradient` and `RadialGradient`.
+- (cli) `--indent` and `--attrs-indent` flags.
 
 ### Changed
 - Gradient stops are stored directly in the `BaseGradient` and not as `NodeKind::Stop` now.
