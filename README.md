@@ -28,35 +28,37 @@ and an XML library with some small amount of code.
 
 - No basic shapes (rect, circle, etc). Only paths
 - Simple paths:
-  - Only MoveTo, LineTo, CurveTo and ClosePath will be produced
+  - Only *MoveTo*, *LineTo*, *CurveTo* and *ClosePath* will be produced
   - All path segments are in absolute coordinates
   - No implicit segment commands
-  - All values are separated by space
+  - All values are separated by a space
 - All (supported) attributes are resolved. No implicit one
-- No `use`. Everything is resolved
-- No invisible elements
-- No invalid elements (like `rect` with negative/zero size)
-- No units (mm, em, etc.)
-- No comments
-- No DTD
-- No CSS (partial support)
+- `use` will be resolved
+- Invisible elements will be removed
+- Invalid elements (like `rect` with negative/zero size) will be removed
+- Units (mm, em, etc.) will be resolved
+- Comments will be removed
+- DTD will be resolved
+- CSS will be resolved
+- `style` attribute will be resolved
+- `inherit` attribute value will be resolved
+- `currentColor` attribute value will be resolved
+- Paint fallback will be resolved
 - No `script` (simply ignoring it)
 
 Full spec can be found [here](docs/usvg_spec.adoc).
 
 ## Limitations
 
-- Currently, it's not lossless. Some SVG features isn't supported yet and will be ignored.
+- Currently, its not lossless. Some SVG features isn't supported yet and will be ignored.
 - CSS support is minimal.
-- Scripting and animation isn't supported and not planned.
-- `a` elements will be removed.
+- Only [static](http://www.w3.org/TR/SVG11/feature#SVG-static) SVG features,
+  e.g. no: `a`, `view`, `cursor`, `script` and [animations](https://www.w3.org/TR/SVG/animate.html).
 - Unsupported elements:
   - filter-based elements
   - font-based elements
   - `marker`
-  - `symbol`
-  - `view`
-  - `foreignObject`
+  - `textPath`
 
 ## Usage
 
