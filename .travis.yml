@@ -2,6 +2,16 @@ language: rust
 rust:
   - 1.22.0
   - stable
+before_install:
+  # python 3.6
+  - sudo add-apt-repository ppa:deadsnakes/ppa -y
+  - sudo apt-get update -qq
+install:
+  # for regression.py
+  - sudo apt-get install python3.6
 script:
   - cargo build --all
   - cargo test
+  - git clone https://github.com/RazrFalcon/resvg-test-suite.git ./target/test-suite --depth 1
+  - cd ./testing_tools
+  - ./regression.py --ci-mode ../target/test-suite/svg ../target/test-suite-temp

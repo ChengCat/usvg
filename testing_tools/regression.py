@@ -57,9 +57,10 @@ def remove_artifacts():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('--ci-mode', action='store_true', help='Enables the CI mode')
+    parser.add_argument('--dpi', type=int, default=96, help='Sets the DPI')
     parser.add_argument('svg_dir', type=Path, help='Sets an input directory with SVG files')
     parser.add_argument('work_dir', type=Path, help='Sets the working directory')
-    parser.add_argument('--dpi', type=int, default=96, help='Sets the DPI')
     args = parser.parse_args()
 
     md5 = hashlib.md5()
@@ -86,8 +87,12 @@ if __name__ == '__main__':
     last_idx = 0  # will be set only on error
     for idx, file in enumerate(files):
         svg_path = args.svg_dir / file
-        svg_copy_path = args.work_dir / file
-        svg_path_usvg = args.work_dir / change_ext(file, '_usvg', 'svg')
+
+        # The output file must have the same name as an original.
+        # Otherwise tests like e-image-034.svg will break.
+        svg_path_usvg = args.work_dir / file
+
+        svg_copy_path = args.work_dir / change_ext(file, '_orig', 'svg')
         png_path_orig = args.work_dir / change_ext(file, '_orig', 'png')
         png_path_usvg = args.work_dir / change_ext(file, '_usvg', 'png')
         diff_path = args.work_dir / change_ext(file, '_diff', 'png')
@@ -119,15 +124,27 @@ if __name__ == '__main__':
         # that there is no need to render and compare raster images
         # because it's very expensive.
         if md5hash == cache.get(svg_path.stem, ''):
+            rm_file(svg_path_usvg)
             continue
+        elif args.ci_mode:
+            # md5 check can't fail in the CI mode.
+            print('Error: md5 hash mismatch: {} != {}.'
+                  .format(md5hash, cache.get(svg_path.stem, '')))
+
+            # Print the simplified file content.
+            with open(svg_path_usvg) as f:
+                print(f.read())
+
+            last_idx = idx
+            break
 
         render_svg(svg_path, png_path_orig)
         render_svg(svg_path_usvg, png_path_usvg)
 
         try:
-            diff_val = run(['compare', '-metric', 'AE', '-fuzz', '1%',
-                            png_path_orig, png_path_usvg, diff_path],
-                           check=True, stdout=proc.PIPE, stderr=proc.STDOUT).stdout
+            run(['compare', '-metric', 'AE', '-fuzz', '1%',
+                 png_path_orig, png_path_usvg, diff_path],
+                check=True, stdout=proc.PIPE, stderr=proc.STDOUT)
         except proc.CalledProcessError as e:
             ae = int(e.stdout.decode('ascii'))
             if ae > 20 and ae != allowed_ae.get(svg_path.stem, 0):
