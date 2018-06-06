@@ -187,6 +187,8 @@ fn conv_elements(
 
                 // conv_text_decoration(&text.decoration, &mut text_elem);
 
+                let mut is_preserve_required = false;
+
                 for chunk in &text.chunks {
                     let mut chunk_tspan_elem = new_doc.create_element(EId::Tspan);
                     text_elem.append(chunk_tspan_elem.clone());
@@ -231,8 +233,16 @@ fn conv_elements(
                         conv_stroke(tree, &tspan.stroke, defs, &mut tspan_elem);
                         conv_font(&tspan.font, &mut tspan_elem);
 
+                        if tspan.text.contains("  ") {
+                            is_preserve_required = true;
+                        }
+
                         // TODO: text-decoration
                     }
+                }
+
+                if is_preserve_required {
+                    text_elem.set_attribute((("xml", AId::Space), "preserve"));
                 }
             }
             NodeKind::Image(ref img) => {

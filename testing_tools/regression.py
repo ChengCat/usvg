@@ -63,8 +63,6 @@ if __name__ == '__main__':
     parser.add_argument('work_dir', type=Path, help='Sets the working directory')
     args = parser.parse_args()
 
-    md5 = hashlib.md5()
-
     if not args.work_dir.exists():
         os.mkdir(args.work_dir)
 
@@ -116,6 +114,7 @@ if __name__ == '__main__':
             break
 
         with open(svg_path_usvg, 'rb') as f:
+            md5 = hashlib.md5()
             md5.update(f.read())
             md5hash = md5.hexdigest()
             md5hash = md5hash[:8]  # 8 values is enough for us

@@ -114,7 +114,6 @@ e-svg-030,68
 e-switch-002,25604,unsupported #15
 e-symbol-006,58
 e-text-016,1551,chrome uses different coefficients
-e-text-022,919,unsupported #3
 e-text-032,552,unsupported #4
 e-text-033,361,unsupported #4
 e-tref-001,2005,chrome bug
@@ -122,10 +121,5 @@ e-tref-002,1189,chrome bug
 e-tref-005,2005,chrome bug
 e-tref-006,25,bug
 e-tref-007,2005,chrome bug
-e-tref-008,899,chrome bug
-e-tspan-007,977,unsupported #3
-e-tspan-008,977,unsupported #3
-e-tspan-009,1217,unsupported #3
-e-tspan-010,1864,unsupported #3
-e-tspan-011,544,unsupported #3
+e-tref-008,720,bug
 e-tspan-015,3283,bug

@@ -147,7 +147,7 @@ So all `text` elements will have a three-level structure:
 ** `tspan` - text chunk
 *** `tspan` - text container
 
-The `text` itself can have only `id`, `transform` and `rotate` attributes.
+The `text` itself can have only `id`, `transform`, `rotate` and `xml:space` attributes.
 
 _Text chunk_ can have `x`, `y`, `dx`, `dy` and `text-anchor` attributes.
 
