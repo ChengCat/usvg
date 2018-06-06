@@ -1,19 +1,22 @@
 #!/usr/bin/env python3.6
 
 import argparse
+import csv
+import fnmatch
+import hashlib
 import os
 import subprocess as proc
-import csv
-from subprocess import run
-import fnmatch
 from pathlib import Path
 from shutil import copyfile
+from subprocess import run
 
 
 # List of files that should be skipped.
 CRASH_ALLOWED = [
     'e-svg-007.svg'
 ]
+
+CACHE_FILENAME = 'cache.csv'
 
 
 def change_ext(path, suffix, new_ext):
@@ -59,18 +62,28 @@ if __name__ == '__main__':
     parser.add_argument('--dpi', type=int, default=96, help='Sets the DPI')
     args = parser.parse_args()
 
+    md5 = hashlib.md5()
+
     if not args.work_dir.exists():
         os.mkdir(args.work_dir)
+
+    files = os.listdir(args.svg_dir)
+    files = fnmatch.filter(files, '*.svg')
+    files = sorted(files)
 
     allowed_ae = {}
     with open('allow.csv') as f:
         for row in csv.reader(f):
             allowed_ae[row[0]] = int(row[1])
 
+    cache = {}
+    if os.path.exists(CACHE_FILENAME):
+        with open(CACHE_FILENAME) as f:
+            for row in csv.reader(f):
+                cache[row[0]] = row[1]
+
     start_idx = load_last_pos()
-    files = os.listdir(args.svg_dir)
-    files = fnmatch.filter(files, '*.svg')
-    files = sorted(files)
+    last_idx = 0  # will be set only on error
     for idx, file in enumerate(files):
         svg_path = args.svg_dir / file
         svg_copy_path = args.work_dir / file
@@ -94,8 +107,19 @@ if __name__ == '__main__':
                 check=True)
         except proc.CalledProcessError as e:
             print('Error: usvg crashed.')
-            save_last_pos(idx)
-            exit(1)
+            last_idx = idx
+            break
+
+        with open(svg_path_usvg, 'rb') as f:
+            md5.update(f.read())
+            md5hash = md5.hexdigest()
+            md5hash = md5hash[:8]  # 8 values is enough for us
+
+        # If the md5 hash of the simplified SVG was not changed
+        # that there is no need to render and compare raster images
+        # because it's very expensive.
+        if md5hash == cache.get(svg_path.stem, ''):
+            continue
 
         render_svg(svg_path, png_path_orig)
         render_svg(svg_path_usvg, png_path_usvg)
@@ -106,15 +130,27 @@ if __name__ == '__main__':
                            check=True, stdout=proc.PIPE, stderr=proc.STDOUT).stdout
         except proc.CalledProcessError as e:
             ae = int(e.stdout.decode('ascii'))
-            if ae > 20 and ae != allowed_ae.get(file, 0):
+            if ae > 20 and ae != allowed_ae.get(svg_path.stem, 0):
                 print('Error: images are different by {} pixels.'.format(ae))
 
                 # copy original svg on error
                 copyfile(svg_path, svg_copy_path)
 
-                save_last_pos(idx)
-                exit(1)
+                last_idx = idx
+                break
+
+        # Update md5 hash on OK.
+        cache[svg_path.stem] = md5hash
 
         remove_artifacts()
 
-    save_last_pos(0)
+    save_last_pos(last_idx)
+
+    # Update cache file.
+    with open(CACHE_FILENAME, 'w') as f:
+        writer = csv.writer(f)
+        for key, value in cache.items():
+            writer.writerow([key, value])
+
+    if last_idx != 0:
+        exit(1)

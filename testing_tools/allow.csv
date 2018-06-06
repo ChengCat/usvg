@@ -1,130 +1,131 @@
-a-fill-025.svg,25604,chrome bug
-a-fill-034.svg,25604,chrome bug
-a-font-size-005.svg,824,chrome uses different coefficients
-a-font-size-007.svg,1538,UA dependent
-a-font-size-008.svg,656,UA dependent
-a-font-size-013.svg,189,UB #10
-a-font-size-016.svg,1510,UA dependent
-a-font-size-017.svg,1088,UA dependent
-a-font-size-019.svg,649,bug
-a-font-weight-003.svg,484,chrome bug
-a-font-weight-012.svg,714,chrome bug
-a-opacity-001.svg,580
-a-stroke-dasharray-012.svg,244
-a-stroke-width-004.svg,960,chrome bug
-a-text-anchor-006.svg,792,chrome or freetype bug
-a-text-anchor-008.svg,846,bug #11
-a-text-decoration-001.svg,363,unimplemented #4
-a-text-decoration-002.svg,450,unimplemented #4
-a-text-decoration-003.svg,361,unimplemented #4
-a-text-decoration-004.svg,1166,unimplemented #4
-a-text-decoration-005.svg,364,unimplemented #4
-a-text-decoration-006.svg,364,unimplemented #4
-a-text-decoration-007.svg,363,unimplemented #4
-a-text-decoration-008.svg,242,unimplemented #4
-a-text-decoration-009.svg,295,unimplemented #4
-e-circle-001.svg,519
-e-circle-003.svg,262
-e-circle-004.svg,266
-e-circle-005.svg,134
-e-clipPath-005.svg,122
-e-clipPath-006.svg,215
-e-clipPath-007.svg,31
-e-clipPath-008.svg,230
-e-clipPath-015.svg,57
-e-clipPath-017.svg,397
-e-clipPath-019.svg,1550,unimplemented #12
-e-clipPath-020.svg,1551,unimplemented #12
-e-clipPath-021.svg,97
-e-ellipse-001.svg,464
-e-ellipse-005.svg,223
-e-ellipse-006.svg,246
-e-ellipse-007.svg,123
-e-image-025.svg,19951,bug #13
-e-image-026.svg,22690,bug #13
-e-image-027.svg,22690,bug #13
-e-image-028.svg,22690,bug #13
-e-image-029.svg,24795,bug #13
-e-image-030.svg,18864,bug #13
-e-image-031.svg,18864,bug #13
-e-mask-015.svg,38
-e-mask-017.svg,22344,bug #14
-e-mask-020.svg,12804,bug
-e-path-010.svg,403
-e-path-011.svg,130
-e-path-032.svg,142
-e-path-033.svg,153
-e-path-034.svg,135
-e-path-035.svg,135
-e-path-036.svg,138
-e-path-037.svg,135
-e-path-038.svg,131
-e-path-039.svg,135
-e-pattern-001.svg,170
-e-pattern-002.svg,173
-e-pattern-003.svg,170
-e-pattern-004.svg,170
-e-pattern-005.svg,3687
-e-pattern-006.svg,168
-e-pattern-009.svg,172
-e-pattern-011.svg,173
-e-pattern-012.svg,175
-e-pattern-013.svg,175
-e-pattern-014.svg,335
-e-pattern-015.svg,335
-e-pattern-016.svg,335
-e-pattern-017.svg,175
-e-pattern-018.svg,1262
-e-pattern-020.svg,684
-e-pattern-021.svg,2956,UA dependent
-e-pattern-022.svg,174
-e-pattern-023.svg,174
-e-pattern-024.svg,174
-e-pattern-026.svg,19086,bug
-e-radialGradient-031.svg,38237,fixes chrome bug
-e-rect-004.svg,96
-e-rect-005.svg,106
-e-rect-006.svg,106
-e-rect-013.svg,106
-e-rect-014.svg,106
-e-rect-018.svg,521
-e-rect-019.svg,521
-e-rect-020.svg,390
-e-rect-021.svg,289
-e-rect-022.svg,291
-e-rect-023.svg,3322,chrome uses different coefficients
-e-rect-024.svg,138
-e-stop-012.svg,10714,bug
-e-stop-013.svg,10714,bug
-e-style-004.svg,39208,CSS support
-e-style-006.svg,39208,CSS support
-e-svg-002.svg,25604,svgdom bug
-e-svg-003.svg,1284,svgdom bug
-e-svg-008.svg,592
-e-svg-022.svg,538
-e-svg-023.svg,538
-e-svg-024.svg,68
-e-svg-025.svg,42
-e-svg-026.svg,61
-e-svg-027.svg,28
-e-svg-028.svg,375
-e-svg-029.svg,375
-e-svg-030.svg,68
-e-switch-002.svg,25604,unsupported #15
-e-symbol-006.svg,58
-e-text-016.svg,1551,chrome uses different coefficients
-e-text-022.svg,919,unsupported #3
-e-text-032.svg,552,unsupported #4
-e-text-033.svg,361,unsupported #4
-e-tref-001.svg,2005,chrome bug
-e-tref-002.svg,1189,chrome bug
-e-tref-005.svg,2005,chrome bug
-e-tref-006.svg,25,bug
-e-tref-007.svg,2005,chrome bug
-e-tref-008.svg,899,chrome bug
-e-tspan-007.svg,977,unsupported #3
-e-tspan-008.svg,977,unsupported #3
-e-tspan-009.svg,1217,unsupported #3
-e-tspan-010.svg,1864,unsupported #3
-e-tspan-011.svg,544,unsupported #3
-e-tspan-015.svg,3283,bug
+a-fill-025,25604,chrome bug
+a-fill-034,25604,chrome bug
+a-font-size-005,824,chrome uses different coefficients
+a-font-size-007,1538,UA dependent
+a-font-size-008,656,UA dependent
+a-font-size-013,189,UB #10
+a-font-size-016,1510,UA dependent
+a-font-size-017,1088,UA dependent
+a-font-size-019,649,bug
+a-font-weight-003,484,chrome bug
+a-font-weight-012,714,chrome bug
+a-opacity-001,580
+a-stroke-dasharray-012,244
+a-stroke-width-004,960,chrome bug
+a-text-anchor-006,792,chrome or freetype bug
+a-text-anchor-008,846,bug #11
+a-text-decoration-001,363,unimplemented #4
+a-text-decoration-002,450,unimplemented #4
+a-text-decoration-003,361,unimplemented #4
+a-text-decoration-004,1166,unimplemented #4
+a-text-decoration-005,364,unimplemented #4
+a-text-decoration-006,364,unimplemented #4
+a-text-decoration-007,363,unimplemented #4
+a-text-decoration-008,242,unimplemented #4
+a-text-decoration-009,295,unimplemented #4
+e-circle-001,519
+e-circle-003,262
+e-circle-004,266
+e-circle-005,134
+e-clipPath-005,122
+e-clipPath-006,215
+e-clipPath-007,31
+e-clipPath-008,230
+e-clipPath-015,57
+e-clipPath-017,397
+e-clipPath-019,1550,unimplemented #12
+e-clipPath-020,1551,unimplemented #12
+e-clipPath-021,97
+e-ellipse-001,464
+e-ellipse-005,223
+e-ellipse-006,246
+e-ellipse-007,123
+e-image-006,15169,chrome quirks
+e-image-025,19951,bug #13
+e-image-026,22690,bug #13
+e-image-027,22690,bug #13
+e-image-028,22690,bug #13
+e-image-029,24795,bug #13
+e-image-030,18864,bug #13
+e-image-031,18864,bug #13
+e-mask-015,38
+e-mask-017,22344,bug #14
+e-mask-020,12804,bug
+e-path-010,403
+e-path-011,130
+e-path-032,142
+e-path-033,153
+e-path-034,135
+e-path-035,135
+e-path-036,138
+e-path-037,135
+e-path-038,131
+e-path-039,135
+e-pattern-001,170
+e-pattern-002,173
+e-pattern-003,170
+e-pattern-004,170
+e-pattern-005,3687
+e-pattern-006,168
+e-pattern-009,172
+e-pattern-011,173
+e-pattern-012,175
+e-pattern-013,175
+e-pattern-014,335
+e-pattern-015,335
+e-pattern-016,335
+e-pattern-017,175
+e-pattern-018,1262
+e-pattern-020,684
+e-pattern-021,2956,UA dependent
+e-pattern-022,174
+e-pattern-023,174
+e-pattern-024,174
+e-pattern-026,19086,bug
+e-radialGradient-031,38237,fixes chrome bug
+e-rect-004,96
+e-rect-005,106
+e-rect-006,106
+e-rect-013,106
+e-rect-014,106
+e-rect-018,521
+e-rect-019,521
+e-rect-020,390
+e-rect-021,289
+e-rect-022,291
+e-rect-023,3322,chrome uses different coefficients
+e-rect-024,138
+e-stop-012,10714,bug
+e-stop-013,10714,bug
+e-style-004,39208,CSS support
+e-style-006,39208,CSS support
+e-svg-002,25604,svgdom bug
+e-svg-003,1284,svgdom bug
+e-svg-008,592
+e-svg-022,538
+e-svg-023,538
+e-svg-024,68
+e-svg-025,42
+e-svg-026,61
+e-svg-027,28
+e-svg-028,375
+e-svg-029,375
+e-svg-030,68
+e-switch-002,25604,unsupported #15
+e-symbol-006,58
+e-text-016,1551,chrome uses different coefficients
+e-text-022,919,unsupported #3
+e-text-032,552,unsupported #4
+e-text-033,361,unsupported #4
+e-tref-001,2005,chrome bug
+e-tref-002,1189,chrome bug
+e-tref-005,2005,chrome bug
+e-tref-006,25,bug
+e-tref-007,2005,chrome bug
+e-tref-008,899,chrome bug
+e-tspan-007,977,unsupported #3
+e-tspan-008,977,unsupported #3
+e-tspan-009,1217,unsupported #3
+e-tspan-010,1864,unsupported #3
+e-tspan-011,544,unsupported #3
+e-tspan-015,3283,bug
