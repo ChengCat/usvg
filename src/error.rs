@@ -1,5 +1,11 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 use std::error;
 use std::fmt;
+
+use svgdom;
 
 /// List of all errors.
 #[derive(Debug)]
@@ -15,6 +21,9 @@ pub enum Error {
 
     /// Compressed SVG must use the GZip algorithm.
     MalformedGZip,
+
+    /// Failed to parse an SVG data.
+    ParsingFailed(svgdom::ParserError),
 }
 
 impl fmt::Display for Error {
@@ -31,6 +40,9 @@ impl fmt::Display for Error {
             }
             Error::MalformedGZip => {
                 write!(f, "provided data has a malformed GZip content")
+            }
+            Error::ParsingFailed(ref e) => {
+                write!(f, "SVG data parsing failed cause {}", e)
             }
         }
     }

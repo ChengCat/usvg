@@ -146,7 +146,8 @@ fn process(args: &Matches) -> Result<(), String> {
         }
     }?;
 
-    let tree = usvg::Tree::from_str(&input_str, &re_opt);
+    let tree = usvg::Tree::from_str(&input_str, &re_opt)
+                    .map_err(|e| format!("{}", e))?;
 
     let dom_opt = svgdom::WriteOptions {
         indent: get_indent(args, "indent", svgdom::Indent::Spaces(4))?,

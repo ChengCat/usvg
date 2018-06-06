@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Implement `Deref` for `LinearGradient` and `RadialGradient`.
 - (cli) `--indent` and `--attrs-indent` flags.
+- `Error::ParsingFailed`.
 
 ### Changed
 - Gradient stops are stored directly in the `BaseGradient` and not as `NodeKind::Stop` now.
@@ -15,6 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Rename `LinearGradient::d` to `LinearGradient::base`.
 - Rename `RadialGradient::d` to `RadialGradient::base`.
 - Rename `TSpan` to `TextSpan`.
+- `Tree::from_str` will return a `Result` now.
 
 ### Removed
 - `failure` dependency.

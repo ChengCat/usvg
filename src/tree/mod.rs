@@ -42,28 +42,26 @@ pub struct Tree {
 }
 
 impl Tree {
-    /// Parsers `Tree` from the SVG data.
+    /// Parses `Tree` from the SVG data.
     ///
     /// Can contain SVG string or gzip compressed data.
     pub fn from_data(data: &[u8], opt: &Options) -> Result<Self, Error> {
         if data.starts_with(&[0x1f, 0x8b]) {
             let text = io::deflate(data, data.len())?;
-            Ok(Self::from_str(&text, opt))
+            Self::from_str(&text, opt)
         } else {
             let text = ::std::str::from_utf8(data).map_err(|_| Error::NotAnUtf8Str)?;
-            Ok(Self::from_str(text, opt))
+            Self::from_str(text, opt)
         }
     }
 
-    /// Parsers `Tree` from the SVG string.
-    ///
-    /// An empty `Tree` will be returned on any error.
-    pub fn from_str(text: &str, opt: &Options) -> Self {
-        let doc = io::parse_dom(text);
-        Self::from_dom(doc, opt)
+    /// Parses `Tree` from the SVG string.
+    pub fn from_str(text: &str, opt: &Options) -> Result<Self, Error> {
+        let doc = io::parse_dom(text)?;
+        Ok(Self::from_dom(doc, opt))
     }
 
-    /// Parsers `Tree` from the `svgdom::Document`.
+    /// Parses `Tree` from the `svgdom::Document`.
     ///
     /// An empty `Tree` will be returned on any error.
     pub fn from_dom(mut doc: svgdom::Document, opt: &Options) -> Self {
@@ -71,13 +69,13 @@ impl Tree {
         super::convert::convert_doc(&doc, opt)
     }
 
-    /// Parsers `Tree` from the file.
+    /// Parses `Tree` from the file.
     pub fn from_file<P: AsRef<path::Path>>(
         path: P,
         opt: &Options,
     ) -> Result<Self, Error> {
         let text = io::load_svg_file(path.as_ref())?;
-        Ok(Self::from_str(&text, opt))
+        Self::from_str(&text, opt)
     }
 
     /// Creates a new `Tree`.
