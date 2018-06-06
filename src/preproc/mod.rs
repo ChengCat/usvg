@@ -23,8 +23,9 @@ mod prepare_nested_svg;
 mod prepare_text_decoration;
 mod prepare_text_nodes;
 mod regroup;
-mod resolve_curr_color;
+mod resolve_attrs_via_xlink;
 mod resolve_children_via_xlink;
+mod resolve_curr_color;
 mod resolve_font_size;
 mod resolve_font_weight;
 mod resolve_inherit;
@@ -33,7 +34,7 @@ mod resolve_svg_size;
 mod resolve_tref;
 mod resolve_use;
 mod resolve_visibility;
-mod resolve_attrs_via_xlink;
+mod rm_desc_elems;
 mod rm_invalid_font_size;
 mod rm_invalid_gradients;
 mod rm_invalid_ts;
@@ -67,6 +68,7 @@ use self::resolve_tref::resolve_tref;
 use self::resolve_use::*;
 use self::resolve_visibility::resolve_visibility;
 use self::resolve_attrs_via_xlink::*;
+use self::rm_desc_elems::remove_desc_elements;
 use self::rm_invalid_font_size::remove_invalid_font_size;
 use self::rm_invalid_gradients::remove_invalid_gradients;
 use self::rm_invalid_ts::remove_invalid_transform;
@@ -141,6 +143,7 @@ pub fn prepare_doc(doc: &mut svgdom::Document, opt: &Options) {
     // TODO: remove duplicated defs
 
     remove_non_svg_data(doc);
+    remove_desc_elements(doc);
 
     resolve_inherit(doc);
     resolve_current_color(doc);

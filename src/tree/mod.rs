@@ -44,7 +44,7 @@ pub struct Tree {
 impl Tree {
     /// Parses `Tree` from the SVG data.
     ///
-    /// Can contain SVG string or gzip compressed data.
+    /// Can contain an SVG string or a gzip compressed data.
     pub fn from_data(data: &[u8], opt: &Options) -> Result<Self, Error> {
         if data.starts_with(&[0x1f, 0x8b]) {
             let text = io::deflate(data, data.len())?;
