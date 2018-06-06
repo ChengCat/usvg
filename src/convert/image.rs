@@ -92,7 +92,7 @@ fn get_href_data(
 
         if path.exists() {
             if let Some(format) = get_image_format(&path) {
-                return Some((tree::ImageData::Path(path.to_owned()), format));
+                return Some((tree::ImageData::Path(path::PathBuf::from(href)), format));
             } else {
                 warn!("'{}' is not a PNG, JPEG or SVG(Z) image.", href);
             }

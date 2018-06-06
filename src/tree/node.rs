@@ -214,6 +214,8 @@ pub enum ImageData {
     ///
     /// Preprocessor checks that file exists, but because it can be removed later,
     /// there is no guarantee that this path is valid.
+    ///
+    /// The path may be relative.
     Path(PathBuf),
     /// An image raw data.
     ///
