@@ -10,7 +10,7 @@ workspace = ".."
 
 [dependencies]
 fern = "0.5"
-getopts = "0.2"
+gumdrop = "0.4"
 log = "0.4"
 usvg = { path = "../" }
 

@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Implement `Deref` for `LinearGradient` and `RadialGradient`.
 - (cli) `--indent` and `--attrs-indent` flags.
+- (cli) Use `gumdrop` instead of `getopts`.
 - `Error::ParsingFailed`.
 
 ### Changed

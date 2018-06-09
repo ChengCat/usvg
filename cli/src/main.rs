@@ -1,7 +1,7 @@
 extern crate usvg;
 extern crate fern;
 extern crate log;
-extern crate getopts;
+#[macro_use] extern crate gumdrop;
 
 use std::fmt;
 use std::fs::File;
@@ -10,7 +10,7 @@ use std::path::Path;
 use std::process;
 use std::str::FromStr;
 
-use getopts::Matches;
+use gumdrop::Options;
 
 use usvg::svgdom;
 
@@ -30,32 +30,97 @@ enum OutputTo<'a> {
 }
 
 
+#[derive(Clone, Copy, Debug)]
+struct Dpi(u32);
+
+impl Default for Dpi {
+    fn default() -> Self {
+        Dpi(96)
+    }
+}
+
+impl FromStr for Dpi {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let n: u32 = s.parse().map_err(|_| "invalid number")?;
+
+        if n >= 10 && n <= 4000 {
+            Ok(Dpi(n))
+        } else {
+            Err("DPI out of bounds")
+        }
+    }
+}
+
+
+#[derive(Clone, Copy, Debug)]
+struct Indent(svgdom::Indent);
+
+impl FromStr for Indent {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let indent = match s {
+            "none" => svgdom::Indent::None,
+            "0" => svgdom::Indent::Spaces(0),
+            "1" => svgdom::Indent::Spaces(1),
+            "2" => svgdom::Indent::Spaces(2),
+            "3" => svgdom::Indent::Spaces(3),
+            "4" => svgdom::Indent::Spaces(4),
+            "tabs" => svgdom::Indent::Tabs,
+            _ => return Err("invalid INDENT value"),
+        };
+
+        Ok(Indent(indent))
+    }
+}
+
+
+#[derive(Debug, Default, Options)]
+struct Args {
+    #[options(help = "Prints help information")]
+    help: bool,
+
+    #[options(short = "V", help = "Prints version information")]
+    version: bool,
+
+    #[options(short = "c", no_long, help = "Prints the output SVG to the stdout")]
+    stdout: bool,
+
+    #[options(help = "Keeps groups with non-empty ID")]
+    keep_named_groups: bool,
+
+    #[options(no_short, help = "Sets the resolution", meta = "DPI")]
+    dpi: Dpi,
+
+    #[options(no_short, help = "Sets the XML nodes indent", meta = "INDENT")]
+    indent: Option<Indent>,
+
+    #[options(no_short, help = "Sets the XML attributes indent", meta = "INDENT")]
+    attrs_indent: Option<Indent>,
+
+    #[options(free)]
+    free: Vec<String>,
+}
+
+
 fn main() {
     let args: Vec<String> = ::std::env::args().collect();
-
-    let mut opts = getopts::Options::new();
-    opts.optflag("h", "help", "");
-    opts.optflag("V", "version", "");
-    opts.optflag("c", "", "");
-    opts.optflag("", "keep-named-groups", "");
-    opts.optopt("", "dpi", "", "");
-    opts.optopt("", "indent", "", "");
-    opts.optopt("", "attrs-indent", "", "");
-
-    let args = match opts.parse(&args[1..]) {
+    let args = match Args::parse_args_default(&args[1..]) {
         Ok(v) => v,
         Err(e) => {
-            eprintln!("{}.", e);
-            process::exit(0);
+            eprintln!("Error: {}.", e);
+            process::exit(1);
         }
     };
 
-    if args.opt_present("help") {
+    if args.help {
         print_help();
         process::exit(0);
     }
 
-    if args.opt_present("version") {
+    if args.version {
         println!("{}", env!("CARGO_PKG_VERSION"));
         process::exit(0);
     }
@@ -72,7 +137,7 @@ fn main() {
     }
 }
 
-pub fn print_help() {
+fn print_help() {
     print!("\
 usvg (micro SVG) is an SVG simplification tool.
 
@@ -87,11 +152,11 @@ OPTIONS:
     -V, --version               Prints version information
     -c                          Prints the output SVG to the stdout
         --keep-named-groups     Keeps groups with non-empty ID
-        --dpi=<DPI>             Sets the resolution
+        --dpi DPI               Sets the resolution
                                 [default: 96] [possible values: 10..4000]
-        --indent=<INDENT>       Sets the XML nodes indent
+        --indent INDENT         Sets the XML nodes indent
                                 [values: none, 0, 1, 2, 3, 4, tabs] [default: 4]
-        --attrs-indent=<INDENT> Sets the XML attributes indent
+        --attrs-indent INDENT   Sets the XML attributes indent
                                 [values: none, 0, 1, 2, 3, 4, tabs] [default: none]
 
 ARGS:
@@ -100,13 +165,17 @@ ARGS:
 ");
 }
 
-fn process(args: &Matches) -> Result<(), String> {
+fn process(args: &Args) -> Result<(), String> {
+    if args.free.is_empty() {
+        return Err(format!("no positional arguments are provided"));
+    }
+
     let (in_svg, out_svg) = {
         let in_svg = &args.free[0];
         let out_svg = args.free.get(1);
         let out_svg = out_svg.map(String::as_ref);
 
-        let svg_from = if in_svg == "-" && args.opt_present("c") {
+        let svg_from = if in_svg == "-" && args.stdout {
             InputFrom::Stdin
         } else if let Some("-") = out_svg {
             InputFrom::Stdin
@@ -114,7 +183,7 @@ fn process(args: &Matches) -> Result<(), String> {
             InputFrom::File(in_svg)
         };
 
-        let svg_to = if args.opt_present("c") {
+        let svg_to = if args.stdout {
             OutputTo::Stdout
         } else if let Some("-") = out_svg {
             OutputTo::File(in_svg)
@@ -125,18 +194,13 @@ fn process(args: &Matches) -> Result<(), String> {
         (svg_from, svg_to)
     };
 
-    let dpi = get_type(&args, "dpi", "DPI")?.unwrap_or(96);
-    if dpi < 10 || dpi > 4000 {
-        return Err(format!("DPI out of bounds"));
-    }
-
     let re_opt = usvg::Options {
         path: match in_svg {
             InputFrom::Stdin => None,
             InputFrom::File(ref f) => Some(f.into()),
         },
-        dpi: dpi as f64,
-        keep_named_groups: args.opt_present("keep-named-groups"),
+        dpi: args.dpi.0 as f64,
+        keep_named_groups: args.keep_named_groups,
     };
 
     let input_str = match in_svg {
@@ -150,8 +214,8 @@ fn process(args: &Matches) -> Result<(), String> {
                     .map_err(|e| format!("{}", e))?;
 
     let dom_opt = svgdom::WriteOptions {
-        indent: get_indent(args, "indent", svgdom::Indent::Spaces(4))?,
-        attributes_indent: get_indent(args, "attrs-indent", svgdom::Indent::None)?,
+        indent: args.indent.map(|v| v.0).unwrap_or(svgdom::Indent::Spaces(4)),
+        attributes_indent: args.attrs_indent.map(|v| v.0).unwrap_or(svgdom::Indent::None),
         attributes_order: svgdom::AttributesOrder::Specification,
         .. svgdom::WriteOptions::default()
     };
@@ -175,38 +239,6 @@ fn process(args: &Matches) -> Result<(), String> {
     }
 
     Ok(())
-}
-
-fn get_type<T: FromStr>(args: &getopts::Matches, name: &str, type_name: &str)
-    -> Result<Option<T>, String>
-{
-    match args.opt_str(name) {
-        Some(v) => {
-            let t = v.parse().map_err(|_| format!("invalid {}: '{}'", type_name, v))?;
-            Ok(Some(t))
-        }
-        None => Ok(None),
-    }
-}
-
-fn get_indent(args: &getopts::Matches, name: &str, def: svgdom::Indent)
-    -> Result<svgdom::Indent, String>
-{
-    match args.opt_str(name) {
-        Some(v) => {
-            match v.as_str() {
-                "none" => Ok(svgdom::Indent::None),
-                "0" => Ok(svgdom::Indent::Spaces(0)),
-                "1" => Ok(svgdom::Indent::Spaces(1)),
-                "2" => Ok(svgdom::Indent::Spaces(2)),
-                "3" => Ok(svgdom::Indent::Spaces(3)),
-                "4" => Ok(svgdom::Indent::Spaces(4)),
-                "tabs" => Ok(svgdom::Indent::Tabs),
-                _ => Err(format!("invalid indent value")),
-            }
-        }
-        None => Ok(def),
-    }
 }
 
 fn log_format(

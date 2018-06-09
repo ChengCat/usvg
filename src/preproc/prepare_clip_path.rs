@@ -10,7 +10,7 @@ use super::prelude::*;
 
 
 /// Resolves default `clipPath` attributes.
-pub fn resolve_clip_path_attributes(doc: &mut Document) {
+pub fn resolve_clip_path_attributes(doc: &Document) {
     for mut node in doc.root().descendants().filter(|n| n.is_tag_name(EId::ClipPath)) {
         let units = node.attributes().get_str_or(AId::ClipPathUnits, "userSpaceOnUse").to_string();
         node.set_attribute((AId::ClipPathUnits, units));
@@ -22,7 +22,7 @@ pub fn resolve_clip_path_attributes(doc: &mut Document) {
 /// The `clipPath` is implemented using a 1bit-like mask.
 /// So to create it we have to draw all the `clipPath` children
 /// with a black fill and without a stroke.
-pub fn prepare_clip_path_children(doc: &mut Document) {
+pub fn prepare_clip_path_children(doc: &Document) {
     // e-clipPath-002.svg
     // e-clipPath-003.svg
     // e-clipPath-004.svg
