@@ -33,12 +33,6 @@ enum OutputTo<'a> {
 #[derive(Clone, Copy, Debug)]
 struct Dpi(u32);
 
-impl Default for Dpi {
-    fn default() -> Self {
-        Dpi(96)
-    }
-}
-
 impl FromStr for Dpi {
     type Err = &'static str;
 
@@ -77,7 +71,7 @@ impl FromStr for Indent {
 }
 
 
-#[derive(Debug, Default, Options)]
+#[derive(Debug, Options)]
 struct Args {
     #[options(help = "Prints help information")]
     help: bool,
@@ -95,13 +89,28 @@ struct Args {
     dpi: Dpi,
 
     #[options(no_short, help = "Sets the XML nodes indent", meta = "INDENT")]
-    indent: Option<Indent>,
+    indent: Indent,
 
     #[options(no_short, help = "Sets the XML attributes indent", meta = "INDENT")]
-    attrs_indent: Option<Indent>,
+    attrs_indent: Indent,
 
     #[options(free)]
     free: Vec<String>,
+}
+
+impl Default for Args {
+    fn default() -> Self {
+        Args {
+            help: false,
+            version: false,
+            stdout: false,
+            keep_named_groups: false,
+            dpi: Dpi(96),
+            indent: Indent(svgdom::Indent::Spaces(4)),
+            attrs_indent: Indent(svgdom::Indent::None),
+            free: Vec::new(),
+        }
+    }
 }
 
 
@@ -214,8 +223,8 @@ fn process(args: &Args) -> Result<(), String> {
                     .map_err(|e| format!("{}", e))?;
 
     let dom_opt = svgdom::WriteOptions {
-        indent: args.indent.map(|v| v.0).unwrap_or(svgdom::Indent::Spaces(4)),
-        attributes_indent: args.attrs_indent.map(|v| v.0).unwrap_or(svgdom::Indent::None),
+        indent: args.indent.0,
+        attributes_indent: args.attrs_indent.0,
         attributes_order: svgdom::AttributesOrder::Specification,
         .. svgdom::WriteOptions::default()
     };
